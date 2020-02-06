@@ -4,3 +4,72 @@ output: html_notebook
 ---
 
 Documentation for rfishbase: (https://cran.r-project.org/web/packages/rfishbase/vignettes/tutorial.html)
+
+# Load libraries
+
+Load the libraries we need.
+
+```{r}
+library(rfishbase)
+library(tidyverse)
+```
+
+# Test a few species
+
+NB: Don't call the list of species `species` because that's the function we need to call in rfishbase to get information.
+```{r}
+fish <- c("Anoplogaster cornuta",
+             "Platichthys stellatus")
+```
+
+```{r}
+validate_names(fish)
+```
+
+```{r}
+fishdata <- species(fish)
+```
+
+```{r}
+str(fishdata)
+```
+
+```{r}
+dat <- species(fish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag"))
+```
+
+```{r}
+dat
+```
+
+# Load species from CSV file
+```{r}
+filename <- "Merged Data/VertMeasurements_Shape-Habitat.csv"
+```
+
+```{r}
+vertmeas <- read.csv(filename, colClasses = c("Species"="character"))
+```
+
+```{r}
+str(vertmeas)
+```
+
+```{r}
+fish <- vertmeas %>% distinct(Species)
+```
+
+```{r}
+fish$Species
+```
+
+Challenge for Dana: Figure out how to remove the underscores...
+
+```{r}
+validate_names(fish$Species)
+```
+
+```{r}
+fishbasedata <- species(fish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag"))
+```
+

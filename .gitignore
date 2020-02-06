@@ -36,3 +36,5 @@ vignettes/*.pdf
 rsconnect/
 *.html
 vert_evol.Rproj
+*.ini
+Merged Data/*
