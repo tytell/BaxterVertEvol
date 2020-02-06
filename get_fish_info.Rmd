@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "get_fish_info"
 output: html_notebook
 ---
 
@@ -64,6 +64,7 @@ fish$Species
 ```
 
 Challenge for Dana: Figure out how to remove the underscores...
+Turn underscores into spaces so that fishbase can read the species names
 
 ```{r}
 validate_names(fish$Species)
