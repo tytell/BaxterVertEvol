@@ -44,7 +44,7 @@ dat
 
 # Load species from CSV file
 ```{r}
-filename <- "Merged Data/VertMeasurements_Shape-Habitat.csv"
+filename <- "../Merged Data/VertMeasurements_Shape-Habitat.csv"
 ```
 
 ```{r}
@@ -58,6 +58,18 @@ str(vertmeas)
 ```
 
 ```{r}
+#Idea for removing underscores, looked at https://swcarpentry.github.io/r-novice-inflammation/11-supp-read-write-csv/index.html
+
+vertmeas <- mutate(vertmeas,
+                   Species = sub("_", " ", Species)) #ifelse(as.character(Species)=='Alectis_ciliaris', 'Dana', as.character(Species)))
+# vertmeas$Species <- as.factor(vertmeas$Species)
+```
+
+```{r}
+vertmeas$Species
+```
+
+```{r}
 fish <- vertmeas %>% distinct(Species)
 ```
 
@@ -65,22 +77,7 @@ fish <- vertmeas %>% distinct(Species)
 fish$Species
 ```
 
-Challenge for Dana: Figure out how to remove the underscores...
-Turn underscores into spaces so that fishbase can read the species names
-
-The csv is not loading in like it did on the grad PC so I can't run any of the ideas I have for changing the underscores to spaces but I just put them in code blocks to test once we figure out what the problem is with the csv (I tried for an hour and nothing I did to try to run the csv worked)
-
-```{r}
-#Idea for removing underscores, looked at https://swcarpentry.github.io/r-novice-inflammation/11-supp-read-write-csv/index.html
-
-vertmeas <- read.csv(filename,colClasses=c("Species"="character"))
-vertmeas$Species <- ifelse(as.character(vertmeas$Species)=='_', ' ', as.character (vertmeas$Species))
-vertmeas$Species <- as.factor(vertmeas$Species)
-```
-
-```{r}
-vertmeas$Species
-```
+New challenge: Find the missing species and correct them
 
 ```{r}
 validate_names(fish$Species)
