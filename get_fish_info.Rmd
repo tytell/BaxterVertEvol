@@ -68,7 +68,7 @@ fish$Species
 Challenge for Dana: Figure out how to remove the underscores...
 Turn underscores into spaces so that fishbase can read the species names
 
-The csv is not loading in like it did on the grad PC so I can't run any of the ideas I have for changing the underscores to spaces but I just put them in code blocks to test once we figure out what the problem is with the csv (I tried for an hour and it didn't work)
+The csv is not loading in like it did on the grad PC so I can't run any of the ideas I have for changing the underscores to spaces but I just put them in code blocks to test once we figure out what the problem is with the csv (I tried for an hour and nothing I did to try to run the csv worked)
 
 ```{r}
 #Idea for removing underscores, looked at https://swcarpentry.github.io/r-novice-inflammation/11-supp-read-write-csv/index.html
