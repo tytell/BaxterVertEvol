@@ -78,6 +78,7 @@ fish$Species
 ```
 
 New challenge: Find the missing species and correct them
+Missing: Roeboides affinis (on Fishbase), Stenobrachius leucopsaurus (on Fishbase), Onchorhyncus gorbuscha (misspelled), Ammodytes personatus (on Fishbase), Anoplarchus pupurescens (misspelled)
 
 ```{r}
 validate_names(fish$Species)
