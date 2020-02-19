@@ -104,7 +104,7 @@ help(rfishbase)
 ```
 
 ```{r}
-missingfish <- c("Roeboides affinis","Stenobrachius leucopsaurus","Ammodytes personatus","Onchorhyncus gorbuscha")
+missingfish <- c("Roeboides affinis","Stenobrachius leucopsaurus","Ammodytes personatus")
 ```
 
 ```{r}
@@ -120,7 +120,7 @@ str(missingfishdata)
 ```
 
 ```{r}
-missingdat <- species(fish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag"))
+missingdat <- species(missingfish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag"))
 ```
 
 ```{r}
