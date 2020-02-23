@@ -100,6 +100,18 @@ str(fishbasedata)
 ```
 
 ```{r}
+getwd()
+```
+
+
+```{r}
+write.csv(fishbasedata,"fishbasedata.csv")
+
+#couldn't get it to name the rows each species name so might have to go through and put that manually but I now have that csv
+#called fishbasedata.csv
+```
+
+```{r}
 help(rfishbase)
 ```
 
