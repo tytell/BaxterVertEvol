@@ -100,6 +100,20 @@ str(fishbasedata)
 ```
 
 ```{r}
+fishbasedatamergeddepth <- fishbasedata %>%
+  mutate(newdepthrangeshallow = replace(DepthRangeComShallow,
+                           is.na(DepthRangeComShallow),DepthRangeShallow),
+         newdepthrangedeep = replace(DepthRangeComDeep,
+                          is.na(DepthRangeComDeep),DepthRangeDeep))
+fishbasedatamergeddepth
+```
+
+```{r}
+str(fishbasedatamergeddepth)
+```
+
+
+```{r}
 getwd()
 ```
 
