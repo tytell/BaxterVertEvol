@@ -154,3 +154,17 @@ missingdat <- species(missingfish, fields=c("BodyShapeI", "DepthRangeShallow", "
 missingdat
 ```
 
+```{r}
+fishbasedata2 <- cbind(fish, fishbasedatamergeddepth)
+```
+
+```{r}
+left_join(
+  vertmeas %>% select(Species, Indiv, SL, Pos, CBL, d) %>%
+  pivot_wider(names_from = Pos, values_from = c("CBL", "d")),
+  
+  fishbasedata2,
+  
+  by = "Species")
+```
+
