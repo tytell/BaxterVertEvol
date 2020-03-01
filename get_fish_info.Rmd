@@ -109,6 +109,11 @@ fishbasedatamergeddepth
 ```
 
 ```{r}
+write.csv(fishbasedatamergeddepth, "fishbasedata_mergeddepth.csv")
+```
+
+
+```{r}
 str(fishbasedatamergeddepth)
 ```
 
@@ -160,11 +165,74 @@ fishbasedata2 <- cbind(fish, fishbasedatamergeddepth)
 
 ```{r}
 left_join(
-  vertmeas %>% select(Species, Indiv, SL, Pos, CBL, d) %>%
-  pivot_wider(names_from = Pos, values_from = c("CBL", "d")),
+  vertmeas %>% select(Species, Indiv, SL, Pos, CBL, d, alpha_Pos, D_Pos, alpha_Ant, D_Ant) %>%
+  pivot_wider(names_from = Pos, values_from = c("CBL", "d", "alpha_Pos", "D_Pos", "alpha_Ant", "D_Ant")),
   
   fishbasedata2,
   
   by = "Species")
 ```
+
+```{r}
+CBL_mean <- vertmeas %>%
+  group_by(Species) %>% 
+  summarize(mean(CBL))
+d_mean <- vertmeas %>%
+  group_by(Species) %>% 
+  summarize(mean(d))
+alpha_Pos_mean <- vertmeas %>%
+  group_by(Species) %>% 
+  summarize(mean(alpha_Pos))
+D_Pos_mean <- vertmeas %>%
+  group_by(Species) %>% 
+  summarize(mean(D_Pos))
+alpha_Ant_mean <- vertmeas %>%
+  group_by(Species) %>% 
+  summarize(mean(alpha_Ant))
+D_Ant_mean <- vertmeas %>%
+  group_by(Species) %>% 
+  summarize(mean(D_Ant))
+
+fishbaseprelim <- c(CBL_mean, d_mean, alpha_Pos_mean, D_Pos_mean, alpha_Ant_mean, D_Ant_mean)
+
+fishbaseprelim
+```
+
+```{r}
+write.csv(fishbaseprelim, "vertmeasmeans.csv")
+```
+
+```{r}
+fishbasedataprelim <- read.csv("fishbasedata_measuredspecies.csv")
+```
+
+
+```{r}
+fishbaseprelim <- read.csv("vertmeasmeans.csv")
+
+fishbaseprelim
+```
+
+```{r}
+fishbasedatamergeddepth <- read.csv("fishbasedata_mergeddepth.csv")
+```
+
+
+```{r}
+left_join(fishbaseprelim,fishbasedatamergeddepth, by = "Species")
+```
+
+
+```{r}
+vertmeas_mean <- 
+  mutate(vertmeas, CBL_mean = vertmeas %>% group_by(Species) %>% summarize(mean(CBL)), d_mean = vertmeas %>% group_by(Species) %>% summarize(mean(d)), alpha_Pos_mean = vertmeas %>% group_by(Species) %>% summarize(mean(alpha_Pos)), D_Pos_mean = vertmeas %>% group_by(Species) %>% summarize(mean(D_Pos)), alpha_Ant_mean = vertmeas %>% group_by(Species) %>% summarize(mean(alpha_Ant)), D_Ant_mean = vertmeas %>% group_by(Species) %>% summarize(mean(D_Ant)))
+
+vertmeas_mean
+```
+
+
+
+
+
+
 

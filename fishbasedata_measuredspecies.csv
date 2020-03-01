@@ -1,0 +1,75 @@
+﻿Species,BodyShapeI,DepthRangeShallow,DepthRangeDeep,DepthRangeComShallow,DepthRangeComDeep,Length,CommonLength,Weight,DemersPelag
+Alectis ciliaris,short and / or deep,60,100,NA,NA,150,100,22900,reef-associated
+Amia calva,elongated,NA,NA,NA,NA,109,53.35,9750,demersal
+Anoplogaster cornuta,short and / or deep,2,4992,500,2000,18,NA,NA,bathypelagic
+Aphareus furca,fusiform / normal,1,122,NA,NA,70,25,906,reef-associated
+Catostomus catostomus,fusiform / normal,NA,180,NA,NA,64,22.5,3300,demersal
+Cephalopholis argus,fusiform / normal,1,40,1,15,60,40,NA,reef-associated
+Chaetostoma lineopunctatum,NA,NA,NA,NA,NA,14.3,NA,NA,demersal
+Centropomus undecimalis,fusiform / normal,NA,22,NA,NA,140,50,24320,reef-associated
+Osteoglossum bicirrhosum,elongated,NA,NA,NA,NA,90,NA,6000,benthopelagic
+Chanos chanos,elongated,1,30,NA,15,180,100,14000,benthopelagic
+Cyprinus carpio,fusiform / normal,NA,NA,NA,NA,120,31,40090,benthopelagic
+Roeboides affinis,elongated,NA,NA,NA,NA,11,NA,NA,benthopelagic
+Lepidogalaxias salamandroides,elongated,NA,NA,NA,NA,7.4,4,NA,demersal
+Stenobrachius leucopsaurus,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Percopsis omiscomaycus,elongated,10,61,NA,NA,20,8.75,NA,demersal
+Microgadus proximus,fusiform / normal,0,275,25,120,30.5,NA,NA,demersal
+Polymixia lowei,elongated,50,600,150,600,20,15,NA,bathydemersal
+Myripristis jacobus,fusiform / normal,0,210,2,35,25,20,NA,reef-associated
+Opsanus pardus,elongated,NA,NA,NA,NA,38,NA,NA,reef-associated
+Nealotus tripes,elongated,914,1646,NA,NA,25,15,NA,bathypelagic
+Nectamia fusca,short and / or deep,1,20,NA,NA,11.2,NA,NA,reef-associated
+Fundulus heteroclitus,fusiform / normal,NA,NA,NA,NA,15,8.9,NA,benthopelagic
+Menidia beryllina,elongated,0,30,NA,NA,15,7.75,NA,pelagic-neritic
+Hypsypops rubicundus,short and / or deep,0,30,NA,NA,30,NA,NA,reef-associated
+Salarias fasciatus,elongated,0,8,NA,NA,14,NA,NA,reef-associated
+Labroides dimidiatus,elongated,1,40,1,30,14,NA,NA,reef-associated
+Hemitaurichthys polylepis,short and / or deep,3,60,NA,NA,18,NA,NA,reef-associated
+Lagodon rhomboides,fusiform / normal,NA,NA,NA,NA,40,18,1510,demersal
+Halieutichthys aculeatus,short and / or deep,5,820,5,150,10,NA,NA,reef-associated
+Stephanolepis hispidus,short and / or deep,0,293,NA,NA,27.5,NA,NA,reef-associated
+Malacocottus zonurus,fusiform / normal,27,1980,NA,NA,35,NA,1240,bathydemersal
+Mirorictus taningi,fusiform / normal,NA,1750,NA,NA,13.7,NA,NA,bathydemersal
+Ctenochaetus strigosus,short and / or deep,1,113,NA,NA,15,NA,NA,reef-associated
+Ophidion scrippsae,elongated,0,110,3,7,28,NA,NA,demersal
+Malacosteus niger,elongated,500,3886,NA,NA,25.6,NA,NA,bathypelagic
+Serrasalmus rhombeus,short and / or deep,NA,NA,NA,NA,41.5,NA,3000,benthopelagic
+Oncorhynchus gorbuscha,fusiform / normal,0,250,NA,NA,76,50.5,6800,demersal
+Coryphaenoides filifer,elongated,1285,2904,NA,NA,55,NA,NA,bathydemersal
+Pimelodella cristata,elongated,NA,NA,NA,NA,34,NA,NA,demersal
+Polypterus senegalus,elongated,NA,NA,NA,NA,70,NA,207,demersal
+Anodontostoma chacunda,fusiform / normal,0,50,NA,NA,22,14,NA,pelagic-neritic
+Apteronotus cuchillejo,elongated,NA,NA,NA,NA,18.9,NA,NA,benthopelagic
+Hypomesus pretiosus,elongated,NA,NA,NA,NA,30.5,15,NA,benthopelagic
+Nannaethiops unitaeniatus,fusiform / normal,NA,NA,NA,NA,6.2,NA,NA,pelagic
+Risor ruber,fusiform / normal,NA,NA,NA,NA,2.5,NA,NA,reef-associated
+Remora remora,elongated,0,200,NA,NA,86.4,40,1070,reef-associated
+Parophrys vetulus,short and / or deep,0,550,NA,NA,49,33,1500,demersal
+Symphysodon discus,short and / or deep,NA,NA,NA,NA,12.3,NA,NA,benthopelagic
+Cheilopogon melanurus,elongated,0,20,NA,NA,32,25,NA,pelagic-neritic
+Mugil cephalus,fusiform / normal,0,120,0,10,100,50,NA,benthopelagic
+Equetus lanceolatus,fusiform / normal,10,60,NA,NA,25,15,NA,reef-associated
+Novumbra hubbsi,fusiform / normal,NA,NA,NA,NA,8,5.5,NA,demersal
+Elops saurus,elongated,0,50,NA,NA,100,60,10060,reef-associated
+Chiasmodon niger,elongated,700,2745,750,NA,25,NA,NA,pelagic-oceanic
+Diplectrum formosum,fusiform / normal,1,80,NA,NA,30,16,NA,reef-associated
+Gadopsis marmoratus,fusiform / normal,NA,NA,NA,NA,60,30,NA,benthopelagic
+Phalacronotus bleekeri,elongated,NA,NA,NA,NA,60,NA,NA,demersal
+Anoplarchus insignis,elongated,1,30,NA,NA,12,NA,NA,demersal
+Ammodytes personatus,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Apodichthys flavidus,eel-like,0,8,NA,NA,46,NA,NA,demersal
+Anoplarchus purpurescens,elongated,1,30,NA,NA,20,NA,NA,demersal
+Aulorhynchus flavidus,elongated,0,30,NA,NA,18,NA,NA,benthopelagic
+Lepomis macrochirus,short and / or deep,NA,NA,NA,NA,41,19.05,2150,benthopelagic
+Lumpenus sagitta,eel-like,0,425,NA,NA,51,NA,NA,benthopelagic
+Myoxocephalus polyacanthocephalus,fusiform / normal,0,775,NA,NA,80,NA,9000,demersal
+Ophiodon elongatus,elongated,0,475,NA,NA,152,NA,59110,demersal
+Phytichthys chirus,elongated,0,12,NA,NA,20,NA,NA,demersal
+Pholis laeta,eel-like,0,73,NA,NA,25,NA,NA,demersal
+Pholis ornata,eel-like,0,50,NA,NA,30,NA,NA,demersal
+Ronquilus jordani,elongated,3,275,NA,NA,20,NA,NA,demersal
+Xiphister atropurpureus,elongated,8,12,NA,NA,30.5,NA,NA,demersal
+Xiphister mucosus,NA,0,18,NA,NA,58,NA,NA,demersal
+,,,,,,,,,
+Species that have data,68,46,49,10,10,70,29,19,70
