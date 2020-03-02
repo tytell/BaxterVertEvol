@@ -1,73 +1,73 @@
-Species,BodyShapeI,DepthRangeShallow,DepthRangeDeep,DepthRangeComShallow,DepthRangeComDeep,Length,CommonLength,Weight,DemersPelag,newdepthrangeshallow,newdepthrangedeep
-Alectis ciliaris,short and / or deep,60,100,NA,NA,150,100,22900,reef-associated,60,100
-Amia calva,elongated,NA,NA,NA,NA,109,53.35,9750,demersal,NA,NA
-Anoplogaster cornuta,short and / or deep,2,4992,500,2000,18,NA,NA,bathypelagic,500,2000
-Aphareus furca,fusiform / normal,1,122,NA,NA,70,25,906,reef-associated,2,4992
-Catostomus catostomus,fusiform / normal,NA,180,NA,NA,64,22.5,3300,demersal,1,122
-Cephalopholis argus,fusiform / normal,1,40,1,15,60,40,NA,reef-associated,1,15
-Chaetostoma lineopunctatum,NA,NA,NA,NA,NA,14.3,NA,NA,demersal,NA,180
-Centropomus undecimalis,fusiform / normal,NA,22,NA,NA,140,50,24320,reef-associated,1,40
-Osteoglossum bicirrhosum,elongated,NA,NA,NA,NA,90,NA,6000,benthopelagic,NA,NA
-Chanos chanos,elongated,1,30,NA,15,180,100,14000,benthopelagic,NA,15
-Cyprinus carpio,fusiform / normal,NA,NA,NA,NA,120,31,40090,benthopelagic,NA,22
-Roeboides affinis,elongated,NA,NA,NA,NA,11,NA,NA,benthopelagic,1,NA
-Lepidogalaxias salamandroides,elongated,NA,NA,NA,NA,7.4,4,NA,demersal,NA,30
-Stenobrachius leucopsaurus,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-Percopsis omiscomaycus,elongated,10,61,NA,NA,20,8.75,NA,demersal,NA,NA
-Microgadus proximus,fusiform / normal,0,275,25,120,30.5,NA,NA,demersal,25,120
-Polymixia lowei,elongated,50,600,150,600,20,15,NA,bathydemersal,150,600
-Myripristis jacobus,fusiform / normal,0,210,2,35,25,20,NA,reef-associated,2,35
-Opsanus pardus,elongated,NA,NA,NA,NA,38,NA,NA,reef-associated,NA,NA
-Nealotus tripes,elongated,914,1646,NA,NA,25,15,NA,bathypelagic,10,NA
-Nectamia fusca,short and / or deep,1,20,NA,NA,11.2,NA,NA,reef-associated,0,61
-Fundulus heteroclitus,fusiform / normal,NA,NA,NA,NA,15,8.9,NA,benthopelagic,50,275
-Menidia beryllina,elongated,0,30,NA,NA,15,7.75,NA,pelagic-neritic,0,600
-Hypsypops rubicundus,short and / or deep,0,30,NA,NA,30,NA,NA,reef-associated,NA,210
-Salarias fasciatus,elongated,0,8,NA,NA,14,NA,NA,reef-associated,914,NA
-Labroides dimidiatus,elongated,1,40,1,30,14,NA,NA,reef-associated,1,30
-Hemitaurichthys polylepis,short and / or deep,3,60,NA,NA,18,NA,NA,reef-associated,1,1646
-Lagodon rhomboides,fusiform / normal,NA,NA,NA,NA,40,18,1510,demersal,NA,20
-Halieutichthys aculeatus,short and / or deep,5,820,5,150,10,NA,NA,reef-associated,5,150
-Stephanolepis hispidus,short and / or deep,0,293,NA,NA,27.5,NA,NA,reef-associated,0,NA
-Malacocottus zonurus,fusiform / normal,27,1980,NA,NA,35,NA,1240,bathydemersal,0,30
-Mirorictus taningi,fusiform / normal,NA,1750,NA,NA,13.7,NA,NA,bathydemersal,0,30
-Ctenochaetus strigosus,short and / or deep,1,113,NA,NA,15,NA,NA,reef-associated,1,8
-Ophidion scrippsae,elongated,0,110,3,7,28,NA,NA,demersal,3,7
-Malacosteus niger,elongated,500,3886,NA,NA,25.6,NA,NA,bathypelagic,3,40
-Serrasalmus rhombeus,short and / or deep,NA,NA,NA,NA,41.5,NA,3000,benthopelagic,NA,60
-Oncorhynchus gorbuscha,fusiform / normal,0,250,NA,NA,76,50.5,6800,demersal,5,NA
-Coryphaenoides filifer,elongated,1285,2904,NA,NA,55,NA,NA,bathydemersal,0,820
-Pimelodella cristata,elongated,NA,NA,NA,NA,34,NA,NA,demersal,27,293
-Polypterus senegalus,elongated,NA,NA,NA,NA,70,NA,207,demersal,NA,1980
-Anodontostoma chacunda,fusiform / normal,0,50,NA,NA,22,14,NA,pelagic-neritic,1,1750
-Apteronotus cuchillejo,elongated,NA,NA,NA,NA,18.9,NA,NA,benthopelagic,0,113
-Hypomesus pretiosus,elongated,NA,NA,NA,NA,30.5,15,NA,benthopelagic,500,110
-Nannaethiops unitaeniatus,fusiform / normal,NA,NA,NA,NA,6.2,NA,NA,pelagic,NA,3886
-Risor ruber,fusiform / normal,NA,NA,NA,NA,2.5,NA,NA,reef-associated,0,NA
-Remora remora,elongated,0,200,NA,NA,86.4,40,1070,reef-associated,1285,250
-Parophrys vetulus,short and / or deep,0,550,NA,NA,49,33,1500,demersal,NA,2904
-Symphysodon discus,short and / or deep,NA,NA,NA,NA,12.3,NA,NA,benthopelagic,NA,NA
-Cheilopogon melanurus,elongated,0,20,NA,NA,32,25,NA,pelagic-neritic,0,NA
-Mugil cephalus,fusiform / normal,0,120,0,10,100,50,NA,benthopelagic,0,10
-Equetus lanceolatus,fusiform / normal,10,60,NA,NA,25,15,NA,reef-associated,NA,50
-Novumbra hubbsi,fusiform / normal,NA,NA,NA,NA,8,5.5,NA,demersal,NA,NA
-Elops saurus,elongated,0,50,NA,NA,100,60,10060,reef-associated,NA,NA
-Chiasmodon niger,elongated,700,2745,750,NA,25,NA,NA,pelagic-oceanic,750,NA
-Diplectrum formosum,fusiform / normal,1,80,NA,NA,30,16,NA,reef-associated,NA,NA
-Gadopsis marmoratus,fusiform / normal,NA,NA,NA,NA,60,30,NA,benthopelagic,0,200
-Phalacronotus bleekeri,elongated,NA,NA,NA,NA,60,NA,NA,demersal,0,550
-Anoplarchus insignis,elongated,1,30,NA,NA,12,NA,NA,demersal,NA,NA
-Ammodytes personatus,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,20
-Apodichthys flavidus,eel-like,0,8,NA,NA,46,NA,NA,demersal,0,120
-Anoplarchus purpurescens,elongated,1,30,NA,NA,20,NA,NA,demersal,10,60
-Aulorhynchus flavidus,elongated,0,30,NA,NA,18,NA,NA,benthopelagic,NA,NA
-Lepomis macrochirus,short and / or deep,NA,NA,NA,NA,41,19.05,2150,benthopelagic,0,50
-Lumpenus sagitta,eel-like,0,425,NA,NA,51,NA,NA,benthopelagic,700,2745
-Myoxocephalus polyacanthocephalus,fusiform / normal,0,775,NA,NA,80,NA,9000,demersal,1,80
-Ophiodon elongatus,elongated,0,475,NA,NA,152,NA,59110,demersal,NA,NA
-Phytichthys chirus,elongated,0,12,NA,NA,20,NA,NA,demersal,NA,NA
-Pholis laeta,eel-like,0,73,NA,NA,25,NA,NA,demersal,1,30
-Pholis ornata,eel-like,0,50,NA,NA,30,NA,NA,demersal,NA,NA
-Ronquilus jordani,elongated,3,275,NA,NA,20,NA,NA,demersal,0,8
-Xiphister atropurpureus,elongated,8,12,NA,NA,30.5,NA,NA,demersal,1,30
-Xiphister mucosus,NA,0,18,NA,NA,58,NA,NA,demersal,0,30
+"","BodyShapeI","DepthRangeShallow","DepthRangeDeep","DepthRangeComShallow","DepthRangeComDeep","Length","CommonLength","Weight","DemersPelag","newdepthrangeshallow","newdepthrangedeep"
+"1","short and / or deep",60,100,NA,NA,150,100,22900,"reef-associated",60,100
+"2","elongated",NA,NA,NA,NA,109,53.35,9750,"demersal",NA,NA
+"3","short and / or deep",2,4992,500,2000,18,NA,NA,"bathypelagic",500,2000
+"4","fusiform / normal",1,122,NA,NA,70,25,906,"reef-associated",2,4992
+"5","fusiform / normal",NA,180,NA,NA,64,22.5,3300,"demersal",1,122
+"6","fusiform / normal",1,40,1,15,60,40,NA,"reef-associated",1,15
+"7",NA,NA,NA,NA,NA,14.3,NA,NA,"demersal",NA,180
+"8","fusiform / normal",NA,22,NA,NA,140,50,24320,"reef-associated",1,40
+"9","elongated",NA,NA,NA,NA,90,NA,6000,"benthopelagic",NA,NA
+"10","elongated",1,30,NA,15,180,100,14000,"benthopelagic",NA,15
+"11","fusiform / normal",NA,NA,NA,NA,120,31,40090,"benthopelagic",NA,22
+"12","elongated",NA,NA,NA,NA,11,NA,NA,"benthopelagic",1,NA
+"13","elongated",NA,NA,NA,NA,7.4,4,NA,"demersal",NA,30
+"14",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"15","elongated",10,61,NA,NA,20,8.75,NA,"demersal",NA,NA
+"16","fusiform / normal",0,275,25,120,30.5,NA,NA,"demersal",25,120
+"17","elongated",50,600,150,600,20,15,NA,"bathydemersal",150,600
+"18","fusiform / normal",0,210,2,35,25,20,NA,"reef-associated",2,35
+"19","elongated",NA,NA,NA,NA,38,NA,NA,"reef-associated",NA,NA
+"20","elongated",914,1646,NA,NA,25,15,NA,"bathypelagic",10,NA
+"21","short and / or deep",1,20,NA,NA,11.2,NA,NA,"reef-associated",0,61
+"22","fusiform / normal",NA,NA,NA,NA,15,8.9,NA,"benthopelagic",50,275
+"23","elongated",0,30,NA,NA,15,7.75,NA,"pelagic-neritic",0,600
+"24","short and / or deep",0,30,NA,NA,30,NA,NA,"reef-associated",NA,210
+"25","elongated",0,8,NA,NA,14,NA,NA,"reef-associated",914,NA
+"26","elongated",1,40,1,30,14,NA,NA,"reef-associated",1,30
+"27","short and / or deep",3,60,NA,NA,18,NA,NA,"reef-associated",1,1646
+"28","fusiform / normal",NA,NA,NA,NA,40,18,1510,"demersal",NA,20
+"29","short and / or deep",5,820,5,150,10,NA,NA,"reef-associated",5,150
+"30","short and / or deep",0,293,NA,NA,27.5,NA,NA,"reef-associated",0,NA
+"31","fusiform / normal",27,1980,NA,NA,35,NA,1240,"bathydemersal",0,30
+"32","fusiform / normal",NA,1750,NA,NA,13.7,NA,NA,"bathydemersal",0,30
+"33","short and / or deep",1,113,NA,NA,15,NA,NA,"reef-associated",1,8
+"34","elongated",0,110,3,7,28,NA,NA,"demersal",3,7
+"35","elongated",500,3886,NA,NA,25.6,NA,NA,"bathypelagic",3,40
+"36","short and / or deep",NA,NA,NA,NA,41.5,NA,3000,"benthopelagic",NA,60
+"37","fusiform / normal",0,250,NA,NA,76,50.5,6800,"demersal",5,NA
+"38","elongated",1285,2904,NA,NA,55,NA,NA,"bathydemersal",0,820
+"39","elongated",NA,NA,NA,NA,34,NA,NA,"demersal",27,293
+"40","elongated",NA,NA,NA,NA,70,NA,207,"demersal",NA,1980
+"41","fusiform / normal",0,50,NA,NA,22,14,NA,"pelagic-neritic",1,1750
+"42","elongated",NA,NA,NA,NA,18.9,NA,NA,"benthopelagic",0,113
+"43","elongated",NA,NA,NA,NA,30.5,15,NA,"benthopelagic",500,110
+"44","fusiform / normal",NA,NA,NA,NA,6.2,NA,NA,"pelagic",NA,3886
+"45","fusiform / normal",NA,NA,NA,NA,2.5,NA,NA,"reef-associated",0,NA
+"46","elongated",0,200,NA,NA,86.4,40,1070,"reef-associated",1285,250
+"47","short and / or deep",0,550,NA,NA,49,33,1500,"demersal",NA,2904
+"48","short and / or deep",NA,NA,NA,NA,12.3,NA,NA,"benthopelagic",NA,NA
+"49","elongated",0,20,NA,NA,32,25,NA,"pelagic-neritic",0,NA
+"50","fusiform / normal",0,120,0,10,100,50,NA,"benthopelagic",0,10
+"51","fusiform / normal",10,60,NA,NA,25,15,NA,"reef-associated",NA,50
+"52","fusiform / normal",NA,NA,NA,NA,8,5.5,NA,"demersal",NA,NA
+"53","elongated",0,50,NA,NA,100,60,10060,"reef-associated",NA,NA
+"54","elongated",700,2745,750,NA,25,NA,NA,"pelagic-oceanic",750,NA
+"55","fusiform / normal",1,80,NA,NA,30,16,NA,"reef-associated",NA,NA
+"56","fusiform / normal",NA,NA,NA,NA,60,30,NA,"benthopelagic",0,200
+"57","elongated",NA,NA,NA,NA,60,NA,NA,"demersal",0,550
+"58","elongated",1,30,NA,NA,12,NA,NA,"demersal",NA,NA
+"59",NA,NA,NA,NA,NA,NA,NA,NA,NA,0,20
+"60","eel-like",0,8,NA,NA,46,NA,NA,"demersal",0,120
+"61","elongated",1,30,NA,NA,20,NA,NA,"demersal",10,60
+"62","elongated",0,30,NA,NA,18,NA,NA,"benthopelagic",NA,NA
+"63","short and / or deep",NA,NA,NA,NA,41,19.05,2150,"benthopelagic",0,50
+"64","eel-like",0,425,NA,NA,51,NA,NA,"benthopelagic",700,2745
+"65","fusiform / normal",0,775,NA,NA,80,NA,9000,"demersal",1,80
+"66","elongated",0,475,NA,NA,152,NA,59110,"demersal",NA,NA
+"67","elongated",0,12,NA,NA,20,NA,NA,"demersal",NA,NA
+"68","eel-like",0,73,NA,NA,25,NA,NA,"demersal",1,30
+"69","eel-like",0,50,NA,NA,30,NA,NA,"demersal",NA,NA
+"70","elongated",3,275,NA,NA,20,NA,NA,"demersal",0,8
+"71","elongated",8,12,NA,NA,30.5,NA,NA,"demersal",1,30
+"72",NA,0,18,NA,NA,58,NA,NA,"demersal",0,30

@@ -175,9 +175,29 @@ left_join(
 ```
 
 ```{r}
+vertmeasmean <- vertmeas %>%
+  group_by(Species, Indiv) %>%
+  select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
+  summarize_all(mean) %>%
+  ungroup()
+
+vertmeasmean
+```
+
+```{r}
+vertmeasmeans_fishbase <-
+  left_join(
+  vertmeasmean,
+  
+  fishbasedata2,
+  
+  by = "Species")
+```
+
+```{r}
 CBL_mean <- vertmeas %>%
   group_by(Species) %>% 
-  summarize(mean(CBL))
+  summarize(CBL_mean = mean(CBL), d_mean = mean(d))
 d_mean <- vertmeas %>%
   group_by(Species) %>% 
   summarize(mean(d))
@@ -225,10 +245,13 @@ vertmeasmeans_fishbase <- left_join(fishbaseprelim,fishbasedatamergeddepth, by =
 vertmeasmeans_fishbase
 ```
 
+TODO: Write text
 
 ```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = CBL_mean, y = d_mean),
-       geom_point(aes(color = DemersPelag)))
+ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = d, color = DemersPelag)) +
+       geom_point()
+  # facet_wrap(~ DemersPelag)
+#sae out vertmeasmeans
 ```
 
 ```{r}
