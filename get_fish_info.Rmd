@@ -245,34 +245,57 @@ vertmeasmeans_fishbase <- left_join(fishbaseprelim,fishbasedatamergeddepth, by =
 vertmeasmeans_fishbase
 ```
 
-TODO: Write text
+TO DO: Write text for exploratory plots and save out vertmeasmeans_fishbase
+
+```{r}
+write.csv(vertmeasmeans_fishbase, "vertmeasmeans_fishbase.csv")
+```
+
 
 ```{r}
 ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = d, color = DemersPelag)) +
        geom_point()
   # facet_wrap(~ DemersPelag)
-#sae out vertmeasmeans
 ```
+Here there seems to be a positive relationship with only some subsets of the DemersPelag category with these species. Mainly the demersal seem to have a positive relationship between the CBL and d, as well as some of the benthopelagic species. 
+
 
 ```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = d_mean, y = D_Pos_mean),
-       geom_point(aes(color = Length)))
+ggplot(vertmeasmeans_fishbase, aes(x = d, y = D_Pos, color = Length)) +
+       geom_point() 
+#facet_wrap(~Length)
 ```
+Here there does not seem to be as much of a trend, because the lengths of these fish are more variable than a category like DemersPelag or depth range. However, some of the shorter fish species do seem to have a positive relationships with d and D_Pos, but this trend is hard to tell for sure. 
+
 
 ```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = d_mean, y = alpha_Pos_mean),
-       geom_point(aes(color = newdepthrangedeep)))
+ggplot(vertmeasmeans_fishbase, aes(x = d, y = alpha_Pos, color = newdepthrangedeep)) + geom_point() 
+#facet_wrap(~newdepthrangedeep)
 ```
+In this plot, generally d and alpha_Pos seem to have a positive relationship when categorized by the deepest limits of their depth range (this column being the merged common and full depth range value columns). This trend seems to be more readily seen with the fish for which the depth range data were unavailable. 
+
 
 ```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = CBL_mean, y = D_Ant_mean),
-       geom_point(aes(color = BodyShapeI)))
+ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + geom_point()
 ```
+Unsure of why it removed this many rows... Still displays a positive relationships between CBL and D_Ant for all body shape types present. This trend is most easily seen with the "short and/or deep" body shape.
+
 
 ```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = d_mean, y = D_Pos_mean),
-       geom_point(aes(color=DemersPelag)))
+ggplot(vertmeasmeans_fishbase, aes(x = d, y = D_Pos, color = DemersPelag)) + geom_point()
 ```
+Here, there also seems so be somewhat of a positive relationship between d and D_Pos when colored by DemersPelag. This positive relationship looks steepr with the reef-associated category than with the demersal group, but both seem to exhibit somewhat of a positive relationship.
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = d, y = alpha_Pos, color = Weight)) + geom_point()
+```
+Here there is a positive relationship between d and alpha_Pos, but there are many N/A in the weight data, but the lighter fish still had a positive relationship with alpha_Pos and d. 
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = d, y = CBL, color = BodyShapeI)) + geom_point() 
+#facet_wrap(~BodyShapeI)
+```
+Here there is less of a positive relationship between the CBL and d for some of these species. The only category that seems to display this positive relationship is the eel-like body shape. CBL
 
 
 
