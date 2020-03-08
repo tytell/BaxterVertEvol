@@ -297,5 +297,33 @@ ggplot(vertmeasmeans_fishbase, aes(x = d, y = CBL, color = BodyShapeI)) + geom_p
 ```
 Here there is less of a positive relationship between the CBL and d for some of these species. The only category that seems to display this positive relationship is the eel-like body shape. CBL
 
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = alpha_Pos, y = D_Pos, color = BodyShapeI)) + geom_point() 
+#facet_wrap(~BodyShapeI)
+```
+Here there seems to be a positive relationship displayed mainly with the eel-like and elongated fishes. There are not as many N/A values here as there are in other categories. 
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = alpha_Pos, y = D_Pos, color = DemersPelag)) + geom_point() 
+#facet_wrap(~DemersPelag)
+```
+With the same x and y but colored differently (this time by DemersPelag), the positive relationship is displayed in mainly the demersal, benthopelagic, and reef-associated fishes. The reef-associated fishes have mostly larger D_Pos and smaller alpha_Pos, with the demersal fishes having the opposite. 
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = d, y = D_Ant, color = newdepthrangedeep)) + geom_point() 
+#facet_wrap(~newdepthrangedeep)
+```
+Many missing values in the depth columns (even in the merged ones). Here this is displaying mainly fish species whose lowest part of the depth range is not as shallow, but there are more deep sea fishes present, shown in the lighter blue colors. 
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = alpha_Pos, color = Length)) + geom_point()
+```
+There does not seem to be much relationship between CBL and alpha_Pos, but all of the shorter species seem to have smaller alpha_Pos, which would make sense due to their smaller size.
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = alpha_Ant, y = D_Ant, color = DemersPelag)) + geom_point()
+```
+This for some reason has many rows taken out? I'm not sure why... but within each DemersPelag category there seems to be somewhat of a positive relationship between D_Ant and alpha_Ant.
+
 
 
