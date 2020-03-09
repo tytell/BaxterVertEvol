@@ -13,6 +13,7 @@ Load the libraries we need.
 library(rfishbase)
 library(tidyverse)
 library(ggplot2)
+library(Hmisc)
 ```
 
 # Test a few species
@@ -178,7 +179,7 @@ left_join(
 vertmeasmean <- vertmeas %>%
   group_by(Species, Indiv) %>%
   select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
-  summarize_all(mean) %>%
+  summarize_all(mean, na.rm=TRUE) %>%
   ungroup()
 
 vertmeasmean
@@ -193,6 +194,17 @@ vertmeasmeans_fishbase <-
   
   by = "Species")
 ```
+
+```{r}
+vertmeasall_fishbase <-
+  left_join(
+  vertmeas,
+  
+  fishbasedata2,
+  
+  by = "Species")
+```
+
 
 ```{r}
 CBL_mean <- vertmeas %>%
@@ -259,6 +271,13 @@ ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = d, color = DemersPelag)) +
 ```
 Here there seems to be a positive relationship with only some subsets of the DemersPelag category with these species. Mainly the demersal seem to have a positive relationship between the CBL and d, as well as some of the benthopelagic species. 
 
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = DemersPelag, y = d, color=DemersPelag)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position="jitter", alpha=0.5)
+  
+```
+
 
 ```{r}
 ggplot(vertmeasmeans_fishbase, aes(x = d, y = D_Pos, color = Length)) +
@@ -280,6 +299,15 @@ ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + ge
 ```
 Unsure of why it removed this many rows... Still displays a positive relationships between CBL and D_Ant for all body shape types present. This trend is most easily seen with the "short and/or deep" body shape.
 
+```{r}
+vertmeasmeans_fishbase %>%
+  group_by(Species) %>%
+  filter(is.na(D_Ant))
+```
+
+```{r}
+ggplot(vertmeasall_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + geom_point()
+```
 
 ```{r}
 ggplot(vertmeasmeans_fishbase, aes(x = d, y = D_Pos, color = DemersPelag)) + geom_point()
