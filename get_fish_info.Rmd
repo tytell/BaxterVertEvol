@@ -300,6 +300,13 @@ ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + ge
 Unsure of why it removed this many rows... Still displays a positive relationships between CBL and D_Ant for all body shape types present. This trend is most easily seen with the "short and/or deep" body shape.
 
 ```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = BodyShapeI, y = d, color=BodyShapeI)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position="jitter", alpha=0.5)
+```
+
+
+```{r}
 vertmeasmeans_fishbase %>%
   group_by(Species) %>%
   filter(is.na(D_Ant))
@@ -313,6 +320,13 @@ ggplot(vertmeasall_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + geom
 ggplot(vertmeasmeans_fishbase, aes(x = d, y = D_Pos, color = DemersPelag)) + geom_point()
 ```
 Here, there also seems so be somewhat of a positive relationship between d and D_Pos when colored by DemersPelag. This positive relationship looks steepr with the reef-associated category than with the demersal group, but both seem to exhibit somewhat of a positive relationship.
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = DemersPelag, y = D_Pos, color=DemersPelag)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position="jitter", alpha=0.5)
+```
+
 
 ```{r}
 ggplot(vertmeasmeans_fishbase, aes(x = d, y = alpha_Pos, color = Weight)) + geom_point()
