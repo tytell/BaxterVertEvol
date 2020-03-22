@@ -79,6 +79,7 @@ fish <- vertmeas %>% distinct(Species)
 fish$Species
 ```
 
+#Create Data Frame for Fishbase data for Measured Species 
 New challenge: Find the missing species and correct them
 Missing: Roeboides affinis (on Fishbase), Stenobrachius leucopsaurus (on Fishbase), Onchorhyncus gorbuscha (not working), Ammodytes personatus (on Fishbase), Anoplarchus pupurescens (misspelled)
 
@@ -101,6 +102,7 @@ fishbasedata
 str(fishbasedata)
 ```
 
+#Merge Depth Columns of Fishbase Data Into New Columns
 ```{r}
 fishbasedatamergeddepth <- fishbasedata %>%
   mutate(newdepthrangeshallow = replace(DepthRangeComShallow,
@@ -119,7 +121,7 @@ write.csv(fishbasedatamergeddepth, "fishbasedata_mergeddepth.csv")
 str(fishbasedatamergeddepth)
 ```
 
-
+#Create csv with the Fishbase Data for Each Species
 ```{r}
 getwd()
 ```
@@ -137,6 +139,7 @@ write.csv(fishbasedata,"fishbasedata.csv")
 help(rfishbase)
 ```
 
+#Attempt to see if able to find species that weren't validated 
 ```{r}
 missingfish <- c("Roeboides affinis","Stenobrachius leucopsaurus","Ammodytes personatus")
 ```
@@ -161,6 +164,7 @@ missingdat <- species(missingfish, fields=c("BodyShapeI", "DepthRangeShallow", "
 missingdat
 ```
 
+#Merge Fishbase Data and Vertebrae Measurements 
 ```{r}
 fishbasedata2 <- cbind(fish, fishbasedatamergeddepth)
 ```
@@ -206,57 +210,7 @@ vertmeasall_fishbase <-
 ```
 
 
-```{r}
-CBL_mean <- vertmeas %>%
-  group_by(Species) %>% 
-  summarize(CBL_mean = mean(CBL), d_mean = mean(d))
-d_mean <- vertmeas %>%
-  group_by(Species) %>% 
-  summarize(mean(d))
-alpha_Pos_mean <- vertmeas %>%
-  group_by(Species) %>% 
-  summarize(mean(alpha_Pos))
-D_Pos_mean <- vertmeas %>%
-  group_by(Species) %>% 
-  summarize(mean(D_Pos))
-alpha_Ant_mean <- vertmeas %>%
-  group_by(Species) %>% 
-  summarize(mean(alpha_Ant))
-D_Ant_mean <- vertmeas %>%
-  group_by(Species) %>% 
-  summarize(mean(D_Ant))
-
-fishbaseprelim <- c(CBL_mean, d_mean, alpha_Pos_mean, D_Pos_mean, alpha_Ant_mean, D_Ant_mean)
-
-fishbaseprelim
-```
-
-```{r}
-write.csv(fishbaseprelim, "vertmeasmeans.csv")
-```
-
-```{r}
-fishbasedataprelim <- read.csv("fishbasedata_measuredspecies.csv")
-```
-
-
-```{r}
-fishbaseprelim <- read.csv("vertmeasmeans.csv")
-
-fishbaseprelim
-```
-
-```{r}
-fishbasedatamergeddepth <- read.csv("fishbasedata_mergeddepth.csv")
-```
-
-
-```{r}
-vertmeasmeans_fishbase <- left_join(fishbaseprelim,fishbasedatamergeddepth, by = "Species")
-
-vertmeasmeans_fishbase
-```
-
+#Exploratory Scatter Plots for vertmeasmeans_fishbase
 TO DO: Write text for exploratory plots and save out vertmeasmeans_fishbase
 
 ```{r}
@@ -270,13 +224,6 @@ ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = d, color = DemersPelag)) +
   # facet_wrap(~ DemersPelag)
 ```
 Here there seems to be a positive relationship with only some subsets of the DemersPelag category with these species. Mainly the demersal seem to have a positive relationship between the CBL and d, as well as some of the benthopelagic species. 
-
-```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = DemersPelag, y = d, color=DemersPelag)) +
-  stat_summary(fun.data = "mean_cl_boot") +
-  geom_point(position="jitter", alpha=0.5)
-  
-```
 
 
 ```{r}
@@ -299,19 +246,15 @@ ggplot(vertmeasmeans_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + ge
 ```
 Unsure of why it removed this many rows... Still displays a positive relationships between CBL and D_Ant for all body shape types present. This trend is most easily seen with the "short and/or deep" body shape.
 
-```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = BodyShapeI, y = d, color=BodyShapeI)) +
-  stat_summary(fun.data = "mean_cl_boot") +
-  geom_point(position="jitter", alpha=0.5)
-```
 
-
+#Attempt to figure out why plots with D_Ant were causing issues 
 ```{r}
 vertmeasmeans_fishbase %>%
   group_by(Species) %>%
   filter(is.na(D_Ant))
 ```
 
+#More Exploratory Scatter Plots 
 ```{r}
 ggplot(vertmeasall_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + geom_point()
 ```
@@ -320,13 +263,6 @@ ggplot(vertmeasall_fishbase, aes(x = CBL, y = D_Ant, color = BodyShapeI)) + geom
 ggplot(vertmeasmeans_fishbase, aes(x = d, y = D_Pos, color = DemersPelag)) + geom_point()
 ```
 Here, there also seems so be somewhat of a positive relationship between d and D_Pos when colored by DemersPelag. This positive relationship looks steepr with the reef-associated category than with the demersal group, but both seem to exhibit somewhat of a positive relationship.
-
-```{r}
-ggplot(vertmeasmeans_fishbase, aes(x = DemersPelag, y = D_Pos, color=DemersPelag)) +
-  stat_summary(fun.data = "mean_cl_boot") +
-  geom_point(position="jitter", alpha=0.5)
-```
-
 
 ```{r}
 ggplot(vertmeasmeans_fishbase, aes(x = d, y = alpha_Pos, color = Weight)) + geom_point()
@@ -368,4 +304,41 @@ ggplot(vertmeasmeans_fishbase, aes(x = alpha_Ant, y = D_Ant, color = DemersPelag
 This for some reason has many rows taken out? I'm not sure why... but within each DemersPelag category there seems to be somewhat of a positive relationship between D_Ant and alpha_Ant.
 
 
+#Mean plots with error bars for more exploratory plots 
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = DemersPelag, y = d, color=DemersPelag)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position="jitter", alpha=0.5)
+```
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = BodyShapeI, y = d, color=BodyShapeI)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position="jitter", alpha=0.5)
+```
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = DemersPelag, y = D_Pos, color=DemersPelag)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+```
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = DemersPelag, y = alpha_Ant, color = DemersPelag))+
+  stat_summary(fun.data = "mean_cl_boot")+
+  geom_point(position = "jitter", alpha=0.5)
+
+```
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = BodyShapeI, y = alpha_Ant, color = BodyShapeI)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position = "jitter", alpha=0.5)
+```
+
+```{r}
+ggplot(vertmeasmeans_fishbase, aes(x = BodyShapeI, y = CBL, color = BodyShapeI)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position = "jitter", alpha=0.5)
+```
 
