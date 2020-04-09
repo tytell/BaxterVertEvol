@@ -31,8 +31,7 @@ colnames(allspecies) <- c('FullName')
 # split the label into columns on the underscores, but then merge genus and species again into
 # a binomial separated by a space
 allspecies <- 
-  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), extra='drop') %>%
-  unite("Binomial", Genus:Species, sep=' ')
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), extra='drop')
 
 # add in the tip number, which is just 1 to the number of species
 allspecies$Tip <- seq_len(nrow(allspecies))
@@ -51,13 +50,28 @@ vertmeas
 Get distinc species names and just extract the binomial
 ```{r}
 distinct(vertmeas, Species) %>%
-  transmute(Binomial = str_replace(Species, '_', ' ')) ->
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
   vertmeas.species
 ```
 
 Then join the big data set with Dana's data, matching by binomial
 ```{r}
-vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Binomial"))
+vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
+vertmeas.species
+```
+
+```{r}
+left_join(filter(vertmeas.species, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenus
+```
+
+```{r}
+vertmeas.species[is.na(vertmeas.species$Tip),]$Family <- vertmeas.bygenus$Family
+vertmeas.species[is.na(vertmeas.species$Tip),]$MatchSpecies <- vertmeas.bygenus$MatchSpecies
+vertmeas.species[is.na(vertmeas.species$Tip),]$Tip <- vertmeas.bygenus$Tip
+
 vertmeas.species
 ```
 
