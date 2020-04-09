@@ -37,7 +37,7 @@ str(fishdata)
 ```
 
 ```{r}
-dat <- species(fish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag"))
+dat <- species(fish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag", "Subfamily"))
 ```
 
 ```{r}
@@ -90,7 +90,7 @@ validate_names(fish$Species)
 ```
 
 ```{r}
-fishbasedata <- species(fish$Species, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag"))
+fishbasedata <- species(fish$Species, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag", "Subfamily"))
 ```
 
 ```{r}
@@ -157,7 +157,7 @@ str(missingfishdata)
 ```
 
 ```{r}
-missingdat <- species(missingfish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag"))
+missingdat <- species(missingfish, fields=c("BodyShapeI", "DepthRangeShallow", "DepthRangeDeep", "DepthRangeComShallow", "DepthRangeComDeep", "Length", "CommonLength", "Weight", "DemersPelag", "Subfamily"))
 ```
 
 ```{r}
