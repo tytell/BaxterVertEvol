@@ -14,7 +14,7 @@ treefile <- '12862_2017_958_MOESM2_ESM.tre'
 ```
 
 ```{r}
-tree <- read.tree(here(treefile))
+tree <- read.tree(here('..', treefile))
 ```
 
 This is our giant tree of all bony fishes.
@@ -40,7 +40,7 @@ allspecies$Tip <- seq_len(nrow(allspecies))
 
 Load in Dana's measurements
 ```{r}
-vertmeasfile <- here('VertMeasurements_Shape-Habitat.csv')
+vertmeasfile <- here('..','Merged Data','VertMeasurements_Shape-Habitat.csv')
 vertmeas <- read.csv(vertmeasfile, as.is=c(1))
 ```
 
