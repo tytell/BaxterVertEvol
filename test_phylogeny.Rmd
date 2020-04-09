@@ -1,0 +1,76 @@
+---
+title: "Test phylogeny"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(phytools)
+library(here)
+```
+
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
+```{r}
+tree <- read.tree(here(treefile))
+```
+
+This is our giant tree of all bony fishes.
+```{r}
+plotTree(tree)
+```
+
+Extract a data frame with the genus and species of each tip node in the tree.
+```{r}
+# first just get the tip labels. These look Family_Genus_Species_Code
+allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
+colnames(allspecies) <- c('FullName')
+
+# split the label into columns on the underscores, but then merge genus and species again into
+# a binomial separated by a space
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), extra='drop') %>%
+  unite("Binomial", Genus:Species, sep=' ')
+
+# add in the tip number, which is just 1 to the number of species
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+Load in Dana's measurements
+```{r}
+vertmeasfile <- here('VertMeasurements_Shape-Habitat.csv')
+vertmeas <- read.csv(vertmeasfile, as.is=c(1))
+```
+
+```{r}
+vertmeas
+```
+
+Get distinc species names and just extract the binomial
+```{r}
+distinct(vertmeas, Species) %>%
+  transmute(Binomial = str_replace(Species, '_', ' ')) ->
+  vertmeas.species
+```
+
+Then join the big data set with Dana's data, matching by binomial
+```{r}
+vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Binomial"))
+vertmeas.species
+```
+
+A number of species are missing from the big phylogeny, so we'll need to do those at family level.
+*Dana* Fill in families into your data file
+
+Now this pulls just the species that are in Dana's measurements out of the big phylogeny.
+```{r}
+verttree <- keep.tip(tree, tip=na.omit(as.vector(vertmeas.species$Tip)))
+```
+
+And this plots it!
+```{r}
+plotTree(verttree)
+```
+
