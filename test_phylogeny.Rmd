@@ -47,7 +47,7 @@ vertmeas <- read.csv(vertmeasfile, as.is=c(1))
 vertmeas
 ```
 
-Get distinc species names and just extract the binomial
+Get distinct species names and just extract the binomial
 ```{r}
 distinct(vertmeas, Species) %>%
   separate(Species, sep='_', into=c("Genus", "Species")) ->
