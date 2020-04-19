@@ -253,6 +253,7 @@ vertmeasmeans_fishbase %>%
   group_by(Species) %>%
   filter(is.na(D_Ant))
 ```
+D_Ant and alpha_Ant don't appear for a large chunk of these species because with the elongate fish that were Cassandra's measurements, she only measured D_Pos and alpha_Pos, not the anterior ones. 
 
 #More Exploratory Scatter Plots 
 ```{r}
