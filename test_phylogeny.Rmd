@@ -94,9 +94,24 @@ plotTree(verttree)
 #PGLS Analysis Attempt 
 (using https://lukejharmon.github.io/ilhabela/instruction/2015/07/03/PGLS/ as a reference for the code and the PGLS process)
 
-Check correlation between notochordal foramen diameter and habitat
+Try with PICs to see if it works (using same process as website tutorial)
 ```{r}
-plot(vertmeas, c("d", "Habitat"))
+d_an <- vertmeas[,"d"]
+CBL_an <- vertmeas[,"CBL"]
+
+names(d_an) <- names(CBL_an) <- rownames(vertmeas)
+
+dPIC <- pic(d_an, verttree)
+CBLPIC <- pic(CBL_an, verttree)
+
+d_CBLPIC_model <- lm(dPic ~ CBLPIC - 1)
+
+summary(d_CBLPIC_model)
+```
+
+Check correlation between notochordal foramen diameter and CBL
+```{r}
+plot(vertmeas, c("d", "CBL"))
 ```
 (unsure why this isn't working -- ask about this)
 
@@ -107,22 +122,17 @@ pgls_d_CBL<- gls(d ~ CBL, correlation = corBrownian(phy = verttree),
 summary(pgls_d_CBL)
 ```
 
-Try with PICs to see if it works (using same process as website tutorial)
+
+#Putting the code with the process in, regardless of whether it works (will fix once I figure out the problem)
+
 ```{r}
-d_PICs <- vertmeas[,"d"]
-habitat_PICs <- vertmeas[,"Habitat"]
-
-names(d_PICs) <- names(habitat_PICs) <- rownames(vertmeas)
-
-dPIC <- pic(d_PICs, verttree)
-habPIC <- pic(habitat_PICs, verttree)
-
-d_habPIC_model <- lm(dPic ~ habPIC - 1)
-
-summary(d_habPIC_model)
+coef(pgls_d_CBL)
 ```
 
-
+```{r}
+plot(d_an ~ CBL_an)
+abline(a = coef(pgls_d_CBL)[1], b = coef(pgls_d_CBL) [2])
+```
 
 
 
