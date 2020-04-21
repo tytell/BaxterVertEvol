@@ -10,6 +10,7 @@ library(here)
 library(ape)
 library(geiger)
 library(nlme)
+library(patchwork)
 ```
 
 ```{r}
@@ -34,7 +35,8 @@ colnames(allspecies) <- c('FullName')
 # split the label into columns on the underscores, but then merge genus and species again into
 # a binomial separated by a space
 allspecies <- 
-  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), extra='drop')
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
 
 # add in the tip number, which is just 1 to the number of species
 allspecies$Tip <- seq_len(nrow(allspecies))
@@ -52,7 +54,11 @@ vertmeas
 
 Get distinct species names and just extract the binomial
 ```{r}
-distinct(vertmeas, Species) %>%
+vertmeas %>%
+  group_by(Species, Body.Shape, Habitat) %>%
+  summarize(d = mean(d),
+            CBL = mean(CBL)) %>%
+  ungroup() %>%
   separate(Species, sep='_', into=c("Genus", "Species")) ->
   vertmeas.species
 ```
@@ -63,6 +69,7 @@ vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Genus", "Speci
 vertmeas.species
 ```
 
+Then match the tree by genus if we don't have the exact species in the tree
 ```{r}
 left_join(filter(vertmeas.species, is.na(Tip)),
           distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
@@ -70,20 +77,32 @@ left_join(filter(vertmeas.species, is.na(Tip)),
   vertmeas.bygenus
 ```
 
+Here are the closest matches we found in the tree
 ```{r}
-vertmeas.species[is.na(vertmeas.species$Tip),]$Family <- vertmeas.bygenus$Family
-vertmeas.species[is.na(vertmeas.species$Tip),]$MatchSpecies <- vertmeas.bygenus$MatchSpecies
-vertmeas.species[is.na(vertmeas.species$Tip),]$Tip <- vertmeas.bygenus$Tip
-
-vertmeas.species
+vertmeas.bygenus
 ```
 
-A number of species are missing from the big phylogeny, so we'll need to do those at family level.
-*Dana* Fill in families into your data file
+Join the genus matches into the main data set, keeping track of which species we measured and which one we matched in the tree
+```{r}
+left_join(vertmeas.species, vertmeas.bygenus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.species1
+vertmeas.species1
+```
+
+**IMPORTANT**
+To do the PGLS analysis, the rownames in our dataframe need to match the tip names in the tree. We've saved these values as FullName in the dataframe, so convert these back to rownames.
+```{r}
+vertmeas.species1 <- column_to_rownames(vertmeas.species1, var="FullName")
+```
 
 Now this pulls just the species that are in Dana's measurements out of the big phylogeny.
 ```{r}
-verttree <- keep.tip(tree, tip=na.omit(as.vector(vertmeas.species$Tip)))
+verttree <- keep.tip(tree, tip=as.vector(vertmeas.species1$Tip))
 ```
 
 And this plots it!
@@ -94,45 +113,50 @@ plotTree(verttree)
 #PGLS Analysis Attempt 
 (using https://lukejharmon.github.io/ilhabela/instruction/2015/07/03/PGLS/ as a reference for the code and the PGLS process)
 
-Try with PICs to see if it works (using same process as website tutorial)
+Check that we have the same number of tips in our tree and rows in our data frame.
 ```{r}
-d_an <- vertmeas[,"d"]
-CBL_an <- vertmeas[,"CBL"]
-
-names(d_an) <- names(CBL_an) <- rownames(vertmeas)
-
-dPIC <- pic(d_an, verttree)
-CBLPIC <- pic(CBL_an, verttree)
-
-d_CBLPIC_model <- lm(dPic ~ CBLPIC - 1)
-
-summary(d_CBLPIC_model)
+length(verttree$tip.label)
+nrow(vertmeas.species1)
 ```
 
-Check correlation between notochordal foramen diameter and CBL
+And use this extra function to make sure they match up appropriately.
 ```{r}
-plot(vertmeas, c("d", "CBL"))
-```
-(unsure why this isn't working -- ask about this)
-
-Analyze notochordal foramen diameter and CBL correlation
-```{r}
-pgls_d_CBL<- gls(d ~ CBL, correlation = corBrownian(phy = verttree),
-                      data = vertmeas, method = "ML")
-summary(pgls_d_CBL)
+name.check(verttree, vertmeas.species1)
 ```
 
+Analyze notochordal foramen diameter and its correlation with body shape.
+```{r}
+pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_d_BodyShape)
+```
+
+And the centrum body length correlation with body shape.
+```{r}
+pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_CBL_BodyShape)
+```
+
+And plot the data. The importance of the elongate body shape may be over stated, because there's only one example.
+```{r}
+p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+p2 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=CBL)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+p1 / p2
+```
 
 #Putting the code with the process in, regardless of whether it works (will fix once I figure out the problem)
 
 ```{r}
-coef(pgls_d_CBL)
+coef(pgls_d_BodyShape)
 ```
 
-```{r}
-plot(d_an ~ CBL_an)
-abline(a = coef(pgls_d_CBL)[1], b = coef(pgls_d_CBL) [2])
-```
 
 
 
