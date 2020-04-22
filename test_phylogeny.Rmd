@@ -130,6 +130,8 @@ pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree)
                       data = vertmeas.species1, method = "ML")
 summary(pgls_d_BodyShape)
 ```
+statistical significance with a very low p value (0.05?)
+Less statistical significance with d based on body shape -- as mentioned with elongate, only one example.
 
 And the centrum body length correlation with body shape.
 ```{r}
@@ -137,28 +139,55 @@ pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = vertt
                       data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_BodyShape)
 ```
+More of an indication of statistical significance -- deep bodied showing a p value less than 0.05?
 
 And plot the data. The importance of the elongate body shape may be over stated, because there's only one example.
 ```{r}
-p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d)) +
+p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d, color=Body.Shape)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
-p2 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=CBL)) +
+p2 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=CBL, color=Body.Shape)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
 p1 / p2
 ```
 
-#Putting the code with the process in, regardless of whether it works (will fix once I figure out the problem)
-
 ```{r}
 coef(pgls_d_BodyShape)
 ```
 
+PGLS with diameter and CBL in relation to habitat
+
+```{r}
+pgls_d_Habitat <- gls(d ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_d_Habitat)
+```
+Very high p values, not statistically significant due to habitat?
+
+```{r}
+pgls_CBL_Habitat <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttree),
+                        data = vertmeas.species1, method = "ML")
+summary(pgls_CBL_Habitat)
+```
+Only statistically significant due to reef associated?
+
+Plot the PGLS
+
+```{r}
+h1 <- ggplot(vertmeas.species1, aes(x=Habitat, y=d, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
 
 
+h2 <- ggplot(vertmeas.species1, aes(x=Habitat, y=CBL, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  stat_summary(fun.data = mean_sdl)
+
+h1 / h2
+```
 
 
 
