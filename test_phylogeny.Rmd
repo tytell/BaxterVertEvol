@@ -11,6 +11,8 @@ library(ape)
 library(geiger)
 library(nlme)
 library(patchwork)
+library(emmeans)
+library(multcompView)
 ```
 
 ```{r}
@@ -129,15 +131,18 @@ Analyze notochordal foramen diameter and its correlation with body shape.
 pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_d_BodyShape)
+anova(pgls_d_BodyShape)
 ```
 statistical significance with a very low p value (0.05?)
 Less statistical significance with d based on body shape -- as mentioned with elongate, only one example.
+
 
 And the centrum body length correlation with body shape.
 ```{r}
 pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_BodyShape)
+anova(pgls_CBL_BodyShape)
 ```
 More of an indication of statistical significance -- deep bodied showing a p value less than 0.05?
 
