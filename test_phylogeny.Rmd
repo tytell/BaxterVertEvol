@@ -11,6 +11,8 @@ library(ape)
 library(geiger)
 library(nlme)
 library(patchwork)
+library(emmeans)
+library(multcompView)
 ```
 
 ```{r}
@@ -129,13 +131,16 @@ Analyze notochordal foramen diameter and its correlation with body shape.
 pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_d_BodyShape)
+anova(pgls_d_BodyShape)
 ```
+
 
 And the centrum body length correlation with body shape.
 ```{r}
 pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_BodyShape)
+anova(pgls_CBL_BodyShape)
 ```
 
 And plot the data. The importance of the elongate body shape may be over stated, because there's only one example.
