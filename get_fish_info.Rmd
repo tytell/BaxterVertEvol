@@ -207,6 +207,8 @@ vertmeasall_fishbase <-
   fishbasedata2,
   
   by = "Species")
+
+vertmeasall_fishbase
 ```
 
 
