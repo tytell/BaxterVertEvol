@@ -1,0 +1,19 @@
+---
+title: "Flexibility/Vertebral Measurement Comparison"
+output: html_notebook
+---
+
+En = transverse flexibility
+Qn = cross sectional area ratios
+Gn = cross sectional shape indices
+Vn = # of elastic joints in axial skeleton
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+vertmeasmeans <- read.csv("vertmeasmeans.csv")
+```
+
