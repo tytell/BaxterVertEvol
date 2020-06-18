@@ -50,12 +50,7 @@ vertflexmean <- vertflex %>%
 vertflexmean
 ```
 
-#Merge the two tables and take the mean of NewVertMeas
-```{r}
-
-```
-
-#Preliminary Plots for VertMeas/En Comparisons
+#Preliminary Plots for VertMeas/En Means Comparisons
 ```{r}
 ggplot()
 ```
