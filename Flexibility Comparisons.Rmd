@@ -13,7 +13,33 @@ library(tidyverse)
 library(ggplot2)
 ```
 
+#Load in Vertebrae Measurements and Aleyev Flexibility Data
 ```{r}
 vertmeasmeans <- read.csv("vertmeasmeans.csv")
+
+vertmeasmeans
 ```
+
+```{r}
+vertflex <- read.csv("Aleyev Table 6 Digitization.csv")
+
+vertflex
+```
+
+#Take Mean for Flexibility Data
+```{r}
+vertflexmean <- vertflex %>%
+  group_by(Species) %>% 
+  select(En, Qn, Gn, Vn) %>%
+  summarize_all(mean, na.rm = TRUE) %>%
+  ungroup()
+
+vertflexmean
+```
+
+
+
+
+
+
 
