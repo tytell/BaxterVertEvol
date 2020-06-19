@@ -42,13 +42,19 @@ vertflex
 #Take Mean for Vertebrae Measurements and Flexibility Data
 ```{r}
 vertflexmean <- vertflex %>%
-  group_by(Species) %>% 
+  group_by(MatchSpecies) %>% 
   select(En, Qn, Gn, Vn) %>%
   summarize_all(mean, na.rm = TRUE) %>%
   ungroup()
 
 vertflexmean
 ```
+
+#Joining the Aleyev and Vertebral Measurement Plots 
+```{r}
+inner_join(newvertmeasmean, vertflexmean, by = c("Species" = "MatchSpecies"))
+```
+
 
 #Preliminary Plots for VertMeas/En Means Comparisons
 ```{r}
