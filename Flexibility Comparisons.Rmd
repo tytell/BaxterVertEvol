@@ -52,17 +52,36 @@ vertflexmean
 
 #Joining the Aleyev and Vertebral Measurement Plots 
 ```{r}
-inner_join(newvertmeasmean, vertflexmean, by = c("Species" = "MatchSpecies"))
+vertmeasflexjoin<- inner_join(newvertmeasmean, vertflexmean, by = c("Species" = "MatchSpecies"))
+
+vertmeasflexjoin
 ```
 
 
 #Preliminary Plots for VertMeas/En Means Comparisons
 ```{r}
-ggplot()
+ggplot(vertmeasflexjoin, aes(x = d, y = En)) + geom_point(color = "purple")
+```
+This is bizarre...but when I did the math for the means of the En value for each species this is what it came out to be...I guess I don't fully understand the concept of transverse flexibility? 
+
+```{r}
+ggplot(vertmeasflexjoin, aes(x = CBL, y = En)) + geom_point(color = "light green")
 ```
 
+```{r}
+ggplot(vertmeasflexjoin, aes(x = d, y = Gn)) + geom_point(color = "navy blue")
+```
 
+```{r}
+ggplot(vertmeasflexjoin, aes(x = CBL, y = Gn)) + geom_point(color = "red")
+```
 
+```{r}
+ggplot(vertmeasflexjoin, aes(x = d, y = Qn)) + geom_point(color = "blue")
+```
 
+```{r}
+ggplot(vertmeasflexjoin, aes(x = CBL, y = Qn)) + geom_point(color = "orange")
+```
 
 
