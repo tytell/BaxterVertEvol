@@ -84,26 +84,79 @@ ggplot(vertmeasflexjoin, aes(x = d, y = Qn)) + geom_point(color = "blue")
 ggplot(vertmeasflexjoin, aes(x = CBL, y = Qn)) + geom_point(color = "orange")
 ```
 
-#Add Column to vertmeasflexjoin with Max
+#Max and Min values as singular value for each species 
+
+#Taking Max per Species and Joining
 ```{r}
-vertmeasflexjoinmax <- vertmeasflexjoin %>%
-  group_by(Species) %>%
-  select(En, Qn, Gn, Vn) %>%
+newvertmeasmax <- newvertmeas %>%
+  group_by(Species, Indiv) %>%
+  select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
+  summarize_all(max, na.rm=TRUE) %>%
+  ungroup()
+
+newvertmeasmax
+```
+
+```{r}
+vertflexmax <- vertflex %>%
+  group_by(MatchSpecies) %>% 
+  select(En, Qn, Gn) %>%
   summarize_all(max, na.rm = TRUE) %>%
   ungroup()
-  
-vertmeasflexjoinmax
+
+vertflexmax
+```
+Reminder to myself to figure out how to correct for the missing Vn values for a few species 
+
+```{r}
+maxvertmeasflexjoin<- inner_join(newvertmeasmax, vertflexmax, by = c("Species" = "MatchSpecies"))
+
+maxvertmeasflexjoin
+```
+
+#Taking Min per Species and Joining
+```{r}
+newvertmeasmin <- newvertmeas %>%
+  group_by(Species, Indiv) %>%
+  select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
+  summarize_all(min, na.rm=TRUE) %>%
+  ungroup()
+
+newvertmeasmin
 ```
 
 ```{r}
-vertmeasflexjoinmin <- vertmeasflexjoin %>%
-  group_by(Species) %>%
-  select(En, Qn, Gn, Vn) %>%
+vertflexmin <- vertflex %>%
+  group_by(MatchSpecies) %>% 
+  select(En, Qn, Gn) %>%
   summarize_all(min, na.rm = TRUE) %>%
   ungroup()
-  
-vertmeasflexjoinmin
-```
-Why are these the exact same? I'm really confused...
 
+vertflexmin
+```
+
+```{r}
+minvertmeasflexjoin<- inner_join(newvertmeasmin, vertflexmin, by = c("Species" = "MatchSpecies"))
+
+minvertmeasflexjoin
+```
+
+#Preliminary comparison plots with Max or Min as only measurement per species
+
+```{r}
+ggplot(maxvertmeasflexjoin, aes(x = d, y = En)) + geom_point(color = "purple")
+```
+
+```{r}
+ggplot(maxvertmeasflexjoin, aes(x = CBL, y = En)) + geom_point(color = "maroon")
+```
+
+```{r}
+ggplot(minvertmeasflexjoin, aes(x = d, y = En)) + geom_point(color = "pink")
+```
+
+```{r}
+ggplot(minvertmeasflexjoin, aes(x = CBL, y = En)) + geom_point(color = "red")
+```
+It looks like using the max might be promising? Will ask how statistically this could be appropriate.
 
