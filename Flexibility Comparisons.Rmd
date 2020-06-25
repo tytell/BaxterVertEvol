@@ -23,20 +23,42 @@ newvertmeas
 ```
 
 ```{r}
-newvertmeasmean <- newvertmeas %>%
+newvertmeaslast <- newvertmeas %>%
   group_by(Species, Indiv) %>%
   select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
-  summarize_all(mean, na.rm=TRUE) %>%
+  summarize_all(last) %>%
   ungroup()
 
-newvertmeasmean
+newvertmeaslast
 ```
 
-
+Convert Aleyev's positions to percentages down the body
 ```{r}
 vertflex <- read.csv("Aleyev Table 6 Digitization.csv")
 
+vertflex <-
+  vertflex %>%
+  mutate(Pos = (Pos/5 - 0.1)*100)
+
 vertflex
+```
+Join vertebral measurement data with flexibility data, matching on both species and position.
+```{r}
+vertmeasflexjoin <- 
+  inner_join(newvertmeas, vertflex, by = c("Species" = "MatchSpecies", "Pos" = "Pos")) %>%
+  mutate(Species_Aleyev = Species.y) %>%
+  select(Species:SL, CBL:D_Ant, En:Vn)
+
+vertmeasflexjoin
+```
+Plot comparison of vertebral parameters and flexibility parameters, including position along the body
+```{r}
+ggplot(vertmeasflexjoin, aes(x = d, y = En, color=Pos)) + geom_point()
+```
+
+```{r}
+ggplot(vertmeasflexjoin, aes(x=CBL, y=En, color=Pos)) +
+  geom_point()
 ```
 
 #Take Mean for Vertebrae Measurements and Flexibility Data
@@ -44,7 +66,7 @@ vertflex
 vertflexmean <- vertflex %>%
   group_by(MatchSpecies) %>% 
   select(En, Qn, Gn, Vn) %>%
-  summarize_all(mean, na.rm = TRUE) %>%
+  summarize_all(last) %>%
   ungroup()
 
 vertflexmean
@@ -52,7 +74,7 @@ vertflexmean
 
 #Joining the Aleyev and Vertebral Measurement Plots 
 ```{r}
-vertmeasflexjoin<- inner_join(newvertmeasmean, vertflexmean, by = c("Species" = "MatchSpecies"))
+vertmeasflexjoin<- inner_join(newvertmeaslast, vertflexmean, by = c("Species" = "MatchSpecies"))
 
 vertmeasflexjoin
 ```
