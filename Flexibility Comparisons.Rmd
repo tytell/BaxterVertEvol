@@ -58,7 +58,7 @@ vertmeasflexjoin
 ```
 
 
-#Preliminary Plots for VertMeas/En Means Comparisons
+#Preliminary Plots for VertMeas/En Means Comparisons with Averages
 ```{r}
 ggplot(vertmeasflexjoin, aes(x = d, y = En)) + geom_point(color = "purple")
 ```
@@ -83,5 +83,27 @@ ggplot(vertmeasflexjoin, aes(x = d, y = Qn)) + geom_point(color = "blue")
 ```{r}
 ggplot(vertmeasflexjoin, aes(x = CBL, y = Qn)) + geom_point(color = "orange")
 ```
+
+#Add Column to vertmeasflexjoin with Max
+```{r}
+vertmeasflexjoinmax <- vertmeasflexjoin %>%
+  group_by(Species) %>%
+  select(En, Qn, Gn, Vn) %>%
+  summarize_all(max, na.rm = TRUE) %>%
+  ungroup()
+  
+vertmeasflexjoinmax
+```
+
+```{r}
+vertmeasflexjoinmin <- vertmeasflexjoin %>%
+  group_by(Species) %>%
+  select(En, Qn, Gn, Vn) %>%
+  summarize_all(min, na.rm = TRUE) %>%
+  ungroup()
+  
+vertmeasflexjoinmin
+```
+Why are these the exact same? I'm really confused...
 
 
