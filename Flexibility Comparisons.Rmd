@@ -182,3 +182,16 @@ ggplot(minvertmeasflexjoin, aes(x = CBL, y = En)) + geom_point(color = "red")
 ```
 It looks like using the max might be promising? Will ask how statistically this could be appropriate.
 
+
+#Check Corresponding Max
+```{r}
+correspondmax <- read_csv("MaxEn_correspd.csv")
+
+correspondmax
+```
+
+
+```{r}
+ggplot(correspondmax, aes(x = En_Max, y = Corresponding_d)) + geom_point(color = "maroon")
+```
+
