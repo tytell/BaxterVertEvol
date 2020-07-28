@@ -13,8 +13,62 @@ library(Hmisc)
 ```
 
 
+#Load in csv
 ```{r}
-
+vertmeasall <- read.csv("MasterVert_Measurements.csv")
+verthabitat
 ```
+
+
+#Take Mean of Vert Measurements 
+```{r}
+vertmeasallmean <- vertmeasall %>%
+  group_by(Species, Indiv) %>%
+  select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
+  summarize_all(mean, na.rm=TRUE) %>%
+  ungroup()
+
+vertmeasallmean
+```
+
+
+#Merge with Habitat Columns
+```{r}
+verthabitat <- read.csv("VertHabitatR.csv")
+
+verthabitat
+```
+
+```{r}
+vertmeasallmeanhabitat <-
+  left_join(
+  vertmeasallmean,
+  
+  verthabitat,
+  
+  by = "Species")
+
+vertmeasallmeanhabitat
+```
+
+
+#Plots with Habitat_Friedman
+```{r}
+ggplot(vertmeasallmeanhabitat, aes(x = d, y = CBL, color = Habitat_Friedman)) + 
+  geom_point()
+```
+I'm not sure why there are two benthopelagic subsets here...I spelled them the exact same.
+
+```{r}
+ggplot(vertmeasallmeanhabitat, aes(x = d, y = D_Pos, color = Habitat_Friedman)) + 
+  geom_point()
+```
+
+```{r}
+ggplot(vertmeasallmeanhabitat, aes(x = d, y = CBL, color = Habitat_FishBase)) + 
+  geom_point()
+```
+
+
 
 
