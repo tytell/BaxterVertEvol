@@ -16,7 +16,7 @@ library(Hmisc)
 #Load in csv
 ```{r}
 vertmeasall <- read.csv("MasterVert_Measurements.csv")
-verthabitat
+vertmeasall
 ```
 
 

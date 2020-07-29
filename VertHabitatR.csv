@@ -7,10 +7,10 @@ Catostomus_catostomus,demersal,demersal
 Cephalopholis_argus,benthic,benthic
 Chaetostoma_lineopunctatum,demersal,demersal
 Centropomus_undecimalis,reef associated,reef associated
-Osteoglossum_bicirrhosum,benthopelagic ,benthopelagic 
-Chanos_chanos,benthopelagic ,benthopelagic 
-Cyprinus_carpio,benthopelagic ,benthopelagic 
-Roeboides_affinis,benthopelagic ,benthopelagic 
+Osteoglossum_bicirrhosum,benthopelagic,benthopelagic
+Chanos_chanos,benthopelagic,benthopelagic
+Cyprinus_carpio,benthopelagic,benthopelagic
+Roeboides_affinis,benthopelagic,benthopelagic
 Lepidogalaxias_salamandroides,demersal,demersal
 Stenobrachius_leucopsarus,pelagic ,pelagic 
 Percopsis_omiscomaycus,demersal,demersal
@@ -25,7 +25,7 @@ Menidia_beryllina,pelagic ,pelagic
 Hypsypops_rubicundus,demersal,reef associated
 Salarias_fasciatus,benthic,reef associated
 Labroides_dimidiatus,demersal,reef associated
-Hemitaurichthys_polylepis,pelagic ,benthopelagic 
+Hemitaurichthys_polylepis,pelagic ,benthopelagic
 Lagodon_rhomboides,demersal,demersal
 Halieutichthys_aculeatus,benthic,reef associated
 Stephanolepis_hispidus,demersal,reef associated
@@ -34,7 +34,7 @@ Mirorictus_taningi,bathydemersal,bathydemersal
 Ctenochaetus_strigosus,demersal,reef associated
 Ophidion_scrippsae,demersal,demersal
 Malacosteus_niger,pelagic ,bathypelagic
-Serrasalmus_rhombeus,benthopelagic ,benthopelagic 
+Serrasalmus_rhombeus,benthopelagic,benthopelagic
 Oncorhyncus_gorbuscha,demersal,demersal
 Coryphaenoides_filifer,bathydemersal,bathydemersal
 Pimelodella_cristata,demersal,demersal
@@ -62,7 +62,7 @@ Coryphaena_hippurus,pelagic ,pelagic
 Alosa_pseudoharengus,pelagic ,pelagic 
 Engraulis_mordax,pelagic ,pelagic 
 Trachurus_trachurus,pelagic ,pelagic 
-Poecilia_reticulata,benthopelagic ,benthopelagic 
+Poecilia_reticulata,benthopelagic,benthopelagic
 Sphyraena_sphyraena,pelagic ,pelagic 
 Scomber_japonicus,pelagic ,pelagic 
 Xiphophorus_hellerii,benthopelagic,benthopelagic
