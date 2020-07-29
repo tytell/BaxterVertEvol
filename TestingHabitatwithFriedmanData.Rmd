@@ -57,7 +57,7 @@ vertmeasallmeanhabitat
 ggplot(vertmeasallmeanhabitat, aes(x = d, y = CBL, color = Habitat_Friedman)) + 
   geom_point()
 ```
-I'm not sure why there are two benthopelagic subsets here...I spelled them the exact same.
+I'm not sure why there are two benthopelagic subsets here...I spelled them the exact same. There also doesn't look like too much of an obvious trend. 
 
 ```{r}
 ggplot(vertmeasallmeanhabitat, aes(x = d, y = D_Pos, color = Habitat_Friedman)) + 
