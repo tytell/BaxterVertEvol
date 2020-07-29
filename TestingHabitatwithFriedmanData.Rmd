@@ -10,6 +10,14 @@ library(rfishbase)
 library(tidyverse)
 library (ggplot2)
 library(Hmisc)
+library(phytools)
+library(here)
+library(ape)
+library(geiger)
+library(nlme)
+library(patchwork)
+library(emmeans)
+library(multcompView)
 ```
 
 
@@ -57,7 +65,7 @@ vertmeasallmeanhabitat
 ggplot(vertmeasallmeanhabitat, aes(x = d, y = CBL, color = Habitat_Friedman)) + 
   geom_point()
 ```
-I'm not sure why there are two benthopelagic subsets here...I spelled them the exact same. There also doesn't look like too much of an obvious trend. 
+
 
 ```{r}
 ggplot(vertmeasallmeanhabitat, aes(x = d, y = D_Pos, color = Habitat_Friedman)) + 
@@ -75,5 +83,193 @@ ggplot(vertmeasallmeanhabitat, aes(x = Habitat_Friedman, y = d, color=Habitat_Fr
   stat_summary(fun.data = "mean_cl_boot") +
   geom_point(position ="jitter", alpha=0.5)
 ```
+
+
+```{r}
+ggplot(vertmeasallmeanhabitat, aes(x = Habitat_Friedman, y = CBL, color=Habitat_Friedman)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+```
+
+#Try PGLS with the Friedman Habitat Data
+
+#Load in Phylogenetic Info
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
+
+```{r}
+tree <- read.tree(here('..', treefile))
+```
+
+
+```{r}
+plotTree(tree)
+```
+
+
+```{r}
+# first just get the tip labels. These look Family_Genus_Species_Code
+allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
+colnames(allspecies) <- c('FullName')
+
+# split the label into columns on the underscores, but then merge genus and species again into
+# a binomial separated by a space
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
+
+# add in the tip number, which is just 1 to the number of species
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+
+```{r}
+vertmeasall
+```
+
+
+```{r}
+vertmeasall %>%
+  group_by(Species, Body.Shape, Habitat_Friedman) %>%
+  summarise(d = mean(d),
+            CBL = mean(CBL)) %>%
+  ungroup() %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
+  vertmeas.species
+```
+
+
+```{r}
+vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
+vertmeas.species
+```
+
+
+```{r}
+left_join(filter(vertmeas.species, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenus
+```
+
+
+```{r}
+vertmeas.bygenus
+```
+
+```{r}
+left_join(vertmeas.species, vertmeas.bygenus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.species1
+vertmeas.species1
+```
+
+
+```{r}
+vertmeas.species1 <- column_to_rownames(vertmeas.species1, var="FullName")
+```
+
+
+```{r}
+verttree <- keep.tip(tree, tip=as.vector(vertmeas.species1$Tip))
+```
+
+
+```{r}
+plotTree(verttree)
+```
+
+
+#Start PGLS Analysis with Friedman Habitat Data 
+```{r}
+length(verttree$tip.label)
+nrow(vertmeas.species1)
+```
+
+
+```{r}
+name.check(verttree, vertmeas.species1)
+```
+
+
+```{r}
+pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_d_BodyShape)
+anova(pgls_d_BodyShape)
+```
+
+
+```{r}
+pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_CBL_BodyShape)
+anova(pgls_CBL_BodyShape)
+```
+
+
+```{r}
+p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d, color=Body.Shape)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+p2 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=CBL, color=Body.Shape)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+p1 / p2
+```
+
+
+```{r}
+coef(pgls_d_BodyShape)
+```
+
+
+PGLS with Friedman Habitat Data
+```{r}
+pgls_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_d_Habitat)
+```
+Pelagic is ALMOST significant, but not really. Reef associated is, but there are only like 2 species with this category.
+
+```{r}
+pgls_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
+                        data = vertmeas.species1, method = "ML")
+summary(pgls_CBL_Habitat)
+```
+
+
+```{r}
+h1 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=d, color=Habitat_Friedman)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+
+h2 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=CBL, color=Habitat_Friedman)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  stat_summary(fun.data = mean_sdl)
+
+h1 / h2
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
