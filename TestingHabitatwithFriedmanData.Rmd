@@ -18,6 +18,10 @@ library(nlme)
 library(patchwork)
 library(emmeans)
 library(multcompView)
+library(Rmisc) 
+library(readxl)
+library(plotly) 
+library(ggthemes) 
 ```
 
 
@@ -262,6 +266,20 @@ h1 / h2
 
 
 #Try PCA with Body Shape
+
+I tried to do a PCA but I honestly don't think I understand the math well enough to do it through code in R.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
