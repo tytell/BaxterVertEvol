@@ -21,6 +21,7 @@ library(multcompView)
 library(readxl)
 library(plotly) 
 library(ggthemes) 
+library(naniar)
 ```
 
 
@@ -264,9 +265,16 @@ h1 / h2
 ```
 
 
-#Try PCA with Body Shape
+#Looking at pelagic d outlier
+The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
 
-I tried to do a PCA but I honestly don't think I understand the math well enough to do it through code in R.
+```{r}
+pglsedit <- vertmeas.species1 %>%
+  replace_with_na(replace = list("d"= 0.0079571429))
+
+pglsedit
+```
+I'm not sure why this isn't working to take this single d value number out.
 
 
 
