@@ -22,6 +22,7 @@ library(readxl)
 library(plotly) 
 library(ggthemes) 
 library(naniar)
+library(dplyr)
 ```
 
 
@@ -269,12 +270,92 @@ h1 / h2
 The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
 
 ```{r}
-pglsedit <- vertmeas.species1 %>%
-  replace_with_na(replace = list("d"= 0.0079571429))
+pglsedit <- vertmeas.species %>% 
+  filter(Genus != "Elops") #using dplyr, thanks Ben!
 
 pglsedit
 ```
-I'm not sure why this isn't working to take this single d value number out.
+
+
+```{r}
+left_join(filter(pglsedit, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenuspglsedit
+
+vertmeas.bygenuspglsedit
+```
+
+
+```{r}
+left_join(pglsedit, vertmeas.bygenuspglsedit,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.speciespglsedit
+
+vertmeas.speciespglsedit
+```
+
+
+```{r}
+vertmeas.speciespglsedit <- column_to_rownames(vertmeas.speciespglsedit, var="FullName")
+```
+
+
+```{r}
+verttreepglsedit <- keep.tip(tree, tip=as.vector(vertmeas.speciespglsedit$Tip))
+```
+
+
+```{r}
+plotTree(verttreepglsedit)
+```
+
+
+```{r}
+length(verttreepglsedit$tip.label)
+nrow(vertmeas.speciespglsedit)
+```
+
+
+```{r}
+name.check(verttreepglsedit, vertmeas.speciespglsedit)
+```
+
+
+```{r}
+pglsedit_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttreepglsedit),
+                      data = vertmeas.speciespglsedit, method = "ML")
+summary(pglsedit_d_Habitat)
+```
+
+
+```{r}
+pglsedit_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttreepglsedit),
+                        data = vertmeas.speciespglsedit, method = "ML")
+summary(pglsedit_CBL_Habitat)
+```
+
+
+```{r}
+ha1 <- ggplot(vertmeas.speciespglsedit, aes(x=Habitat_Friedman, y=d, color=Habitat_Friedman)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+
+ha2 <- ggplot(vertmeas.speciespglsedit, aes(x=Habitat_Friedman, y=CBL, color=Habitat_Friedman)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  stat_summary(fun.data = mean_sdl)
+
+ha1 / ha2
+```
+
+
+
+
 
 
 
