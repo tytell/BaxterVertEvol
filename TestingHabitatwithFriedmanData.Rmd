@@ -339,6 +339,11 @@ pwpm(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
 ```
 
 
+```{r}
+pairs(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
+```
+
+
 
 ```{r}
 pglsedit_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttreepglsedit),
