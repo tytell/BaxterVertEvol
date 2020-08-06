@@ -330,7 +330,14 @@ name.check(verttreepglsedit, vertmeas.speciespglsedit)
 pglsedit_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttreepglsedit),
                       data = vertmeas.speciespglsedit, method = "ML")
 summary(pglsedit_d_Habitat)
+anova(pglsedit_d_Habitat)
 ```
+
+
+```{r}
+pwpm(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
+```
+
 
 
 ```{r}
