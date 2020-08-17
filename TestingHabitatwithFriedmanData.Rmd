@@ -209,7 +209,7 @@ pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree)
 summary(pgls_d_BodyShape)
 anova(pgls_d_BodyShape)
 ```
-
+Body shape significant here 
 
 ```{r}
 pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = verttree),
@@ -365,8 +365,9 @@ ha2 <- ggplot(vertmeas.speciespglsedit, aes(x=Habitat_Friedman, y=CBL, color=Hab
 ha1 / ha2
 ```
 
-#PGLS with Consensus Habitat Column
 
+
+#PGLS with Consensus Habitat Column
 
 ```{r}
 vertmeasall %>%
@@ -439,12 +440,14 @@ name.check(verttreeconsensus, vertmeas.speciesconsensus1)
 pgls_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
                       data = vertmeas.speciesconsensus1, method = "ML")
 summary(pgls_d_HabitatConsensus)
+anova(pgls_d_HabitatConsensus)
 ```
 
 ```{r}
 pgls_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
                         data = vertmeas.speciesconsensus1, method = "ML")
 summary(pgls_CBL_HabitatConsensus)
+anova(pgls_CBL_HabitatConsensus)
 ```
 
 
