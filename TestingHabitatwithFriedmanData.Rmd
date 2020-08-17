@@ -365,16 +365,111 @@ ha2 <- ggplot(vertmeas.speciespglsedit, aes(x=Habitat_Friedman, y=CBL, color=Hab
 ha1 / ha2
 ```
 
+#PGLS with Consensus Habitat Column
 
 
+```{r}
+vertmeasall %>%
+  group_by(Species, Body.Shape, Habitat) %>%
+  summarise(d = mean(d),
+            CBL = mean(CBL)) %>%
+  ungroup() %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
+  vertmeas.species
+```
 
 
+```{r}
+vertmeas.speciesconsensus <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
+vertmeas.speciesconsensus
+```
 
 
+```{r}
+left_join(filter(vertmeas.speciesconsensus, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenusconsensus
+```
 
 
+```{r}
+vertmeas.bygenusconsensus
+```
 
 
+```{r}
+left_join(vertmeas.speciesconsensus, vertmeas.bygenusconsensus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.speciesconsensus1
+vertmeas.speciesconsensus1
+```
+
+
+```{r}
+vertmeas.speciesconsensus1 <- column_to_rownames(vertmeas.speciesconsensus1, var="FullName")
+```
+
+
+```{r}
+verttreeconsensus <- keep.tip(tree, tip=as.vector(vertmeas.speciesconsensus1$Tip))
+```
+
+
+```{r}
+plotTree(verttreeconsensus)
+```
+
+```{r}
+length(verttreeconsensus$tip.label)
+nrow(vertmeas.speciesconsensus1)
+```
+
+
+```{r}
+name.check(verttreeconsensus, vertmeas.speciesconsensus1)
+```
+
+
+```{r}
+pgls_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
+                      data = vertmeas.speciesconsensus1, method = "ML")
+summary(pgls_d_HabitatConsensus)
+```
+
+```{r}
+pgls_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
+                        data = vertmeas.speciesconsensus1, method = "ML")
+summary(pgls_CBL_HabitatConsensus)
+```
+
+
+```{r}
+hc1 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=d, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+
+hc2 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=CBL, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  stat_summary(fun.data = mean_sdl)
+
+hc1 / hc2
+```
+
+
+```{r}
+pwpm(emmeans(pgls_d_HabitatConsensus, "Habitat"))
+```
+
+
+```{r}
+pairs(emmeans(pgls_d_HabitatConsensus, "Habitat"))
+```
 
 
 
