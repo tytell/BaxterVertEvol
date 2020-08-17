@@ -481,9 +481,84 @@ pairs(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```
 
 
+#Consensus Habitat Attempt without Elops saurus
+The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
+
+```{r}
+pglseditconsensus <- vertmeas.speciesconsensus %>% 
+  filter(Genus != "Elops") #using dplyr, thanks Ben!
+
+pglseditconsensus
+```
 
 
+```{r}
+left_join(filter(pglseditconsensus, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenuspglseditconsensus
 
+vertmeas.bygenuspglseditconsensus
+```
+
+```{r}
+left_join(pglseditconsensus, vertmeas.bygenuspglseditconsensus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.speciespglseditconsensus
+
+vertmeas.speciespglseditconsensus
+```
+
+
+```{r}
+vertmeas.speciespglseditconsensus <- column_to_rownames(vertmeas.speciespglseditconsensus, var="FullName")
+```
+
+
+```{r}
+verttreepglseditconsensus <- keep.tip(tree, tip=as.vector(vertmeas.speciespglseditconsensus$Tip))
+```
+
+
+```{r}
+plotTree(verttreepglseditconsensus)
+```
+
+
+```{r}
+length(verttreepglseditconsensus$tip.label)
+nrow(vertmeas.speciespglseditconsensus)
+```
+
+
+```{r}
+name.check(verttreepglseditconsensus, vertmeas.speciespglseditconsensus)
+```
+
+
+```{r}
+pglsedit_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreepglseditconsensus),
+                      data = vertmeas.speciespglseditconsensus, method = "ML")
+summary(pglsedit_d_HabitatConsensus)
+```
+
+```{r}
+anova(pglsedit_d_HabitatConsensus)
+```
+
+
+```{r}
+pwpm(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
+```
+
+
+```{r}
+pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
+```
 
 
 
