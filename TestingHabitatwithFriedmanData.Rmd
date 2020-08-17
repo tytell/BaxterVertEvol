@@ -440,16 +440,22 @@ name.check(verttreeconsensus, vertmeas.speciesconsensus1)
 pgls_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
                       data = vertmeas.speciesconsensus1, method = "ML")
 summary(pgls_d_HabitatConsensus)
+```
+
+```{r}
 anova(pgls_d_HabitatConsensus)
 ```
+
 
 ```{r}
 pgls_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
                         data = vertmeas.speciesconsensus1, method = "ML")
 summary(pgls_CBL_HabitatConsensus)
-anova(pgls_CBL_HabitatConsensus)
 ```
 
+```{r}
+anova(pgls_CBL_HabitatConsensus)
+```
 
 ```{r}
 hc1 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=d, color=Habitat)) +
