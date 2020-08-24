@@ -593,7 +593,11 @@ vertmeasallmaxhabitat
 vertmeasall %>%
   group_by(Species, Body.Shape, Habitat) %>%
   summarise(d = max(d),
-            CBL = max(CBL)) %>%
+            CBL = max(CBL),
+            D_Ant = max(D_Ant),
+            D_Pos = max(D_Pos),
+            alpha_Pos = max(alpha_Pos),
+            alpha_Ant = max(alpha_Ant)) %>%
   ungroup() %>%
   separate(Species, sep='_', into=c("Genus", "Species")) ->
   vertmeas.speciesmax
@@ -669,16 +673,53 @@ anova(pgls_d_HabitatConsensusMax)
 pairs(emmeans(pgls_d_HabitatConsensusMax, "Habitat"))
 ```
 
+#PGLS with max CBL and habitat consensus
 
+```{r}
+pgls_CBL_HabitatConsensusMax<- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreemax),
+                      data = vertmeas.speciesmax1, method = "ML")
+summary(pgls_CBL_HabitatConsensusMax)
+```
 
+```{r}
+anova(pgls_CBL_HabitatConsensusMax)
+```
 
+```{r}
+pairs(emmeans(pgls_CBL_HabitatConsensusMax, "Habitat"))
+```
 
+#PGLS with max D_Pos and habitat consensus
 
+```{r}
+pgls_DPos_HabitatConsensusMax<- gls(D_Pos ~ Habitat, correlation = corBrownian(phy = verttreemax),
+                      data = vertmeas.speciesmax1, method = "ML")
+summary(pgls_DPos_HabitatConsensusMax)
+```
 
+```{r}
+anova(pgls_DPos_HabitatConsensusMax)
+```
 
+```{r}
+pairs(emmeans(pgls_DPos_HabitatConsensusMax, "Habitat"))
+```
 
+#PGLS with max alpha_Ant and habitat consensus
 
+```{r}
+pgls_alphaPos_HabitatConsensusMax<- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreemax),
+                      data = vertmeas.speciesmax1, method = "ML")
+summary(pgls_alphaPos_HabitatConsensusMax)
+```
 
+```{r}
+anova(pgls_alphaPos_HabitatConsensusMax)
+```
+
+```{r}
+pairs(emmeans(pgls_alphaPos_HabitatConsensusMax, "Habitat"))
+```
 
 
 
