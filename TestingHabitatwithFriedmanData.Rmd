@@ -561,6 +561,141 @@ pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
 
 
+#Max d with Consensus Habitat
+
+```{r}
+vertmeasallmax <- vertmeasall %>%
+  group_by(Species, Indiv) %>%
+  select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
+  summarize_all(mean, na.rm=TRUE) %>%
+  ungroup()
+
+vertmeasallmax
+
+#taking max d for each species 
+```
+
+```{r}
+vertmeasallmaxhabitat <-
+  left_join(
+  vertmeasallmax,
+  
+  verthabitat,
+  
+  by = "Species")
+
+vertmeasallmaxhabitat
+
+#merge with habitat columns 
+```
+
+```{r}
+vertmeasall %>%
+  group_by(Species, Body.Shape, Habitat) %>%
+  summarise(d = max(d),
+            CBL = max(CBL)) %>%
+  ungroup() %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
+  vertmeas.speciesmax
+```
+
+
+```{r}
+vertmeas.speciesmax <- left_join(vertmeas.speciesmax, allspecies, by=c("Genus", "Species"))
+
+vertmeas.speciesmax
+```
+
+```{r}
+left_join(filter(vertmeas.speciesmax, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenusmax
+```
+
+
+```{r}
+vertmeas.bygenusmax
+```
+
+```{r}
+left_join(vertmeas.speciesmax, vertmeas.bygenusmax,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.speciesmax1
+vertmeas.speciesmax1
+```
+
+
+```{r}
+vertmeas.speciesmax1 <- column_to_rownames(vertmeas.speciesmax1, var="FullName")
+```
+
+
+```{r}
+verttreemax <- keep.tip(tree, tip=as.vector(vertmeas.speciesmax1$Tip))
+```
+
+
+```{r}
+plotTree(verttreemax)
+```
+
+```{r}
+length(verttreemax$tip.label)
+nrow(vertmeas.speciesmax1)
+```
+
+
+```{r}
+name.check(verttreemax, vertmeas.speciesmax1)
+```
+
+
+```{r}
+pgls_d_HabitatConsensusMax<- gls(d ~ Habitat, correlation = corBrownian(phy = verttreemax),
+                      data = vertmeas.speciesmax1, method = "ML")
+summary(pgls_d_HabitatConsensusMax)
+```
+
+```{r}
+anova(pgls_d_HabitatConsensusMax)
+```
+
+```{r}
+pairs(emmeans(pgls_d_HabitatConsensusMax, "Habitat"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
