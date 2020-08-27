@@ -740,7 +740,7 @@ anova(pgls_DPos_HabitatConsensusMax)
 pairs(emmeans(pgls_DPos_HabitatConsensusMax, "Habitat"))
 ```
 
-#PGLS with max alpha_Ant and habitat consensus
+#PGLS with max alpha_Pos and habitat consensus
 
 ```{r}
 pgls_alphaPos_HabitatConsensusMax<- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreemax),
@@ -756,12 +756,66 @@ anova(pgls_alphaPos_HabitatConsensusMax)
 pairs(emmeans(pgls_alphaPos_HabitatConsensusMax, "Habitat"))
 ```
 
+#PGLS Figures for Habitat Consensus Visualization
+
+```{r}
+hc1 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=d, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+
+hcm2 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=alpha_Pos, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  stat_summary(fun.data = mean_sdl)
+
+hc1 / hcm2
+```
+
+
+
 #Output a CSV with all data 
 
 vertmeasall has all of the habitat columns and all of the measurements, but I don't think it's linked the node into the phylogeny. To be honest, I'm not totally sure how to do that. 
 
+
 ```{r}
-write.csv (framename,"docname.csv")
+vertmeasall %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
+  vertmeas.speciesall
+```
+
+
+```{r}
+vertmeas.speciesall <- left_join(vertmeas.speciesall, allspecies, by=c("Genus", "Species"))
+
+vertmeas.speciesall
+```
+
+
+```{r}
+left_join(filter(vertmeas.speciesall, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenusall
+
+vertmeas.bygenusall
+```
+
+```{r}
+left_join(vertmeas.speciesall, vertmeas.bygenusall,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.speciesall1
+
+vertmeas.speciesall1
+```
+
+
+```{r}
+write.csv (vertmeas.speciesall1,"All_Vert_Data.csv")
 ```
 
 
