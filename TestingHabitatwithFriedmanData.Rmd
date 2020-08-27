@@ -756,4 +756,42 @@ anova(pgls_alphaPos_HabitatConsensusMax)
 pairs(emmeans(pgls_alphaPos_HabitatConsensusMax, "Habitat"))
 ```
 
+#Output a CSV with all data 
+
+vertmeasall has all of the habitat columns and all of the measurements, but I don't think it's linked the node into the phylogeny. To be honest, I'm not totally sure how to do that. 
+
+```{r}
+write.csv (framename,"docname.csv")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
