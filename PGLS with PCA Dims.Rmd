@@ -6,6 +6,7 @@ output: html_notebook
 
 
 ```{r}
+library(dplyr)
 library(tidyverse)
 library(FactoMineR)
 library(factoextra)
@@ -26,7 +27,6 @@ library(readxl)
 library(plotly) 
 library(ggthemes) 
 library(naniar)
-library(dplyr)
 ```
 
 #Dr. Tytell's PCA Code 
