@@ -1,0 +1,234 @@
+---
+title: "PGLS with PCA Dims"
+output: html_notebook
+---
+
+
+
+```{r}
+library(tidyverse)
+library(FactoMineR)
+library(factoextra)
+library(patchwork)
+library(ggExtra)
+library(GGally)
+library(rfishbase)
+library (ggplot2)
+library(Hmisc)
+library(phytools)
+library(here)
+library(ape)
+library(geiger)
+library(nlme)
+library(emmeans)
+library(multcompView)
+library(readxl)
+library(plotly) 
+library(ggthemes) 
+library(naniar)
+library(dplyr)
+```
+
+#Dr. Tytell's PCA Code 
+
+```{r}
+vertdata <- read_csv('All_Vert_Data.csv')
+```
+```{r}
+head(vertdata)
+```
+
+```{r}
+p1 <- ggplot(vertdata, aes(x=CBL, color=Habitat)) + geom_density()
+p2 <- ggplot(vertdata, aes(x=d, color=Habitat)) + geom_density()
+p3 <- ggplot(vertdata, aes(x=alpha_Ant, color=Habitat)) + geom_density()
+p4 <- ggplot(vertdata, aes(x=alpha_Pos, color=Habitat)) + geom_density()
+
+(p1 | p2) / (p3 | p4)
+```
+
+Select just the columns we need, and fill in missing positions.
+```{r}
+vertdata <-
+  vertdata %>%
+  select(c('Genus','Species', 'Indiv', 'Body.Shape', 'Habitat', 'Tip', 'Family', 'FullName',
+           'Pos', 'CBL', 'd', 'alpha_Pos', 'alpha_Ant')) %>%
+  # "complete" the Pos column by filling in values that are missing for Species
+  # and individuals but present for others
+  complete(Pos, nesting(Species, Indiv)) %>%
+  arrange(Species, Indiv, Pos) %>%
+  rename(alphaPos = alpha_Pos,
+         alphaAnt = alpha_Ant)
+
+vertdata
+```
+
+When we "completed" the missing positions, R filled in NAs for anything missing, 
+including things like genus and species that should just repeat the same value for all positions
+for the same individual. Fill in the missing qualitative pieces.
+```{r}
+vertdata <-
+  vertdata %>%
+  group_by(Species, Indiv) %>%
+  fill(Genus, Body.Shape, Habitat, Tip, Family, FullName, .direction='downup') %>%
+  ungroup()
+
+vertdata
+```
+
+Merge the genus and species columns, then push all of the categorical variables
+we want to keep during the PCA to the left side of the data table.
+```{r}
+vertdata <-
+  vertdata %>%
+  unite("Species", c("Genus", "Species")) %>%
+  relocate(Species, Indiv, Habitat, Tip, Pos, CBL:alphaAnt)
+
+vertdata
+```
+
+
+Now we want to replace NAs with the mean value for that individual.
+```{r}
+vertdata_full <-
+  vertdata %>%
+  group_by(Species, Indiv) %>%
+  mutate_at(vars(CBL, d, alphaPos, alphaAnt), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
+  ungroup()
+
+vertdata_full
+```
+
+Check how many NAs we replaced at each position.
+```{r}
+vertdata %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'alphaAnt')) %>%
+  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
+  select_if(~ .x < 0.8)
+```
+This shows the fraction of each variable that is good (ie, not NA). We'll drop ones that are less than 80% good, which looks like all of the 20% and 30% measurements. alpha_Ant is different because some species just have no measurements of it.
+
+Expand the columns so that each measurement of each variable is a different column.
+```{r}
+vertdata_wide <-
+  vertdata_full %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'alphaAnt'))
+
+vertdata_wide
+```
+
+Drop the 20% and 30% values, since those are missing in a lot of species. This runs
+the PCA, keeping the qualitative columns 1 to 7 (`quali.sup=seq(1,7)`).
+```{r}
+vertdata.pca <- 
+  vertdata_wide %>%
+  select(-contains(c("20", "30"))) %>%
+  select(-starts_with("alphaAnt")) %>%
+  PCA(quali.sup=seq(1,7), scale.unit = TRUE)
+
+vertdata.pca
+```
+The PCA graph shows the weights of the different variables along different axes. 
+If the vectors are pointing in the same direction, then the variables are correlated
+with one another. It appears that d and alphaPos are strongly correlated, while CBL
+is relatively uncorrelated.
+
+This shows how important each of the PC modes are. Variation along the first mode
+explains 51.8% of the variance in the data; variance along the second mode explains
+22.8% and so forth.
+```{r}
+fviz_eig(vertdata.pca, addlabels=TRUE)
+```
+The first three components get us 86% of the total variance, so that seems enough.
+
+This extracts the PC coordinates and scores.
+```{r}
+vertdata.var <- get_pca_var(vertdata.pca)
+vertdata.var
+```
+This shows how much of each of the measurement variables (rows) correspond to each 
+PC axis (columns), all scaled to +-1. We need to convert this so that the "Dim.1",
+"Dim.2", etc, are recorded in a variable, and put the different positions back
+in another variable.
+```{r}
+vertdata.var$coord
+```
+
+What we're doing is kind of a rotate of the data set 90deg.
+```{r}
+pcweights <-
+  vertdata.var$coord %>%
+  # convert the coordinates into a data frame
+  as.data.frame() %>%
+  # the names of the variables are in the row names, so turn that into
+  # a column
+  rownames_to_column("varpos") %>%
+  # then split variable and position into two separate columns
+  separate(varpos, into=c("var", "Pos"), sep="_") %>%
+  # take the Dim.1:Dim.5 columns and turn them into one long column with
+  # the PC name in the "PC" column and the weight value in a "weight" column
+  pivot_longer(Dim.1:Dim.5, names_to="PC", values_to="weight") %>%
+  # then take the "var" column and turn each of the values into separate columns
+  pivot_wider(names_from="var", values_from="weight") %>%
+  mutate(Pos = as.numeric(Pos),
+         PC = as.factor(PC)) %>%
+  arrange(PC, Pos)
+
+pcweights
+```
+
+The signs of the PCs are arbitrary, so if some are overall negative (ie, the mean is
+less than zero), we flip the sign.
+```{r}
+pcweights <-
+  pcweights %>%
+  group_by(PC) %>%
+  mutate_at(vars(CBL, alphaPos, d), ~ .x * sign(mean(.x))) %>%
+  ungroup()
+```
+
+Now plot the PCs for each position and variable
+```{r}
+pcweights %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=d, color=PC)) +
+  geom_line()
+```
+
+```{r}
+pcweights %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=CBL, color=PC)) +
+  geom_line()
+```
+
+```{r}
+pcweights %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=alphaPos, color=PC)) +
+  geom_line()
+```
+
+
+```{r}
+vertdata.ind <- get_pca_ind(vertdata.pca)
+
+pcscores <-
+  vertdata.ind$coord %>%
+  as.data.frame() %>%
+  bind_cols(vertdata_wide)
+```
+
+```{r}
+ggpairs(pcscores, columns = c("Dim.1", "Dim.2", "Dim.3"),
+        mapping = aes(color = Habitat, shape = Habitat),
+        upper = list(continuous = "blank"),
+        diag = list(continuous = "densityDiag"))
+```
+
+Dana, this is your challenge! Do the pgls analysis on Dim.1 relative to habitat.
+
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
