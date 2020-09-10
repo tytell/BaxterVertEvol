@@ -1,19 +1,13 @@
 ---
-title: "PGLS with PCA Dims"
+title: "PGLSwithPCA_Dims"
 output: html_notebook
 ---
 
 
 
 ```{r}
-library(dplyr)
-library(tidyverse)
-library(FactoMineR)
-library(factoextra)
-library(patchwork)
-library(ggExtra)
-library(GGally)
 library(rfishbase)
+library(tidyverse)
 library (ggplot2)
 library(Hmisc)
 library(phytools)
@@ -21,19 +15,26 @@ library(here)
 library(ape)
 library(geiger)
 library(nlme)
+library(patchwork)
 library(emmeans)
 library(multcompView)
 library(readxl)
 library(plotly) 
 library(ggthemes) 
 library(naniar)
+library(dplyr)
+library(FactoMineR)
+library(factoextra)
+library(ggExtra)
+library(GGally)
 ```
 
-#Dr. Tytell's PCA Code 
+#PCA with Dr Tytell's code
 
 ```{r}
-vertdata <- read_csv('All_Vert_Data.csv')
+vertdata <- read_csv("All_Vert_Data.csv")
 ```
+
 ```{r}
 head(vertdata)
 ```
@@ -231,4 +232,119 @@ Dana, this is your challenge! Do the pgls analysis on Dim.1 relative to habitat.
 ```{r}
 treefile <- '12862_2017_958_MOESM2_ESM.tre'
 ```
+
+```{r}
+tree <- read.tree(here('..', treefile))
+```
+
+```{r}
+plotTree(tree)
+```
+
+```{r}
+# first just get the tip labels. These look Family_Genus_Species_Code
+allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
+colnames(allspecies) <- c('FullName')
+
+# split the label into columns on the underscores, but then merge genus and species again into
+# a binomial separated by a space
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
+
+# add in the tip number, which is just 1 to the number of species
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+```{r}
+vertdata
+```
+
+```{r}
+pcweights
+```
+
+```{r}
+pcweights_new <-
+  pcweights %>%
+  pivot_wider(names_from="PC", values_from= c("CBL", "alphaPos", "d"))
+
+pcweights_new
+```
+
+
+```{r}
+pc_hab <- left_join (vertdata, pcweights_new, by=c("Pos"))
+
+pc_hab
+```
+
+
+```{r}
+pc_hab %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
+  pc_hab.species
+
+pc_hab.species
+```
+
+```{r}
+left_join(filter(pc_hab.species, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+pc_hab.bygenus
+```
+
+```{r}
+left_join(pc_hab.species, pc_hab.bygenus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  pc_hab.species1
+
+pc_hab.species1
+```
+
+
+```{r}
+vertmeas.species1 <- column_to_rownames(pc_hab.species1, var="FullName")
+```
+
+
+```{r}
+pc_verttree <- keep.tip(tree, tip=as.vector(pc_hab.species1$Tip))
+```
+
+
+```{r}
+plotTree(pc_verttree)
+```
+
+
+
+```{r}
+length(pc_verttree$tip.label)
+nrow(pc_hab.species1)
+```
+
+
+```{r}
+name.check(pc_verttree, pc_hab.species1)
+```
+
+
+```{r}
+pgls_dDim1_Hab<- gls(d ~ Habitat, correlation = corBrownian(phy = pc_verttree),
+                      data = pc_hab.species1, method = "ML")
+summary(pgls_dDim1_Hab)
+anova(pgls_dDim1_Hab)
+```
+
+
+
+
+
+
 
