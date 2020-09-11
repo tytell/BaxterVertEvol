@@ -218,6 +218,8 @@ pcscores <-
   vertdata.ind$coord %>%
   as.data.frame() %>%
   bind_cols(vertdata_wide)
+
+pcscores
 ```
 
 ```{r}
@@ -242,17 +244,13 @@ plotTree(tree)
 ```
 
 ```{r}
-# first just get the tip labels. These look Family_Genus_Species_Code
 allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
 colnames(allspecies) <- c('FullName')
 
-# split the label into columns on the underscores, but then merge genus and species again into
-# a binomial separated by a space
 allspecies <- 
   allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
                           extra='drop', remove=FALSE)
 
-# add in the tip number, which is just 1 to the number of species
 allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
@@ -261,90 +259,77 @@ vertdata
 ```
 
 ```{r}
-pcweights
+pcscores
+```
+
+#R is not liking that the multiple individuals are in the pscores, so I am taking them out for the purpose of running a PGLS
+```{r}
+pcscores_edit1 <- pcscores %>% 
+  filter(Indiv != "2") 
+
+pcscores_edit1
 ```
 
 ```{r}
-pcweights_new <-
-  pcweights %>%
-  pivot_wider(names_from="PC", values_from= c("CBL", "alphaPos", "d"))
+pcscores_edit <- pcscores_edit1 %>% 
+  filter(Indiv != "3") 
 
-pcweights_new
-```
-
-
-```{r}
-pc_hab <- left_join (vertdata, pcweights_new, by=c("Pos"))
-
-pc_hab
-```
-
-
-```{r}
-pc_hab %>%
-  separate(Species, sep='_', into=c("Genus", "Species")) ->
-  pc_hab.species
-
-pc_hab.species
-```
-
-```{r}
-left_join(filter(pc_hab.species, is.na(Tip)),
-          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-pc_hab.bygenus
-```
-
-```{r}
-left_join(pc_hab.species, pc_hab.bygenus,
-          by = c("Genus","Species","Family")) %>%
-  mutate(Tip = coalesce(Tip.x, Tip.y),
-         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
-  select(-Tip.x, -Tip.y) %>%
-  filter(!is.na(Tip)) ->
-  pc_hab.species1
-
-pc_hab.species1
+pcscores_edit
 ```
 
 
 ```{r}
-vertmeas.species1 <- column_to_rownames(pc_hab.species1, var="FullName")
+pc_tree <- keep.tip(tree, tip=as.vector(pcscores_edit$Tip))
 ```
 
 
 ```{r}
-pc_verttree <- keep.tip(tree, tip=as.vector(pc_hab.species1$Tip))
-```
-
-
-```{r}
-plotTree(pc_verttree)
+plotTree(pc_tree)
 ```
 
 
 
 ```{r}
-length(pc_verttree$tip.label)
-nrow(pc_hab.species1)
+length(pc_tree$tip.label)
+nrow(pcscores_edit)
 ```
 
 
 ```{r}
-name.check(pc_verttree, pc_hab.species1)
+name.check(pc_tree, pcscores_edit)
 ```
 
 
 ```{r}
-pgls_dDim1_Hab<- gls(d ~ Habitat, correlation = corBrownian(phy = pc_verttree),
-                      data = pc_hab.species1, method = "ML")
-summary(pgls_dDim1_Hab)
-anova(pgls_dDim1_Hab)
+pgls_Dim1_Hab<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree),
+                      data = pcscores_edit, method = "ML")
+summary(pgls_Dim1_Hab)
+```
+
+```{r}
+anova(pgls_Dim1_Hab)
+```
+
+```{r}
+pgls_Dim2_Hab<- gls(Dim.2 ~ Habitat, correlation = corBrownian(phy = pc_tree),
+                      data = pcscores_edit, method = "ML")
+summary(pgls_Dim2_Hab)
+```
+
+```{r}
+anova(pgls_Dim2_Hab)
 ```
 
 
+```{r}
+pgls_Dim3_Hab<- gls(Dim.3 ~ Habitat, correlation = corBrownian(phy = pc_tree),
+                      data = pcscores_edit, method = "ML")
+summary(pgls_Dim3_Hab)
+```
 
-
+```{r}
+anova(pgls_Dim3_Hab)
+```
 
 
 
