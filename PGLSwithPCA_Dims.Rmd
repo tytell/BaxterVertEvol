@@ -262,21 +262,15 @@ vertdata
 pcscores
 ```
 
-#R is not liking that the multiple individuals are in the pscores, so I am taking them out for the purpose of running a PGLS
-```{r}
-pcscores_edit1 <- pcscores %>% 
-  filter(Indiv != "2") 
+R is not liking that the multiple individuals are in the pscores, so I am taking them out for the purpose of running a PGLS.
 
-pcscores_edit1
-```
-
+From Eric: Here's an easier way to do this filter:
 ```{r}
-pcscores_edit <- pcscores_edit1 %>% 
-  filter(Indiv != "3") 
+pcscores_edit <- pcscores %>% 
+  filter(Indiv == "1") 
 
 pcscores_edit
 ```
-
 
 ```{r}
 pc_tree <- keep.tip(tree, tip=as.vector(pcscores_edit$Tip))
@@ -298,7 +292,21 @@ nrow(pcscores_edit)
 ```{r}
 name.check(pc_tree, pcscores_edit)
 ```
+This indicates that *none* of the species match, which is not right.
 
+**IMPORTANT**
+To do the PGLS analysis, the rownames in our dataframe need to match the tip names in the tree. We've saved these values as FullName in the dataframe, so convert these back to rownames. Also, for some reason the pcscores data frame already has rownames, so we have to remove them first.
+```{r}
+pcscores_edit <-
+  pcscores_edit %>%
+  remove_rownames() %>%
+  column_to_rownames("FullName")
+
+```
+
+```{r}
+name.check(pc_tree, pcscores_edit)
+```
 
 ```{r}
 pgls_Dim1_Hab<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree),
@@ -331,5 +339,11 @@ summary(pgls_Dim3_Hab)
 anova(pgls_Dim3_Hab)
 ```
 
+But this is nearly significant...
+```{r}
+pgls_d50_Hab <- gls(d_50 ~ Habitat, correlation = corBrownian(phy = pc_tree),
+                      data = pcscores_edit, method = "ML")
+summary(pgls_d50_Hab)
+```
 
 
