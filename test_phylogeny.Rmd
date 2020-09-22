@@ -58,7 +58,7 @@ Get distinct species names and just extract the binomial
 ```{r}
 vertmeas %>%
   group_by(Species, Body.Shape, Habitat) %>%
-  summarize(d = mean(d),
+  dplyr::summarize(d = mean(d),
             CBL = mean(CBL)) %>%
   ungroup() %>%
   separate(Species, sep='_', into=c("Genus", "Species")) ->
@@ -120,6 +120,7 @@ Check that we have the same number of tips in our tree and rows in our data fram
 length(verttree$tip.label)
 nrow(vertmeas.species1)
 ```
+
 
 And use this extra function to make sure they match up appropriately.
 ```{r}
