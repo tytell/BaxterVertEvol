@@ -1,0 +1,123 @@
+---
+title: "PGLSforeachfeature"
+output: html_notebook
+---
+
+```{r}
+library(rfishbase)
+library(tidyverse)
+library (ggplot2)
+library(Hmisc)
+library(phytools)
+library(here)
+library(ape)
+library(geiger)
+library(nlme)
+library(patchwork)
+library(emmeans)
+library(multcompView)
+library(readxl)
+library(plotly) 
+library(ggthemes) 
+library(naniar)
+library(dplyr)
+library(FactoMineR)
+library(factoextra)
+library(ggExtra)
+library(GGally)
+```
+
+```{r}
+vertdata <- read_csv("All_Vert_Data.csv")
+```
+
+```{r}
+head(vertdata)
+```
+
+```{r}
+p1 <- ggplot(vertdata, aes(x=CBL, color=Habitat)) + geom_density()
+p2 <- ggplot(vertdata, aes(x=d, color=Habitat)) + geom_density()
+p3 <- ggplot(vertdata, aes(x=alpha_Ant, color=Habitat)) + geom_density()
+p4 <- ggplot(vertdata, aes(x=alpha_Pos, color=Habitat)) + geom_density()
+
+(p1 | p2) / (p3 | p4)
+```
+
+```{r}
+vertdata <-
+  vertdata %>%
+  select(c('Genus','Species', 'Indiv', 'Body.Shape', 'Habitat', 'Tip', 'Family', 'FullName',
+           'Pos', 'CBL', 'd', 'alpha_Pos', 'alpha_Ant')) %>%
+  # "complete" the Pos column by filling in values that are missing for Species
+  # and individuals but present for others
+  complete(Pos, nesting(Species, Indiv)) %>%
+  arrange(Species, Indiv, Pos) %>%
+  rename(alphaPos = alpha_Pos,
+         alphaAnt = alpha_Ant)
+
+vertdata
+```
+
+```{r}
+vertdata <-
+  vertdata %>%
+  group_by(Species, Indiv) %>%
+  fill(Genus, Body.Shape, Habitat, Tip, Family, FullName, .direction='downup') %>%
+  ungroup()
+
+vertdata
+```
+
+```{r}
+vertdata <-
+  vertdata %>%
+  unite("Species", c("Genus", "Species")) %>%
+  relocate(Species, Indiv, Habitat, Tip, Pos, CBL:alphaAnt)
+
+vertdata
+```
+
+```{r}
+vertdata_full <-
+  vertdata %>%
+  group_by(Species, Indiv) %>%
+  mutate_at(vars(CBL, d, alphaPos, alphaAnt), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
+  ungroup()
+
+vertdata_full
+```
+
+```{r}
+vertdata %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'alphaAnt')) %>%
+  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
+  select_if(~ .x < 0.8)
+```
+
+```{r}
+vertdata_wide <-
+  vertdata_full %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'alphaAnt'))
+
+vertdata_wide
+```
+
+```{r}
+vertdata.pca <- 
+  vertdata_wide %>%
+  select(-contains(c("20", "30"))) %>%
+  select(starts_with("d")) %>%
+  PCA(quali.sup=seq(1,7), scale.unit = FALSE)
+
+vertdata.pca
+```
+
+
+
+
+
+
+
+
+
