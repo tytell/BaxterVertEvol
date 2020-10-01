@@ -27,6 +27,7 @@ library(ggExtra)
 library(GGally)
 ```
 
+#PCA with each individual measurement feature
 ```{r}
 vertdata <- read_csv("All_Vert_Data.csv")
 ```
@@ -104,14 +105,236 @@ vertdata_wide
 ```
 
 ```{r}
-vertdata.pca <- 
+vertdata.pca_d <- 
   vertdata_wide %>%
   select(-contains(c("20", "30"))) %>%
-  select(starts_with("d")) %>%
+  select(-starts_with("CBL")) %>%
+  select(-starts_with("alphaPos")) %>%
+  select(-starts_with("alphaAnt")) %>%
   PCA(quali.sup=seq(1,7), scale.unit = FALSE)
 
-vertdata.pca
+vertdata.pca_d
 ```
+
+```{r}
+vertdata.pca_CBL <- 
+  vertdata_wide %>%
+  select(-contains(c("20", "30"))) %>%
+  select(-starts_with("d")) %>%
+  select(-starts_with("alphaPos")) %>%
+  select(-starts_with("alphaAnt")) %>%
+  PCA(quali.sup=seq(1,7), scale.unit = FALSE)
+
+vertdata.pca_CBL
+```
+
+```{r}
+vertdata.pca_alphaPos <- 
+  vertdata_wide %>%
+  select(-contains(c("20", "30"))) %>%
+  select(-starts_with("d")) %>%
+  select(-starts_with("CBL")) %>%
+  select(-starts_with("alphaAnt")) %>%
+  PCA(quali.sup=seq(1,7), scale.unit = FALSE)
+
+vertdata.pca_alphaPos
+```
+What does this mean? Why does it look so drastically different from the others? Is it that Dim1 holds so much more of the variation? But there are others with Dim1 with %s in the 80s.
+
+```{r}
+fviz_eig(vertdata.pca_d, addlabels=TRUE)
+```
+
+```{r}
+fviz_eig(vertdata.pca_CBL, addlabels=TRUE)
+```
+
+```{r}
+fviz_eig(vertdata.pca_alphaPos, addlabels=TRUE)
+```
+
+```{r}
+vertdata.var_d <- get_pca_var(vertdata.pca_d)
+vertdata.var_d
+```
+
+```{r}
+vertdata.var_CBL <- get_pca_var(vertdata.pca_CBL)
+vertdata.var_CBL
+```
+
+```{r}
+vertdata.var_alphaPos <- get_pca_var(vertdata.pca_alphaPos)
+vertdata.var_alphaPos
+```
+
+```{r}
+vertdata.var_d$coord
+```
+
+```{r}
+vertdata.var_CBL$coord
+```
+
+```{r}
+vertdata.var_alphaPos$coord
+```
+
+```{r}
+pcweights_d <-
+  vertdata.var_d$coord %>%
+  as.data.frame() %>%
+  rownames_to_column("varpos") %>%
+  separate(varpos, into=c("var", "Pos"), sep="_") %>%
+  pivot_longer(Dim.1:Dim.5, names_to="PC", values_to="weight") %>%
+  pivot_wider(names_from="var", values_from="weight") %>%
+  mutate(Pos = as.numeric(Pos),
+         PC = as.factor(PC)) %>%
+  arrange(PC, Pos)
+
+pcweights_d
+```
+
+```{r}
+pcweights_CBL <-
+  vertdata.var_CBL$coord %>%
+  as.data.frame() %>%
+  rownames_to_column("varpos") %>%
+  separate(varpos, into=c("var", "Pos"), sep="_") %>%
+  pivot_longer(Dim.1:Dim.5, names_to="PC", values_to="weight") %>%
+  pivot_wider(names_from="var", values_from="weight") %>%
+  mutate(Pos = as.numeric(Pos),
+         PC = as.factor(PC)) %>%
+  arrange(PC, Pos)
+
+pcweights_CBL
+```
+
+```{r}
+pcweights_alphaPos <-
+  vertdata.var_alphaPos$coord %>%
+  as.data.frame() %>%
+  rownames_to_column("varpos") %>%
+  separate(varpos, into=c("var", "Pos"), sep="_") %>%
+  pivot_longer(Dim.1:Dim.5, names_to="PC", values_to="weight") %>%
+  pivot_wider(names_from="var", values_from="weight") %>%
+  mutate(Pos = as.numeric(Pos),
+         PC = as.factor(PC)) %>%
+  arrange(PC, Pos)
+
+pcweights_alphaPos
+```
+
+```{r}
+pcweights_d <-
+  pcweights_d %>%
+  group_by(PC) %>%
+  mutate_at(vars(d), ~ .x * sign(mean(.x))) %>%
+  ungroup()
+```
+
+```{r}
+pcweights_CBL <-
+  pcweights_CBL %>%
+  group_by(PC) %>%
+  mutate_at(vars(CBL), ~ .x * sign(mean(.x))) %>%
+  ungroup()
+```
+
+```{r}
+pcweights_alphaPos <-
+  pcweights_alphaPos %>%
+  group_by(PC) %>%
+  mutate_at(vars(alphaPos), ~ .x * sign(mean(.x))) %>%
+  ungroup()
+```
+
+```{r}
+pcweights_d %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=d, color=PC)) +
+  geom_line()
+```
+
+```{r}
+pcweights_CBL %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=CBL, color=PC)) +
+  geom_line()
+```
+
+```{r}
+pcweights_alphaPos %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=alphaPos, color=PC)) +
+  geom_line()
+```
+
+```{r}
+vertdata.ind_d <- get_pca_ind(vertdata.pca_d)
+
+pcscores_d <-
+  vertdata.ind_d$coord %>%
+  as.data.frame() %>%
+  bind_cols(vertdata_wide)
+
+pcscores_d
+```
+
+```{r}
+vertdata.ind_CBL <- get_pca_ind(vertdata.pca_CBL)
+
+pcscores_CBL <-
+  vertdata.ind_CBL$coord %>%
+  as.data.frame() %>%
+  bind_cols(vertdata_wide)
+
+pcscores_CBL
+```
+
+```{r}
+vertdata.ind_alphaPos <- get_pca_ind(vertdata.pca_alphaPos)
+
+pcscores_alphaPos <-
+  vertdata.ind_alphaPos$coord %>%
+  as.data.frame() %>%
+  bind_cols(vertdata_wide)
+
+pcscores_alphaPos
+```
+
+```{r}
+ggpairs(pcscores_d, columns = c("Dim.1", "Dim.2", "Dim.3"),
+        mapping = aes(color = Habitat, shape = Habitat),
+        upper = list(continuous = "blank"),
+        diag = list(continuous = "densityDiag"))
+```
+
+```{r}
+ggpairs(pcscores_CBL, columns = c("Dim.1", "Dim.2", "Dim.3"),
+        mapping = aes(color = Habitat, shape = Habitat),
+        upper = list(continuous = "blank"),
+        diag = list(continuous = "densityDiag"))
+```
+
+```{r}
+ggpairs(pcscores_alphaPos, columns = c("Dim.1", "Dim.2", "Dim.3"),
+        mapping = aes(color = Habitat, shape = Habitat),
+        upper = list(continuous = "blank"),
+        diag = list(continuous = "densityDiag"))
+```
+
+
+#PGLS with each individual measurement feature's PCA
+
+
+
+
+
+
+
+
+
 
 
 
