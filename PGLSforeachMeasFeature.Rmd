@@ -327,6 +327,178 @@ ggpairs(pcscores_alphaPos, columns = c("Dim.1", "Dim.2", "Dim.3"),
 
 #PGLS with each individual measurement feature's PCA
 
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
+```{r}
+tree <- read.tree(here('..', treefile))
+```
+
+```{r}
+plotTree(tree)
+```
+
+```{r}
+allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
+colnames(allspecies) <- c('FullName')
+
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
+
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+```{r}
+vertdata
+```
+
+```{r}
+pcscores_d
+```
+
+```{r}
+pcscores_CBL
+```
+
+```{r}
+pcscores_alphaPos
+```
+
+```{r}
+pcscores_edit_d <- pcscores_d %>% 
+  filter(Indiv == "1") 
+
+pcscores_edit_d
+```
+
+```{r}
+pcscores_edit_CBL <- pcscores_CBL %>% 
+  filter(Indiv == "1") 
+
+pcscores_edit_CBL
+```
+
+```{r}
+pcscores_edit_alphaPos <- pcscores_alphaPos %>% 
+  filter(Indiv == "1") 
+
+pcscores_edit_alphaPos
+```
+
+```{r}
+pc_tree_d <- keep.tip(tree, tip=as.vector(pcscores_edit_d$Tip))
+```
+
+```{r}
+pc_tree_CBL <- keep.tip(tree, tip=as.vector(pcscores_edit_CBL$Tip))
+```
+
+```{r}
+pc_tree_alphaPos <- keep.tip(tree, tip=as.vector(pcscores_edit_alphaPos$Tip))
+```
+
+```{r}
+plotTree(pc_tree_d)
+```
+
+```{r}
+plotTree(pc_tree_CBL)
+```
+
+```{r}
+plotTree(pc_tree_alphaPos)
+```
+
+```{r}
+length(pc_tree_d$tip.label)
+nrow(pcscores_edit_d)
+```
+
+```{r}
+length(pc_tree_CBL$tip.label)
+nrow(pcscores_edit_CBL)
+```
+
+```{r}
+length(pc_tree_alphaPos$tip.label)
+nrow(pcscores_edit_alphaPos)
+```
+
+```{r}
+pcscores_edit_d <-
+  pcscores_edit_d %>%
+  remove_rownames() %>%
+  column_to_rownames("FullName")
+```
+
+```{r}
+pcscores_edit_CBL <-
+  pcscores_edit_CBL %>%
+  remove_rownames() %>%
+  column_to_rownames("FullName")
+```
+
+```{r}
+pcscores_edit_alphaPos <-
+  pcscores_edit_alphaPos %>%
+  remove_rownames() %>%
+  column_to_rownames("FullName")
+```
+
+```{r}
+name.check(pc_tree_d, pcscores_edit_d)
+```
+
+```{r}
+name.check(pc_tree_CBL, pcscores_edit_CBL)
+```
+
+```{r}
+name.check(pc_tree_alphaPos, pcscores_edit_alphaPos)
+```
+
+```{r}
+pgls_Dim1_Hab_d<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree_d),
+                      data = pcscores_edit_d, method = "ML")
+summary(pgls_Dim1_Hab_d)
+anova(pgls_Dim1_Hab_d)
+```
+
+```{r}
+pgls_Dim1_Hab_CBL<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree_CBL),
+                      data = pcscores_edit_CBL, method = "ML")
+summary(pgls_Dim1_Hab_CBL)
+anova(pgls_Dim1_Hab_CBL)
+```
+
+```{r}
+pgls_Dim1_Hab_alphaPos<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree_alphaPos),
+                      data = pcscores_edit_alphaPos, method = "ML")
+summary(pgls_Dim1_Hab_alphaPos)
+anova(pgls_Dim1_Hab_alphaPos)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
