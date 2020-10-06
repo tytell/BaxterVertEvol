@@ -89,6 +89,8 @@ vertdata_full <-
 vertdata_full
 ```
 
+Dana, get mean d, CBL, alphaAnt here, before pivot
+
 ```{r}
 vertdata %>%
   pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'alphaAnt')) %>%
@@ -111,10 +113,11 @@ vertdata.pca_d <-
   select(-starts_with("CBL")) %>%
   select(-starts_with("alphaPos")) %>%
   select(-starts_with("alphaAnt")) %>%
-  PCA(quali.sup=seq(1,7), scale.unit = FALSE)
+  PCA(quali.sup=seq(1,7), scale.unit = TRUE)
 
 vertdata.pca_d
 ```
+*From Eric*: If we're working with just d (or just CBL or alphaAnt), then it produces the same results if we have `scale.unit = TRUE` or `scale.unit = FALSE`.
 
 ```{r}
 vertdata.pca_CBL <- 
@@ -123,7 +126,7 @@ vertdata.pca_CBL <-
   select(-starts_with("d")) %>%
   select(-starts_with("alphaPos")) %>%
   select(-starts_with("alphaAnt")) %>%
-  PCA(quali.sup=seq(1,7), scale.unit = FALSE)
+  PCA(quali.sup=seq(1,7), scale.unit = TRUE)
 
 vertdata.pca_CBL
 ```
@@ -135,7 +138,7 @@ vertdata.pca_alphaPos <-
   select(-starts_with("d")) %>%
   select(-starts_with("CBL")) %>%
   select(-starts_with("alphaAnt")) %>%
-  PCA(quali.sup=seq(1,7), scale.unit = FALSE)
+  PCA(quali.sup=seq(1,7), scale.unit = TRUE)
 
 vertdata.pca_alphaPos
 ```
