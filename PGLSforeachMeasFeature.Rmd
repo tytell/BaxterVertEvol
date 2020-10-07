@@ -86,7 +86,21 @@ vertdata_full <-
   mutate_at(vars(CBL, d, alphaPos, alphaAnt), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
   ungroup()
 
+vertdata_mean <- vertdata_full %>%
+  group_by(Species, Indiv) %>%
+  select(CBL, d, alphaPos, alphaAnt) %>%
+  summarize_all(mean, na.rm=TRUE) %>%
+  ungroup()
+
+
+vertdata_full <- left_join(
+  vertdata_full,
+  vertdata_mean,
+  by = "Species", "Indiv")
+
 vertdata_full
+
+#d.y is the parameter with the means
 ```
 
 ```{r}
@@ -479,40 +493,3 @@ pgls_Dim1_Hab_alphaPos<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc
 summary(pgls_Dim1_Hab_alphaPos)
 anova(pgls_Dim1_Hab_alphaPos)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
