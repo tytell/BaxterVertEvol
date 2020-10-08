@@ -115,7 +115,7 @@ vertdata %>%
 ```{r}
 vertdata_wide <-
   vertdata_full %>%
-  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'alphaAnt'))
+  pivot_wider(names_from = Pos, values_from = c('CBL.x', 'CBL.y', 'alphaPos.x', 'alphaPos.y', 'd.x', 'd.y', 'alphaAnt.x', 'alphaAnt.y'))
 
 vertdata_wide
 ```
@@ -127,7 +127,7 @@ vertdata.pca_d <-
   select(-starts_with("CBL")) %>%
   select(-starts_with("alphaPos")) %>%
   select(-starts_with("alphaAnt")) %>%
-  PCA(quali.sup=seq(1,7), scale.unit = TRUE)
+  PCA(quali.sup=seq(1,8), scale.unit = TRUE)
 
 vertdata.pca_d
 ```
@@ -140,7 +140,7 @@ vertdata.pca_CBL <-
   select(-starts_with("d")) %>%
   select(-starts_with("alphaPos")) %>%
   select(-starts_with("alphaAnt")) %>%
-  PCA(quali.sup=seq(1,7), scale.unit = TRUE)
+  PCA(quali.sup=seq(1,8), scale.unit = TRUE)
 
 vertdata.pca_CBL
 ```
@@ -152,11 +152,11 @@ vertdata.pca_alphaPos <-
   select(-starts_with("d")) %>%
   select(-starts_with("CBL")) %>%
   select(-starts_with("alphaAnt")) %>%
-  PCA(quali.sup=seq(1,7), scale.unit = TRUE)
+  PCA(quali.sup=seq(1,8), scale.unit = TRUE)
 
 vertdata.pca_alphaPos
 ```
-What does this mean? Why does it look so drastically different from the others? Is it that Dim1 holds so much more of the variation? But there are others with Dim1 with %s in the 80s.
+I'm a bit confused on why this looks so messy.
 
 ```{r}
 fviz_eig(vertdata.pca_d, addlabels=TRUE)
@@ -246,7 +246,7 @@ pcweights_alphaPos
 pcweights_d <-
   pcweights_d %>%
   group_by(PC) %>%
-  mutate_at(vars(d), ~ .x * sign(mean(.x))) %>%
+  mutate_at(vars(d.x, d.y), ~ .x * sign(mean(.x))) %>%
   ungroup()
 ```
 
@@ -254,7 +254,7 @@ pcweights_d <-
 pcweights_CBL <-
   pcweights_CBL %>%
   group_by(PC) %>%
-  mutate_at(vars(CBL), ~ .x * sign(mean(.x))) %>%
+  mutate_at(vars(CBL.x, CBL.y), ~ .x * sign(mean(.x))) %>%
   ungroup()
 ```
 
@@ -262,30 +262,66 @@ pcweights_CBL <-
 pcweights_alphaPos <-
   pcweights_alphaPos %>%
   group_by(PC) %>%
-  mutate_at(vars(alphaPos), ~ .x * sign(mean(.x))) %>%
+  mutate_at(vars(alphaPos.x, alphaPos.y), ~ .x * sign(mean(.x))) %>%
   ungroup()
 ```
 
 ```{r}
-pcweights_d %>%
+pcweights_d.x <- pcweights_d %>%
   filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
-  ggplot(aes(x=Pos, y=d, color=PC)) +
+  ggplot(aes(x=Pos, y=d.x, color=PC)) +
   geom_line()
+
+pcweights_d.x
 ```
 
 ```{r}
-pcweights_CBL %>%
+pcweights_d.y <- pcweights_d %>%
   filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
-  ggplot(aes(x=Pos, y=CBL, color=PC)) +
+  ggplot(aes(x=Pos, y=d.y, color=PC)) +
   geom_line()
+
+pcweights_d.y
+```
+
+
+```{r}
+pcweights_CBL.x <- pcweights_CBL %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=CBL.x, color=PC)) +
+  geom_line()
+
+pcweights_CBL.x
 ```
 
 ```{r}
-pcweights_alphaPos %>%
+pcweights_CBL.y <- pcweights_CBL %>%
   filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
-  ggplot(aes(x=Pos, y=alphaPos, color=PC)) +
+  ggplot(aes(x=Pos, y=CBL.y, color=PC)) +
   geom_line()
+
+pcweights_CBL.y
 ```
+
+
+```{r}
+pcweights_alphaPos.x <- pcweights_alphaPos %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=alphaPos.x, color=PC)) +
+  geom_line()
+
+pcweights_alphaPos.x
+```
+
+```{r}
+pcweights_alphaPos.y <- pcweights_alphaPos %>%
+  filter(PC %in% c("Dim.1", "Dim.2", "Dim.3")) %>%
+  ggplot(aes(x=Pos, y=alphaPos.y, color=PC)) +
+  geom_line()
+
+pcweights_alphaPos.y
+```
+
 
 ```{r}
 vertdata.ind_d <- get_pca_ind(vertdata.pca_d)
@@ -385,21 +421,24 @@ pcscores_alphaPos
 
 ```{r}
 pcscores_edit_d <- pcscores_d %>% 
-  filter(Indiv == "1") 
+  filter(Indiv.x == "1") %>%
+  filter(Indiv.y == "1")
 
 pcscores_edit_d
 ```
 
 ```{r}
 pcscores_edit_CBL <- pcscores_CBL %>% 
-  filter(Indiv == "1") 
+  filter(Indiv.x == "1") %>%
+  filter(Indiv.y == "1")
 
 pcscores_edit_CBL
 ```
 
 ```{r}
 pcscores_edit_alphaPos <- pcscores_alphaPos %>% 
-  filter(Indiv == "1") 
+  filter(Indiv.x == "1") %>%
+  filter(Indiv.y == "1")
 
 pcscores_edit_alphaPos
 ```
@@ -448,6 +487,8 @@ pcscores_edit_d <-
   pcscores_edit_d %>%
   remove_rownames() %>%
   column_to_rownames("FullName")
+
+pcscores_edit_d
 ```
 
 ```{r}
@@ -482,6 +523,14 @@ pgls_Dim1_Hab_d<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree_d
 summary(pgls_Dim1_Hab_d)
 anova(pgls_Dim1_Hab_d)
 ```
+
+```{r}
+pgls_Hab_meand<- gls(d.y ~ Habitat, correlation = corBrownian(phy = pc_tree_d),
+                      data = pcscores_edit_d, method = "ML")
+summary(pgls_Hab_meand)
+anova(pgls_Hab_meand)
+```
+
 
 ```{r}
 pgls_Dim1_Hab_CBL<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree_CBL),
