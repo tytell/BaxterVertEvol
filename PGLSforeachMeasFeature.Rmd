@@ -525,10 +525,12 @@ anova(pgls_Dim1_Hab_d)
 ```
 
 ```{r}
-pgls_Hab_meand<- gls(d.y ~ Habitat, correlation = corBrownian(phy = pc_tree_d),
+pgls_Hab_meand<- gls(d.y_50 ~ Habitat, correlation = corBrownian(phy = pc_tree_d),
                       data = pcscores_edit_d, method = "ML")
 summary(pgls_Hab_meand)
 anova(pgls_Hab_meand)
+
+#I just picked an arbitrary body length value because for the mean it's all the same
 ```
 
 
@@ -540,8 +542,28 @@ anova(pgls_Dim1_Hab_CBL)
 ```
 
 ```{r}
+pgls_Hab_meanCBL<- gls(CBL.y_50 ~ Habitat, correlation = corBrownian(phy = pc_tree_CBL),
+                      data = pcscores_edit_CBL, method = "ML")
+summary(pgls_Hab_meanCBL)
+anova(pgls_Hab_meanCBL)
+
+#I just picked an arbitrary body length value because for the mean it's all the same
+```
+
+
+```{r}
 pgls_Dim1_Hab_alphaPos<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree_alphaPos),
                       data = pcscores_edit_alphaPos, method = "ML")
 summary(pgls_Dim1_Hab_alphaPos)
 anova(pgls_Dim1_Hab_alphaPos)
 ```
+
+```{r}
+pgls_Hab_meanalphaPos<- gls(alphaPos.y_50 ~ Habitat, correlation = corBrownian(phy = pc_tree_alphaPos),
+                      data = pcscores_edit_alphaPos, method = "ML")
+summary(pgls_Hab_meanalphaPos)
+anova(pgls_Hab_meanalphaPos)
+
+#I just picked an arbitrary body length value because for the mean it's all the same
+```
+
