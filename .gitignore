@@ -41,3 +41,6 @@ Merged Data/*
 .DS_Store
 
 .DS_Store
+.Rprofile
+renv.lock
+renv/*
