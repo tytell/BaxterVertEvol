@@ -1,8 +1,17 @@
 ---
 title: "TestingHabitatwithFriedmanData"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+  word_document: default
 ---
 
+
+```{r}
+install.packages("renv")
+```
 
 
 ```{r}
@@ -498,7 +507,7 @@ anova(pgls_DPos_HabitatConsensus)
 pairs(emmeans(pgls_DPos_HabitatConsensus, "Habitat"))
 ```
 
-#Mean PGLS with alpha_Pos and habitat consensus
+#Mean PGLS with alpha_Pos and Habitat Consensus
 
 ```{r}
 pgls_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
