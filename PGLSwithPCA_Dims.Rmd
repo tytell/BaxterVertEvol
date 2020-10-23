@@ -3,8 +3,6 @@ title: "PGLSwithPCA_Dims"
 output: html_notebook
 ---
 
-
-
 ```{r}
 library(rfishbase)
 library(tidyverse)
@@ -339,7 +337,6 @@ summary(pgls_Dim3_Hab)
 anova(pgls_Dim3_Hab)
 ```
 
-But this is nearly significant...
 ```{r}
 pgls_d50_Hab <- gls(d_50 ~ Habitat, correlation = corBrownian(phy = pc_tree),
                       data = pcscores_edit, method = "ML")

@@ -41,6 +41,11 @@ Merged Data/*
 .DS_Store
 
 .DS_Store
-.Rprofile
 renv.lock
 renv/*
+.Rprofile
+Code.Rproj
+
+# LaTeX files
+*.log
+*.tex
