@@ -91,10 +91,20 @@ m1 <- pgls(d_max ~ Habitat, data = comp.data)
 
 ```{r}
 summary(m1)
-anova(m1)
 ```
 
 ```{r}
+anova(m1)
+```
+
+
+```{r}
 pwpm(emmeans(m1, "Habitat"))
+```
+
+```{r}
+m2 <- pgls(d_mn ~ Habitat, data = comp.data)
+
+summary(m2)
 ```
 
