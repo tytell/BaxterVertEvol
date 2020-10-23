@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(phytools)
+library(caper)
+library(here)
+library(geiger)
+library(emmeans)
+```
+
+```{r}
+vertdata <- read_csv("All_Vert_Data.csv")
+```
+
+```{r}
+head(vertdata)
+```
+```{r}
+vertdata_sum <-
+  vertdata %>%
+  group_by(FullName, Genus, Species, Body.Shape, Habitat) %>%
+  dplyr::select(FullName, Genus, Species, 
+                d, CBL, alpha_Ant, alpha_Pos, Body.Shape, Habitat, Tip) %>%
+  rename(alphaAnt = alpha_Ant, alphaPos = alpha_Pos) %>%
+  summarize_at(vars(d, CBL, alphaAnt, alphaPos), list(mn = mean, max = max)) %>%
+  ungroup()
+```
+
+```{r}
+vertdata_sum <-
+  vertdata_sum %>%
+  column_to_rownames(var="FullName")
+```
+
+```{r}
+vertdata_sum
+```
+
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
+```{r}
+tree <- read.tree(here('..', treefile))
+```
+
+```{r}
+check <- name.check(tree, vertdata_sum)
+check$data_not_tree
+```
+
+```{r}
+tree_trimmed <- drop.tip(tree, check$tree_not_data)
+```
+
+```{r}
+name.check(tree_trimmed, vertdata_sum)
+```
+
+```{r}
+vertdata_sum <-
+  vertdata_sum %>%
+  rownames_to_column(var = "FullName")
+```
+
+```{r}
+tree_trimmed
+```
+
+```{r}
+tree_trimmed$node.label <- NULL
+```
+
+
+```{r}
+comp.data <- comparative.data(tree_trimmed, vertdata_sum, names.col="FullName", vcv.dim=2,
+                              warn.dropped=TRUE)
+```
+
+```{r}
+comp.data
+```
+
+```{r}
+m1 <- pgls(d_max ~ Habitat, data = comp.data)
+```
+
+```{r}
+summary(m1)
+anova(m1)
+```
+
+```{r}
+pwpm(emmeans(m1, "Habitat"))
+```
+

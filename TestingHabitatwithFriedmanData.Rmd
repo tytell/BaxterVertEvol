@@ -8,12 +8,6 @@ output:
   word_document: default
 ---
 
-
-```{r}
-install.packages("renv")
-```
-
-
 ```{r}
 library(rfishbase)
 library(tidyverse)
