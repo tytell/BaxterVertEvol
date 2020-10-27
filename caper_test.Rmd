@@ -96,7 +96,7 @@ summary(m1)
 ```{r}
 anova(m1)
 ```
-
+ANOVA of d_max based on habitat is significant.
 
 ```{r}
 pwpm(emmeans(m1, "Habitat"))
@@ -108,3 +108,51 @@ m2 <- pgls(d_mn ~ Habitat, data = comp.data)
 summary(m2)
 ```
 
+```{r}
+anova(m2)
+```
+But why isn't ANOVA of d_mean based on habitat significant? 
+
+```{r}
+c1 <- pgls(CBL_max ~ Habitat, data = comp.data)
+
+summary(c1)
+```
+
+```{r}
+anova(c1)
+```
+
+
+```{r}
+c2 <- pgls(CBL_mn ~ Habitat, data = comp.data)
+
+summary(c2)
+```
+
+```{r}
+anova(c2)
+```
+
+```{r}
+a1 <- pgls(alphaPos_max ~ Habitat, data = comp.data)
+
+summary(a1)
+```
+alphaPos is significantly different for pelagic, which is promising! 
+
+```{r}
+anova(a1)
+```
+This is like so close to being significant.
+
+```{r}
+a2 <- pgls(alphaPos_mn ~ Habitat, data = comp.data)
+
+summary(a2)
+```
+I wonder why the alphaPos max and mean are so different 
+
+```{r}
+anova(a2)
+```
