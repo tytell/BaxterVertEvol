@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup}
@@ -97,10 +99,6 @@ summary(m1)
 anova(m1)
 ```
 ANOVA of d_max based on habitat is significant.
-
-```{r}
-pwpm(emmeans(m1, "Habitat"))
-```
 
 ```{r}
 m2 <- pgls(d_mn ~ Habitat, data = comp.data)
