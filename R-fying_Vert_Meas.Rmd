@@ -1,0 +1,139 @@
+---
+title: "R-ifying Vertebral Measurements"
+output: html_notebook
+---
+
+
+#Calculating body point measurements
+
+For each scan measured, mark these points on the scan and store the values in the S column from Slicer for these points here. The values included right now are used as an example from the Sculpin01_01_V scan I measured.
+```{r}
+snout <- 20 #S point value of snout on Slicer 
+neck <- 567 #S point value of neck on Slicer 
+anal <- 159 #S point value of anal point on Slicer 
+caudal <- 1536 #S point value of caudal point on Slicer 
+```
+
+Finding the standard length of the fish in the scan 
+```{r}
+standard_length <- abs(caudal-snout)
+standard_length
+```
+
+Finding the head length of the fish in the scan
+```{r}
+head_length <- abs(neck-snout)
+head_length
+```
+
+Finding 10% body length point if standard length > snout
+```{r}
+bodypoint_10 <- snout+(0.1*standard_length)
+bodypoint_10
+```
+
+Finding 10% body length point if snout > standard length 
+```{r}
+#bodypoint_10 <- snout-(0.1*standard_length)
+```
+
+Finding 20% body length point if standard length > snout
+```{r}
+bodypoint_20 <- snout+(0.2*standard_length)
+bodypoint_20
+```
+
+Finding 20% body length point if snout > standard length 
+```{r}
+#bodypoint_20 <- snout-(0.2*standard_length)
+```
+
+Finding 30% body length point if standard length > snout
+```{r}
+bodypoint_30 <- snout+(0.3*standard_length)
+bodypoint_30
+```
+
+Finding 30% body length point if snout > standard length 
+```{r}
+#bodypoint_30 <- snout-(0.3*standard_length)
+```
+
+Finding 40% body length point if standard length > snout
+```{r}
+bodypoint_40 <- snout+(0.4*standard_length)
+bodypoint_40
+```
+
+Finding 40% body length point if snout > standard length 
+```{r}
+#bodypoint_40 <- snout-(0.4*standard_length)
+```
+
+Finding 50% body length point if standard length > snout
+```{r}
+bodypoint_50 <- snout+(0.5*standard_length)
+bodypoint_50
+```
+
+Finding 50% body length point if snout > standard length 
+```{r}
+#bodypoint_50 <- snout-(0.5*standard_length)
+```
+
+Finding 60% body length point if standard length > snout
+```{r}
+bodypoint_60 <- snout+(0.6*standard_length)
+bodypoint_60
+```
+
+Finding 60% body length point if snout > standard length 
+```{r}
+#bodypoint_60 <- snout-(0.6*standard_length)
+```
+
+Finding 70% body length point if standard length > snout
+```{r}
+bodypoint_70 <- snout+(0.7*standard_length)
+bodypoint_70
+```
+
+Finding 70% body length point if snout > standard length 
+```{r}
+#bodypoint_70 <- snout-(0.7*standard_length)
+```
+
+Finding 80% body length point if standard length > snout
+```{r}
+bodypoint_80 <- snout+(0.8*standard_length)
+bodypoint_80
+```
+
+Finding 80% body length point if snout > standard length 
+```{r}
+#bodypoint_80 <- snout-(0.8*standard_length)
+```
+
+Finding 90% body length point if standard length > snout
+```{r}
+bodypoint_90 <- snout+(0.9*standard_length)
+bodypoint_90
+```
+
+Finding 90% body length point if snout > standard length 
+```{r}
+#bodypoint_10 <- snout-(0.9*standard_length)
+```
+
+Create a data frame with the body points
+```{r}
+percentagebodyMarks <- data.frame("Body Percentage"=c(10,20,30,40,50,60,70,80,90), "Frame Number in Scan"=c(bodypoint_10,bodypoint_20,bodypoint_30,bodypoint_40,bodypoint_50,bodypoint_60,bodypoint_70,bodypoint_80,bodypoint_90))
+percentagebodyMarks
+```
+Use these points to mark the vertebra at each of these frame numbers in the red view in Slicer.
+
+#Recording Vertebral Measurement Points
+
+
+
+
