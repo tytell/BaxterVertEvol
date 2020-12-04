@@ -1,0 +1,247 @@
+---
+title: "Morphospace plot"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(patchwork)
+library(FactoMineR)
+library(factoextra)
+library(GGally)
+library(scico)
+```
+
+#PCA with each individual measurement feature
+```{r}
+vertdata <- read_csv("All_Vert_Data.csv")
+```
+
+```{r}
+head(vertdata)
+```
+
+```{r}
+p1 <- ggplot(vertdata, aes(x=CBL, color=Habitat)) + geom_density()
+p2 <- ggplot(vertdata, aes(x=d, color=Habitat)) + geom_density()
+p3 <- ggplot(vertdata, aes(x=D_Pos, color=Habitat)) + geom_density()
+p4 <- ggplot(vertdata, aes(x=alpha_Pos, color=Habitat)) + geom_density()
+
+(p1 | p2) / (p3 | p4)
+```
+
+Set up for PCA
+
+```{r}
+vertdata <-
+  vertdata %>%
+  select(c('Genus','Species', 'Indiv', 'Body.Shape', 'Habitat', 'Tip', 'Family', 'FullName',
+           'Pos', 'CBL', 'd', 'alpha_Pos', 'D_Pos')) %>%
+  # "complete" the Pos column by filling in values that are missing for Species
+  # and individuals but present for others
+  complete(Pos, nesting(Species, Indiv)) %>%
+  arrange(Species, Indiv, Pos) %>%
+  rename(alphaPos = alpha_Pos,
+         DPos = D_Pos)
+
+head(vertdata)
+```
+Fill in NAs
+```{r}
+vertdata <-
+  vertdata %>%
+  group_by(Species, Indiv) %>%
+  fill(Genus, Body.Shape, Habitat, Tip, Family, FullName, .direction='downup') %>%
+  ungroup()
+
+head(vertdata)
+```
+
+```{r}
+vertdata <-
+  vertdata %>%
+  unite("Species", c("Genus", "Species")) %>%
+  relocate(Species, Indiv, Habitat, Tip, Pos, CBL:DPos)
+
+head(vertdata)
+```
+
+```{r}
+vertdata_full <-
+  vertdata %>%
+  group_by(Species, Indiv) %>%
+  mutate_at(vars(CBL, d, alphaPos, DPos), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
+  ungroup()
+
+head(vertdata_full)
+
+#d.y is the parameter with the means
+```
+
+```{r}
+vertdata %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos')) %>%
+  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
+  select_if(~ .x < 0.8)
+```
+
+```{r}
+vertdata_wide <-
+  vertdata_full %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos',))
+```
+
+```{r}
+vertdata %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos')) %>%
+  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
+  select_if(~ .x < 0.8)
+```
+
+```{r}
+vertdata_wide
+```
+Run PCA, including DPos
+```{r}
+vertdata.pca <-
+  vertdata_wide %>%
+  select(-contains(c("20", "30"))) %>%
+  select(starts_with("CBL") | starts_with("d") | 
+           starts_with("alphaPos") | starts_with("DPos")) %>%
+  PCA(scale.unit = TRUE, ncp = ncol(.))
+```
+
+Build scores table with vertdata parameters also
+```{r}
+vertdata.ind <- get_pca_ind(vertdata.pca)
+
+pcscores <-
+  vertdata.ind$coord %>%
+  as.data.frame() %>%
+  bind_cols(vertdata_wide)
+
+head(pcscores)
+```
+
+```{r}
+ggpairs(pcscores, columns = c("Dim.1", "Dim.2"),
+        aes(color=Habitat, alpha=0.5))
+```
+
+# Make morphospace
+
+First build up the points we want to look at
+```{r}
+dimrangedata <- expand_grid(
+  Dim.1 = seq(-5, 7, length.out = 3),
+  Dim.2 = seq(-5, 7, length.out = 4),
+  Dim.3 = 0,
+  Dim.4 = 0,
+  Dim.5 = 0
+)
+as.matrix(dimrangedata)
+```
+
+Function to run the reverse PCA - turn PCA coords back into real measurements.
+```{r}
+reverse_pca <- function(pca, U2) {
+  ctr <- pca$call$centre
+  ec <- pca$call$ecart.type
+  
+  if (is.null(dim(U2))) {
+    U2 <- matrix(U2, nrow=1)
+  }
+  ncp1 <- ncol(U2)
+  if (ncp1 > pca$call$ncp) {
+    simpleError("More dimensions in new coordinates than in PCA")
+  }
+  S <- sqrt(pca$eig[,1])
+  
+  # U2 <- pca$ind$coord
+  VS <- pca$var$coord
+  
+  V <- t(t(as.matrix(VS)) / S)
+  
+  X2c <- U2 %*% t(V[,1:ncp1])
+  t(t(X2c) * ec + ctr)
+}
+```
+
+Run the reverse PCA
+```{r}
+vertebrarangedata <-
+  reverse_pca(vertdata.pca, as.matrix(dimrangedata)) %>%
+  as_tibble() %>%
+  bind_cols(dimrangedata) %>%
+  pivot_longer(cols = CBL_40:alphaPos_90,
+               names_to = c(".value", "pos"),
+               names_sep = "_") %>%
+  mutate(pos = as.numeric(pos))
+
+head(vertebrarangedata)
+```
+
+
+Function to draw tho outline of a vertebra
+```{r}
+makeVertebra <- function(xctr, CBL, alphaPos, alphaAnt, d, w, scale=1) {
+  CBL2 <- CBL/2
+  d2 <- d/2
+  w2 <- w/2
+  ap2 <- alphaPos/2
+  aa2 <- alphaAnt/2
+  
+  lpp <- (w - d)/2 / tan(ap2)
+  lpa <- (w - d)/2 / tan(aa2)
+  
+  x0 <- c(-CBL2, CBL2, CBL2-lpp, CBL2-lpp, CBL2, -CBL2, -(CBL2-lpa), -(CBL2-lpa))
+  y0 <- c(w2, w2, d2, -d2, -w2, -w2, -d2, d2)
+  
+  xf <- c(CBL2-lpp, CBL2-lpp, -(CBL2-lpa), -(CBL2-lpa))
+  xf <- c(xf, xf)
+  yf <- c(d2, -d2, -d2, d2)
+  yf <- c(yf, yf)
+  
+  tibble(xout = x0*scale + xctr, 
+       yout = y0*scale,
+       xforam = xf*scale + xctr,
+       yforam = yf*scale)
+}
+```
+
+Build up vertebrae
+```{r}
+CBLscale <- 2
+
+vertebrarangedata %>%
+  group_by(Dim.1, Dim.2) %>%
+  mutate(xctr = cumsum(1.2*CBLscale*CBL)) %>%
+  mutate(xctr = xctr - mean(xctr)) %>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(alphaPosR = alphaPos * pi/180,
+         lp = (DPos - d)/2 / tan(alphaPosR/2)) %>%
+  mutate(alphaAntR = if_else(lp > CBL/2,
+                            2*atan((DPos-d)/2 / (CBL - lp)), alphaPosR)) %>%
+  mutate(vert = pmap(list(xctr, CBLscale*CBL, alphaPosR, alphaAntR, d, DPos), makeVertebra)) %>%
+  unnest(vert) ->
+  vertebraoutline
+
+head(vertebraoutline)
+```
+Show the vertebrae. Facets are Dim.1 and Dim.2. Color indicates foramen diameter.
+```{r}
+vertebraoutline %>%
+  # filter((Dim.1 != 2.5) & (Dim.2 != 6)) %>%
+  ggplot(aes(fill = d, group=factor(pos))) +
+  geom_polygon(aes(x = xout, y = yout), color='black', fill=NA) +
+  geom_polygon(aes(x = xforam, y = yforam, color = d)) +
+  coord_fixed(ratio=5) +
+  scale_fill_scico(palette="imola") +
+  scale_color_scico(palette="imola") +
+  facet_grid(Dim.2 ~ Dim.1, as.table=FALSE) +
+  scale_x_continuous(breaks=NULL) +
+  scale_y_continuous(breaks=NULL) +
+  theme_minimal()
+```
+
