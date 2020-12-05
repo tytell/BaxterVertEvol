@@ -212,7 +212,7 @@ pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree)
 summary(pgls_d_BodyShape)
 anova(pgls_d_BodyShape)
 ```
-Body shape significant here 
+Body shape significant here.
 
 ```{r}
 pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = verttree),
@@ -450,7 +450,7 @@ summary(pgls_d_HabitatConsensus)
 ```{r}
 anova(pgls_d_HabitatConsensus)
 ```
-
+Habitat is significant here with d!
 
 ```{r}
 pgls_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
@@ -480,10 +480,10 @@ hc1 / hc2
 pwpm(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```
 
-
 ```{r}
 pairs(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```
+Benthic-pelagic is almost significant here...what is the difference between this and the one above?
 
 #Mean PGLS with D_Pos and habitat consensus
 
@@ -516,7 +516,7 @@ anova(pgls_alphaPos_HabitatConsensus)
 ```{r}
 pairs(emmeans(pgls_alphaPos_HabitatConsensus, "Habitat"))
 ```
-
+Again, benthic-pelagic is significant here
 
 
 #Consensus Habitat Attempt without Elops saurus
@@ -595,6 +595,14 @@ pwpm(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 
 
 ```{r}
+pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
+```
+
+```{r}
+pglsedit_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreepglseditconsensus),
+                      data = vertmeas.speciespglseditconsensus, method = "ML")
+
+anova(pglsedit_alphaPos_HabitatConsensus)
 pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
 
@@ -764,16 +772,47 @@ pairs(emmeans(pgls_alphaPos_HabitatConsensusMax, "Habitat"))
 ```{r}
 hc1 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=d, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  labs(x="Habitat", y="Mean d") +
+  theme(axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13)) + 
   stat_summary(fun.data = mean_sdl)
 
 
 hcm2 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=alpha_Pos, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  labs(x="Habitat", y="Mean alpha posterior")+
+  theme(axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13)) +
   stat_summary(fun.data = mean_sdl)
 
 hc1 / hcm2
 ```
 
+```{r}
+hce1 <- ggplot(vertmeas.speciespglseditconsensus, aes(x=Habitat, y=d, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  labs(x="Habitat", y="Mean d") +
+  theme(axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13)) + 
+  stat_summary(fun.data = mean_sdl)+
+  annotate("text", x = c(3), y=c(0.0050), label=c("*"))
+
+
+hce2 <- ggplot(vertmeas.speciespglseditconsensus, aes(x=Habitat, y=alpha_Pos, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  labs(x="Habitat", y="Mean alpha posterior")+
+  theme(axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13)) +
+  stat_summary(fun.data = mean_sdl)+
+  annotate("text", x = c(3), y=c(100), label=c("*"))
+
+hce <- hce1 / hce2
+hce
+```
+
+```{r}
+ggsave("hce_alphaPos_d.png", hce, width=5, height=7, units="in")
+```
 
 
 #Output a CSV with all data 
