@@ -4,12 +4,6 @@ output: html_notebook
 ---
 
 ```{r}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(version = "3.12")
-```
-
-```{r}
 BiocManager::install("ggtree")
 ```
 
