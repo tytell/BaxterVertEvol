@@ -128,6 +128,83 @@ ggpairs(pcscores, columns = c("Dim.1", "Dim.2"),
         aes(color=Habitat, alpha=0.5))
 ```
 
+#Run PGLS on this new PCA
+
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
+```{r}
+tree <- read.tree(here('..', treefile))
+```
+
+```{r}
+plotTree(tree)
+```
+
+```{r}
+allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
+colnames(allspecies) <- c('FullName')
+
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
+
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+```{r}
+pcscores_edit <- pcscores %>% 
+  filter(Indiv == "1") 
+
+pcscores_edit
+```
+
+```{r}
+pc_tree <- keep.tip(tree, tip=as.vector(pcscores_edit$Tip))
+```
+
+```{r}
+plotTree(pc_tree)
+```
+
+```{r}
+length(pc_tree$tip.label)
+nrow(pcscores_edit)
+```
+
+```{r}
+pcscores_edit <-
+  pcscores_edit %>%
+  remove_rownames() %>%
+  column_to_rownames("FullName")
+```
+
+```{r}
+name.check(pc_tree, pcscores_edit)
+```
+
+```{r}
+pgls_Dim1_Hab<- gls(Dim.1 ~ Habitat, correlation = corBrownian(phy = pc_tree),
+                      data = pcscores_edit, method = "ML")
+summary(pgls_Dim1_Hab)
+```
+
+```{r}
+anova(pgls_Dim1_Hab)
+```
+
+```{r}
+pgls_Dim2_Hab<- gls(Dim.2 ~ Habitat, correlation = corBrownian(phy = pc_tree),
+                      data = pcscores_edit, method = "ML")
+summary(pgls_Dim2_Hab)
+```
+
+```{r}
+anova(pgls_Dim2_Hab)
+```
+
+
 # Make morphospace
 
 First build up the points we want to look at
