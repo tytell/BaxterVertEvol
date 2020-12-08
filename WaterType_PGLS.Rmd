@@ -1,0 +1,156 @@
+---
+title: "Water Type PGLS"
+output: html_notebook
+---
+
+
+
+```{r}
+library(tidyverse)
+library (ggplot2)
+library(Hmisc)
+library(phytools)
+library(here)
+library(ape)
+library(geiger)
+library(nlme)
+library(patchwork)
+library(emmeans)
+library(multcompView)
+library(readxl)
+library(plotly) 
+library(ggthemes) 
+library(naniar)
+library(dplyr)
+```
+
+#Load in Phylogenetic Information
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
+```{r}
+tree <- read.tree(here('..', treefile))
+```
+
+```{r}
+plotTree(tree)
+```
+
+```{r}
+allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
+colnames(allspecies) <- c('FullName')
+
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
+
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+```{r}
+vertmeasall <- read.csv("MasterVert_Measurements.csv")
+vertmeasall
+```
+
+```{r}
+vertmeasall %>%
+  group_by(Species, Body.Shape, Habitat, Water_Type) %>%
+  summarise(d = mean(d),
+            CBL = mean(CBL),
+            alphaPos = mean(alpha_Pos),
+            DPos = mean(D_Pos)) %>%
+  ungroup() %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
+  vertmeas.species
+```
+
+```{r}
+vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
+vertmeas.species
+```
+
+```{r}
+left_join(filter(vertmeas.species, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenus
+```
+
+```{r}
+left_join(vertmeas.species, vertmeas.bygenus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.species1
+vertmeas.species1
+```
+
+```{r}
+vertmeas.species1 <- column_to_rownames(vertmeas.species1, var="FullName")
+```
+
+```{r}
+verttree <- keep.tip(tree, tip=as.vector(vertmeas.species1$Tip))
+```
+
+```{r}
+plotTree(verttree)
+```
+
+#PGLS Analysis Based on Water Type
+```{r}
+length(verttree$tip.label)
+nrow(vertmeas.species1)
+```
+
+```{r}
+name.check(verttree, vertmeas.species1)
+```
+
+```{r}
+pgls_d_watertype<- gls(d ~ Water_Type, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_d_watertype)
+anova(pgls_d_watertype)
+```
+Water type for d is very insignificant.
+
+```{r}
+pgls_CBL_watertype<- gls(CBL ~ Water_Type, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_CBL_watertype)
+anova(pgls_CBL_watertype)
+```
+Also for CBL.
+
+```{r}
+pgls_alphaPos_watertype<- gls(alphaPos ~ Water_Type, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_alphaPos_watertype)
+anova(pgls_alphaPos_watertype)
+```
+Also for alphaPos.
+
+```{r}
+pgls_DPos_watertype<- gls(DPos ~ Water_Type, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
+summary(pgls_DPos_watertype)
+anova(pgls_DPos_watertype)
+```
+Also for DPos.
+
+
+
+
+
+
+
+
+
+
+
+
+
