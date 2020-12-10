@@ -791,27 +791,33 @@ hc1 / hcm2
 ```{r}
 hce1 <- ggplot(vertmeas.speciespglseditconsensus, aes(x=Habitat, y=d, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  labs(x="Habitat", y="Mean d") +
+  labs(x="Habitat", y="Mean notochordal foramen diameter (body lengths)") +
   theme(axis.text = element_text(size = 11),
-        axis.title = element_text(size = 13)) + 
+        axis.title = element_text(size = 12)) + 
   stat_summary(fun.data = mean_sdl)+
-  annotate("text", x = c(3), y=c(0.0050), label=c("*"))
+  annotate("text", x = c(3), y=c(0.0050), label=c("*"), size = 10)
 
-
-hce2 <- ggplot(vertmeas.speciespglseditconsensus, aes(x=Habitat, y=alpha_Pos, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
-  labs(x="Habitat", y="Mean alpha posterior")+
-  theme(axis.text = element_text(size = 11),
-        axis.title = element_text(size = 13)) +
-  stat_summary(fun.data = mean_sdl)+
-  annotate("text", x = c(3), y=c(100), label=c("*"))
-
-hce <- hce1 / hce2
-hce
+hce1
 ```
 
 ```{r}
-ggsave("hce_alphaPos_d.png", hce, width=5, height=7, units="in")
+ggsave("hce_d.png", hce1, width=5, height=7, units="in")
+```
+
+```{r}
+hce2 <- ggplot(vertmeas.speciespglseditconsensus, aes(x=Habitat, y=alpha_Pos, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
+  labs(x="Habitat", y="Mean cone angle (degrees)")+
+  theme(axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13)) +
+  stat_summary(fun.data = mean_sdl)+
+  annotate("text", x = c(3), y=c(100), label=c("*"), size = 10)
+
+hce2
+```
+
+```{r}
+ggsave("hce_alphaPos.png", hce2, width=5, height=7, units="in")
 ```
 
 
