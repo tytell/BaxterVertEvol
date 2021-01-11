@@ -1,0 +1,143 @@
+---
+title: "Vert LDA Attempt"
+output: html_notebook
+---
+
+
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(FactoMineR)
+library(factoextra)
+library(GGally)
+library(scico)
+library(MASS)
+```
+
+The resources I'm looking at say that the data need to be one column with a categorical variable (our consensus habitat column) and numeric predictor variables (our measurements, like d_40, CBL_50, etc.). With that being said, I think that all I would maybe have to do for this before running the model would maybe be to make sure that the data look organized in that way?
+
+```{r}
+vertdata <- read.csv("All_Vert_Data.csv")
+
+head(vertdata)
+```
+
+```{r}
+allvertdata <- vertdata %>%
+  select(vertdata, c("Genus","Species", "Indiv", "Body.Shape", "Habitat", "Tip", "Family", "FullName","Pos", "CBL", "d", "alpha_Pos", "D_Pos")) %>%
+  complete(Pos, nesting(Species, Indiv)) %>%
+  arrange(Species, Indiv, Pos) %>%
+  rename(alphaPos = alpha_Pos,
+         DPos = D_Pos)
+
+head(allvertdata)
+```
+
+```{r}
+allvertdata <-
+  allvertdata %>%
+  group_by(Species, Indiv) %>%
+  fill(Genus, Body.Shape, Habitat, Tip, Family, FullName, .direction='downup') %>%
+  ungroup()
+
+head(allvertdata)
+```
+
+```{r}
+allvertdata <-
+  allvertdata %>%
+  unite("Species", c("Genus", "Species")) %>%
+  relocate(Species, Indiv, Habitat, Tip, Pos, CBL:DPos)
+
+head(allvertdata)
+```
+
+```{r}
+allvertdata_full <-
+  allvertdata %>%
+  group_by(Species, Indiv) %>%
+  mutate_at(vars(CBL, d, alphaPos, DPos), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
+  ungroup()
+
+head(vertdata_full)
+```
+
+```{r}
+allvertdata %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos')) %>%
+  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
+  select_if(~ .x < 0.8)
+```
+
+```{r}
+allvertdata_wide <-
+  allvertdata_full %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos'))
+```
+
+```{r}
+allvertdata %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos')) %>%
+  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
+  select_if(~ .x < 0.8)
+```
+
+```{r}
+allvertdata_wide
+```
+
+```{r}
+allvertdata_widefull<- 
+  allvertdata_wide %>%
+  select(-contains(c("20", "30"))) %>%
+  select(starts_with("CBL") | starts_with("d") | 
+           starts_with("alphaPos") | starts_with("DPos"))
+```
+
+```{r}
+allvertdata.lda <- lda(Type - ., data = allvertdata_widefull)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -606,6 +606,20 @@ anova(pglsedit_alphaPos_HabitatConsensus)
 pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
 
+```{r}
+pairs(emmeans(pglsedit_alphaPos_HabitatConsensus, "Habitat"))
+```
+
+
+```{r}
+pglsedit_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreepglseditconsensus), data = vertmeas.speciespglseditconsensus, method = "ML")
+```
+
+
+```{r}
+pairs(emmeans(pglsedit_CBL_HabitatConsensus, "Habitat"))
+```
+
 
 #Max d with Consensus Habitat
 
