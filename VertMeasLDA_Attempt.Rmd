@@ -33,6 +33,7 @@ allvertdata <- vertdata %>%
 
 head(allvertdata)
 ```
+I'm just not totally sure what this means... I set up the data to be wide in the same way that you did for the PCA but I'm getting an unused argument error here, and I don't see anything in the command that looks like an issue in terms of obvious errors, but I'll keep digging.
 
 ```{r}
 allvertdata <-
@@ -96,10 +97,22 @@ allvertdata_widefull<-
 ```
 
 ```{r}
-allvertdata.lda <- lda(Type - ., data = allvertdata_widefull)
+allvertdata.lda <- lda(De ~ ., data = allvertdata_widefull)
+
+allvertdata.lda
 ```
 
+This is I believe what setting up the model would look like based off of the resources I looked at. The resource I'm looking at also gives instructions to make a partition plot, which would look something like this. I'm not totally positive how applicable this is to our case, but it looks like a potential plot that could show at least something interesting.
 
+```{r}
+library(klaR)
+```
+
+```{r}
+partimat(De ~ ., data = allvertdata_widefull, method = "lda")
+```
+
+Ideally the axes we would use would be alphaPos and d, and the three categories of the habitats would be the categorical variables that the data are grouped by, but I'm not totally positive how to define that yet.
 
 
 
