@@ -25,7 +25,7 @@ head(vertdata)
 
 ```{r}
 allvertdata <- vertdata %>%
-  select(vertdata, c("Genus","Species", "Indiv", "Body.Shape", "Habitat", "Tip", "Family", "FullName","Pos", "CBL", "d", "alpha_Pos", "D_Pos")) %>%
+  dplyr::select(Genus,Species, Indiv, Body.Shape, Habitat, Tip, Family, FullName, Pos, CBL, d, alpha_Pos, D_Pos) %>%
   complete(Pos, nesting(Species, Indiv)) %>%
   arrange(Species, Indiv, Pos) %>%
   rename(alphaPos = alpha_Pos,
