@@ -6,13 +6,13 @@ output: html_notebook
 
 
 ```{r}
-library(tidyverse)
 library(patchwork)
 library(FactoMineR)
 library(factoextra)
 library(GGally)
 library(scico)
 library(MASS)
+library(tidyverse)
 ```
 
 The resources I'm looking at say that the data need to be one column with a categorical variable (our consensus habitat column) and numeric predictor variables (our measurements, like d_40, CBL_50, etc.). With that being said, I think that all I would maybe have to do for this before running the model would maybe be to make sure that the data look organized in that way?
@@ -61,7 +61,7 @@ allvertdata_full <-
   mutate_at(vars(CBL, d, alphaPos, DPos), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
   ungroup()
 
-head(vertdata_full)
+head(allvertdata_full)
 ```
 
 ```{r}
@@ -91,13 +91,13 @@ allvertdata_wide
 ```{r}
 allvertdata_widefull<- 
   allvertdata_wide %>%
-  select(-contains(c("20", "30"))) %>%
-  select(starts_with("CBL") | starts_with("d") | 
+  dplyr::select(-contains(c("20", "30"))) %>%
+  dplyr::select(starts_with("CBL") | starts_with("d") | 
            starts_with("alphaPos") | starts_with("DPos"))
 ```
 
 ```{r}
-allvertdata.lda <- lda(De ~ ., data = allvertdata_widefull)
+allvertdata.lda <- lda(Habitat ~ ., data = allvertdata_widefull)
 
 allvertdata.lda
 ```
@@ -109,7 +109,7 @@ library(klaR)
 ```
 
 ```{r}
-partimat(De ~ ., data = allvertdata_widefull, method = "lda")
+partimat(Habitat ~ ., data = allvertdata_widefull, method = "lda")
 ```
 
 Ideally the axes we would use would be alphaPos and d, and the three categories of the habitats would be the categorical variables that the data are grouped by, but I'm not totally positive how to define that yet.
