@@ -357,17 +357,14 @@ pwpm(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```{r}
 pairs(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```
-Try to rerun with renv.
+Tried to rerun with renv, still not working.
 
 #Mean PGLS with D_Pos and habitat consensus
 
 ```{r}
-pgls_DPos_HabitatConsensus <- gls(D_Pos ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
-                      data = vertmeas.speciesconsensus1, method = "ML")
+pgls_DPos_HabitatConsensus <- gls(D_Pos ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
 summary(pgls_DPos_HabitatConsensus)
-```
-
-```{r}
 anova(pgls_DPos_HabitatConsensus)
 ```
 
@@ -378,107 +375,61 @@ pairs(emmeans(pgls_DPos_HabitatConsensus, "Habitat"))
 #Mean PGLS with alpha_Pos and Habitat Consensus
 
 ```{r}
-pgls_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
-                      data = vertmeas.speciesconsensus1, method = "ML")
+pgls_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
 summary(pgls_alphaPos_HabitatConsensus)
-```
-
-```{r}
 anova(pgls_alphaPos_HabitatConsensus)
 ```
+But then why is alphaPos still significant here but d is not?
 
 ```{r}
 pairs(emmeans(pgls_alphaPos_HabitatConsensus, "Habitat"))
 ```
-Again, benthic-pelagic is significant here
+Why is just demersal-pelagic significant here?
 
 
 #Consensus Habitat Attempt without Elops saurus
 The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
 
 ```{r}
-pglseditconsensus <- vertmeas.speciesconsensus %>% 
-  filter(Genus != "Elops") #using dplyr, thanks Ben!
-
-pglseditconsensus
+plotTree(verttreeedit)
 ```
 
 
 ```{r}
-left_join(filter(pglseditconsensus, is.na(Tip)),
-          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-  vertmeas.bygenuspglseditconsensus
-
-vertmeas.bygenuspglseditconsensus
-```
-
-```{r}
-left_join(pglseditconsensus, vertmeas.bygenuspglseditconsensus,
-          by = c("Genus","Species","Family")) %>%
-  mutate(Tip = coalesce(Tip.x, Tip.y),
-         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
-  select(-Tip.x, -Tip.y) %>%
-  filter(!is.na(Tip)) ->
-  vertmeas.speciespglseditconsensus
-
-vertmeas.speciespglseditconsensus
+length(verttreeedit$tip.label)
+nrow(pglsedit)
 ```
 
 
 ```{r}
-vertmeas.speciespglseditconsensus <- column_to_rownames(vertmeas.speciespglseditconsensus, var="FullName")
+name.check(verttreeedit, pglsedit)
 ```
 
 
 ```{r}
-verttreepglseditconsensus <- keep.tip(tree, tip=as.vector(vertmeas.speciespglseditconsensus$Tip))
-```
-
-
-```{r}
-plotTree(verttreepglseditconsensus)
-```
-
-
-```{r}
-length(verttreepglseditconsensus$tip.label)
-nrow(vertmeas.speciespglseditconsensus)
-```
-
-
-```{r}
-name.check(verttreepglseditconsensus, vertmeas.speciespglseditconsensus)
-```
-
-
-```{r}
-pglsedit_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreepglseditconsensus),
-                      data = vertmeas.speciespglseditconsensus, method = "ML")
+pglsedit_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreeedit),
+                      data = pglsedit, method = "ML")
 summary(pglsedit_d_HabitatConsensus)
-```
-
-```{r}
 anova(pglsedit_d_HabitatConsensus)
 ```
-
+Why is this still not significant?
 
 ```{r}
 pwpm(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
 
-
 ```{r}
 pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
 
 ```{r}
-pglsedit_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreepglseditconsensus),
-                      data = vertmeas.speciespglseditconsensus, method = "ML")
+pglsedit_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreeedit),
+                      data = pglsedit, method = "ML")
 
 anova(pglsedit_alphaPos_HabitatConsensus)
-pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
+
 
 ```{r}
 pairs(emmeans(pglsedit_alphaPos_HabitatConsensus, "Habitat"))
@@ -486,9 +437,10 @@ pairs(emmeans(pglsedit_alphaPos_HabitatConsensus, "Habitat"))
 
 
 ```{r}
-pglsedit_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreepglseditconsensus), data = vertmeas.speciespglseditconsensus, method = "ML")
-```
+pglsedit_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreeedit), data = pglsedit, method = "ML")
 
+anova(pglsedit_CBL_HabitatConsensus)
+```
 
 ```{r}
 pairs(emmeans(pglsedit_CBL_HabitatConsensus, "Habitat"))
@@ -497,46 +449,7 @@ pairs(emmeans(pglsedit_CBL_HabitatConsensus, "Habitat"))
 
 #Max d with Consensus Habitat
 
-```{r}
-vertmeasallmax <- vertmeasall %>%
-  group_by(Species, Indiv) %>%
-  select(SL, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant) %>%
-  summarize_all(mean, na.rm=TRUE) %>%
-  ungroup()
-
-vertmeasallmax
-
-#taking max d for each species 
-```
-
-```{r}
-vertmeasallmaxhabitat <-
-  left_join(
-  vertmeasallmax,
-  
-  verthabitat,
-  
-  by = "Species")
-
-vertmeasallmaxhabitat
-
-#merge with habitat columns 
-```
-
-```{r}
-vertmeasall %>%
-  group_by(Species, Body.Shape, Habitat) %>%
-  summarise(d = max(d),
-            CBL = max(CBL),
-            D_Ant = max(D_Ant),
-            D_Pos = max(D_Pos),
-            alpha_Pos = max(alpha_Pos),
-            alpha_Ant = max(alpha_Ant)) %>%
-  ungroup() %>%
-  separate(Species, sep='_', into=c("Genus", "Species")) ->
-  vertmeas.speciesmax
-```
-
+The "PreppedVertMeas.Rmd"" file has the code for formatting both of the data frames with mean and max measurements along the body. 
 
 ```{r}
 vertmeas.speciesmax <- left_join(vertmeas.speciesmax, allspecies, by=c("Genus", "Species"))
