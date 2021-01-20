@@ -16,8 +16,10 @@ library(Hmisc)
 library(phytools)
 library(here)
 library(ape)
+renv::install("ape@5.3")
 library(geiger)
 library(nlme)
+renv::install("nlme@3.1-145")
 library(patchwork)
 library(emmeans)
 library(multcompView)
@@ -28,6 +30,7 @@ library(naniar)
 library(dplyr)
 ```
 
+#START AT LINE 360
 
 #Load in csv
 ```{r}
@@ -68,7 +71,7 @@ vertmeasallmeanhabitat
 ```
 
 
-#Plots with Habitat_Friedman
+#Initial Plots with Habitat_Friedman
 ```{r}
 ggplot(vertmeasallmeanhabitat, aes(x = d, y = CBL, color = Habitat_Friedman)) + 
   geom_point()
@@ -132,55 +135,9 @@ allspecies <-
 allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
-
+#Load in csv prepped for phylogenetic analysis
 ```{r}
-vertmeasall
-```
-
-
-```{r}
-vertmeasall %>%
-  group_by(Species, Body.Shape, Habitat_Friedman) %>%
-  summarise(d = mean(d),
-            CBL = mean(CBL)) %>%
-  ungroup() %>%
-  separate(Species, sep='_', into=c("Genus", "Species")) ->
-  vertmeas.species
-```
-
-
-```{r}
-vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
-vertmeas.species
-```
-
-
-```{r}
-left_join(filter(vertmeas.species, is.na(Tip)),
-          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-  vertmeas.bygenus
-```
-
-
-```{r}
-vertmeas.bygenus
-```
-
-```{r}
-left_join(vertmeas.species, vertmeas.bygenus,
-          by = c("Genus","Species","Family")) %>%
-  mutate(Tip = coalesce(Tip.x, Tip.y),
-         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
-  select(-Tip.x, -Tip.y) %>%
-  filter(!is.na(Tip)) ->
-  vertmeas.species1
-vertmeas.species1
-```
-
-
-```{r}
-vertmeas.species1 <- column_to_rownames(vertmeas.species1, var="FullName")
+vertmeas.species1 <- read.csv("PhyloPreppedVertMeas.csv")
 ```
 
 
@@ -188,13 +145,13 @@ vertmeas.species1 <- column_to_rownames(vertmeas.species1, var="FullName")
 verttree <- keep.tip(tree, tip=as.vector(vertmeas.species1$Tip))
 ```
 
-
+#Phylogenetic tree with just measured species 
 ```{r}
 plotTree(verttree)
 ```
 
 
-#Start PGLS Analysis with Friedman Habitat Data 
+#Check tree and data match
 ```{r}
 length(verttree$tip.label)
 nrow(vertmeas.species1)
@@ -205,7 +162,7 @@ nrow(vertmeas.species1)
 name.check(verttree, vertmeas.species1)
 ```
 
-
+#Start PGLS Analysis with Friedman Habitat Data 
 ```{r}
 pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
@@ -220,7 +177,7 @@ pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = vertt
 summary(pgls_CBL_BodyShape)
 anova(pgls_CBL_BodyShape)
 ```
-
+CBL and body shape significant here.
 
 ```{r}
 p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d, color=Body.Shape)) +
@@ -233,27 +190,29 @@ p2 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=CBL, color=Body.Shape)) +
 
 p1 / p2
 ```
-
+What is the red column here? Why is it not labeled?
 
 ```{r}
 coef(pgls_d_BodyShape)
 ```
+What does this mean?
 
-
-PGLS with Friedman Habitat Data
+#PGLS with Friedman Habitat Data
 ```{r}
 pgls_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_d_Habitat)
+anova(pgls_d_Habitat)
 ```
-Pelagic is ALMOST significant, but not really. Reef associated is, but there are only like 2 species with this category.
+Not significant with this giant amount of habitats.
 
 ```{r}
 pgls_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
                         data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_Habitat)
+anova(pgls_CBL_Habitat)
 ```
-
+ANOVA also not significant here.
 
 ```{r}
 h1 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=d, color=Habitat_Friedman)) +
@@ -267,75 +226,45 @@ h2 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=CBL, color=Habitat_Fri
 
 h1 / h2
 ```
-
+Again, what is this red unlabeled column? 
 
 #Looking at pelagic d outlier
 The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
 
 ```{r}
-pglsedit <- vertmeas.species %>% 
+pglsedit <- vertmeas.species1 %>% 
   filter(Genus != "Elops") #using dplyr, thanks Ben!
 
 pglsedit
 ```
 
+```{r}
+verttreeedit <- keep.tip(tree, tip=as.vector(pglsedit$Tip))
+```
 
 ```{r}
-left_join(filter(pglsedit, is.na(Tip)),
-          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-  vertmeas.bygenuspglsedit
-
-vertmeas.bygenuspglsedit
+plotTree(verttreeedit)
 ```
 
 
 ```{r}
-left_join(pglsedit, vertmeas.bygenuspglsedit,
-          by = c("Genus","Species","Family")) %>%
-  mutate(Tip = coalesce(Tip.x, Tip.y),
-         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
-  select(-Tip.x, -Tip.y) %>%
-  filter(!is.na(Tip)) ->
-  vertmeas.speciespglsedit
-
-vertmeas.speciespglsedit
+length(verttreeedit$tip.label)
+nrow(pglsedit)
 ```
 
 
 ```{r}
-vertmeas.speciespglsedit <- column_to_rownames(vertmeas.speciespglsedit, var="FullName")
+name.check(verttreeedit, pglsedit)
 ```
 
 
 ```{r}
-verttreepglsedit <- keep.tip(tree, tip=as.vector(vertmeas.speciespglsedit$Tip))
-```
-
-
-```{r}
-plotTree(verttreepglsedit)
-```
-
-
-```{r}
-length(verttreepglsedit$tip.label)
-nrow(vertmeas.speciespglsedit)
-```
-
-
-```{r}
-name.check(verttreepglsedit, vertmeas.speciespglsedit)
-```
-
-
-```{r}
-pglsedit_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttreepglsedit),
-                      data = vertmeas.speciespglsedit, method = "ML")
+pglsedit_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
+                      data = pglsedit, method = "ML")
 summary(pglsedit_d_Habitat)
 anova(pglsedit_d_Habitat)
 ```
-
+Habitat not significant here with ANOVA.
 
 ```{r}
 pwpm(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
@@ -345,23 +274,24 @@ pwpm(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
 ```{r}
 pairs(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
 ```
-
+Hard to tell differences here because so many habitat categories -- will narrow to benthic, pelagic, and demersal.
 
 
 ```{r}
-pglsedit_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttreepglsedit),
-                        data = vertmeas.speciespglsedit, method = "ML")
+pglsedit_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
+                        data = pglsedit, method = "ML")
 summary(pglsedit_CBL_Habitat)
+anova(pglsedit_CBL_Habitat)
 ```
-
+ANOVA not significant here.
 
 ```{r}
-ha1 <- ggplot(vertmeas.speciespglsedit, aes(x=Habitat_Friedman, y=d, color=Habitat_Friedman)) +
+ha1 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=d, color=Habitat_Friedman)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
 
-ha2 <- ggplot(vertmeas.speciespglsedit, aes(x=Habitat_Friedman, y=CBL, color=Habitat_Friedman)) +
+ha2 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=CBL, color=Habitat_Friedman)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
   stat_summary(fun.data = mean_sdl)
 
@@ -370,105 +300,49 @@ ha1 / ha2
 
 
 
-#PGLS with Consensus Habitat Column
+#Look again at phylogeny
 
 ```{r}
-vertmeasall %>%
-  group_by(Species, Body.Shape, Habitat) %>%
-  summarise(d = mean(d),
-            CBL = mean(CBL),
-            D_Pos = mean(D_Pos),
-            alpha_Pos = mean(alpha_Pos)) %>%
-  ungroup() %>%
-  separate(Species, sep='_', into=c("Genus", "Species")) ->
-  vertmeas.species
+plotTree(verttree)
+```
+
+```{r}
+length(verttree$tip.label)
+nrow(vertmeas.species1)
 ```
 
 
 ```{r}
-vertmeas.speciesconsensus <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
-vertmeas.speciesconsensus
+name.check(verttree, vertmeas.species1)
 ```
 
 
+#PGLS with Habitat Consensus column
+
+Notochordal foramina/habitat PGLS
 ```{r}
-left_join(filter(vertmeas.speciesconsensus, is.na(Tip)),
-          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-  vertmeas.bygenusconsensus
-```
-
-
-```{r}
-vertmeas.bygenusconsensus
-```
-
-
-```{r}
-left_join(vertmeas.speciesconsensus, vertmeas.bygenusconsensus,
-          by = c("Genus","Species","Family")) %>%
-  mutate(Tip = coalesce(Tip.x, Tip.y),
-         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
-  select(-Tip.x, -Tip.y) %>%
-  filter(!is.na(Tip)) ->
-  vertmeas.speciesconsensus1
-vertmeas.speciesconsensus1
-```
-
-
-```{r}
-vertmeas.speciesconsensus1 <- column_to_rownames(vertmeas.speciesconsensus1, var="FullName")
-```
-
-
-```{r}
-verttreeconsensus <- keep.tip(tree, tip=as.vector(vertmeas.speciesconsensus1$Tip))
-```
-
-
-```{r}
-plotTree(verttreeconsensus)
-```
-
-```{r}
-length(verttreeconsensus$tip.label)
-nrow(vertmeas.speciesconsensus1)
-```
-
-
-```{r}
-name.check(verttreeconsensus, vertmeas.speciesconsensus1)
-```
-
-
-```{r}
-pgls_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
-                      data = vertmeas.speciesconsensus1, method = "ML")
+pgls_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
 summary(pgls_d_HabitatConsensus)
-```
-
-```{r}
 anova(pgls_d_HabitatConsensus)
 ```
-Habitat is significant here with d!
+Why is it not significant here -- do I have to rerun renv? 
 
+CBL/habitat PGLS
 ```{r}
-pgls_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreeconsensus),
-                        data = vertmeas.speciesconsensus1, method = "ML")
+pgls_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttree),
+                        data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_HabitatConsensus)
-```
-
-```{r}
 anova(pgls_CBL_HabitatConsensus)
 ```
 
 ```{r}
-hc1 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=d, color=Habitat)) +
+hc1 <- ggplot(vertmeas.species1, aes(x=Habitat, y=d, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
 
-hc2 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=CBL, color=Habitat)) +
+hc2 <- ggplot(vertmeas.species1, aes(x=Habitat, y=CBL, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
   stat_summary(fun.data = mean_sdl)
 
@@ -483,7 +357,7 @@ pwpm(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```{r}
 pairs(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```
-Benthic-pelagic is almost significant here...what is the difference between this and the one above?
+Try to rerun with renv.
 
 #Mean PGLS with D_Pos and habitat consensus
 

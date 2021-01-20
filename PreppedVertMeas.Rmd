@@ -1,0 +1,121 @@
+---
+title: "Preparing Data for Vert Tree"
+output: html_notebook
+---
+
+#Load in packages
+```{r}
+library(rfishbase)
+library(tidyverse)
+library (ggplot2)
+library(Hmisc)
+library(phytools)
+library(here)
+library(ape)
+library(geiger)
+library(nlme)
+library(patchwork)
+library(emmeans)
+library(multcompView)
+library(readxl)
+library(plotly) 
+library(ggthemes) 
+library(naniar)
+library(dplyr)
+```
+
+
+#Load in csv
+```{r}
+vertmeasall <- read.csv("MasterVert_Measurements.csv")
+
+vertmeasall
+```
+
+#Load in phylogenetic information
+```{r}
+treefile <- '12862_2017_958_MOESM2_ESM.tre'
+```
+
+```{r}
+tree <- read.tree(here('..', treefile))
+```
+
+```{r}
+plotTree(tree)
+```
+
+```{r}
+# first just get the tip labels. These look Family_Genus_Species_Code
+allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
+colnames(allspecies) <- c('FullName')
+
+# split the label into columns on the underscores, but then merge genus and species again into
+# a binomial separated by a space
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
+
+# add in the tip number, which is just 1 to the number of species
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+```{r}
+vertmeasall %>%
+  group_by(Species, Body.Shape, Habitat_Friedman, Habitat) %>%
+  summarise(d = mean(d),
+            CBL = mean(CBL),
+            D_Pos = mean(D_Pos),
+            alpha_Pos = mean(alpha_Pos)) %>%
+  ungroup() %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) ->
+  vertmeas.species
+```
+
+```{r}
+vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
+vertmeas.species
+```
+
+
+```{r}
+left_join(filter(vertmeas.species, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
+  vertmeas.bygenus
+```
+
+```{r}
+vertmeas.bygenus
+```
+
+```{r}
+left_join(vertmeas.species, vertmeas.bygenus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  vertmeas.species1
+vertmeas.species1
+```
+
+```{r}
+vertmeas.species1 <- column_to_rownames(vertmeas.species1, var="FullName")
+vertmeas.species1
+```
+
+```{r}
+verttree <- keep.tip(tree, tip=as.vector(vertmeas.species1$Tip))
+```
+
+```{r}
+plotTree(verttree)
+```
+
+```{r}
+write.csv(vertmeas.species1, "PhyloPreppedVertMeas.csv")
+```
+
+
+

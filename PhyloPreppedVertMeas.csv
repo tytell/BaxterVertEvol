@@ -1,0 +1,55 @@
+"","Genus","Species","Body.Shape","Habitat_Friedman","Habitat","d","CBL","D_Pos","alpha_Pos","Family","MatchSpecies","Tip"
+"Carangidae_Alectis_ciliaris_E00469","Alectis","ciliaris","Deep bodied","pelagic","demersal",0.00218333333333333,0.0416333333333333,0.0260833333333333,76.7483,"Carangidae","ciliaris",1032
+"Clupeidae_Alosa_pseudoharengus_G01195","Alosa","pseudoharengus","","pelagic","pelagic",0.00315714285714286,0.0224571428571429,0.0161,93.0078,"Clupeidae","pseudoharengus",59
+"Amiidae_Amia_calva_E00461","Amia","calva","Fusiform","demersal","demersal",0.00515714285714286,0.0166428571428571,0.0184857142857143,127.5988,"Amiidae","calva",18
+"Anoplogastridae_Anoplogaster_cornuta_E00662","Anoplogaster","cornuta","Tadpole shaped","pelagic","pelagic",0.001,0.0350666666666667,0.0181333333333333,60.59205,"Anoplogastridae","cornuta",648
+"Lutjanidae_Aphareus_furca_E00563","Aphareus","furca","Fusiform","pelagic","pelagic",0.000866666666666667,0.0374833333333333,0.0216666666666667,63.78005,"Lutjanidae","furca",1577
+"Aulorhynchidae_Aulorhynchus_flavidus_G01217","Aulorhynchus","flavidus","","pelagic","pelagic",0.00164142933333333,0.0156436119444444,0.00598152,45.4589529555556,"Aulorhynchidae","flavidus",1265
+"Cyprinidae_Barbichthys_laevis_I2665-102","Barbichthys","laevis","","","benthic",0.00141666666666667,0.0290666666666667,0.0171,69.99385,"Cyprinidae","laevis",120
+"Centropomidae_Centropomus_undecimalis_E00194","Centropomus","undecimalis","Fusiform","reef associated","pelagic",0.000316666666666667,0.0336166666666667,0.0173833333333333,58.5630833333333,"Centropomidae","undecimalis",924
+"Serranidae_Cephalopholis_argus_E00868","Cephalopholis","argus","Fusiform","benthic","benthic",0.00185714285714286,0.0376428571428571,0.0199,63.9742428571429,"Serranidae","argus",1189
+"Chanidae_Chanos_chanos_E00345","Chanos","chanos","Fusiform","benthopelagic","demersal",0.0023,0.0238428571428571,0.0155714285714286,79.5895285714286,"Chanidae","chanos",74
+"Exocoetidae_Cheilopogon_melanurus_N14975","Cheilopogon","melanurus","","pelagic","pelagic",0.000128571428571429,0.0224,0.0127571428571429,71.3855428571429,"Exocoetidae","melanurus",717
+"Chiasmodontidae_Chiasmodon_niger_E01115","Chiasmodon","niger","","pelagic","pelagic",0.00172857142857143,0.0356428571428571,0.0184857142857143,63.1024285714286,"Chiasmodontidae","niger",1904
+"Coryphaenidae_Coryphaena_hippurus_E00937","Coryphaena","hippurus","","pelagic","pelagic",0.00177142857142857,0.0253571428571429,0.0165857142857143,62.4581857142857,"Coryphaenidae","hippurus",1046
+"Acanthuridae_Ctenochaetus_strigosus_E00050","Ctenochaetus","strigosus","","demersal","demersal",0.00221666666666667,0.0424666666666667,0.0214166666666667,59.6084333333333,"Acanthuridae","strigosus",1603
+"Cyprinidae_Cyprinus_carpio_I2598-58","Cyprinus","carpio","Fusiform","benthopelagic","demersal",0.0012,0.03575,0.0161333333333333,52.1842666666667,"Cyprinidae","carpio",127
+"Serranidae_Diplectrum_formosum_E01002","Diplectrum","formosum","","demersal","demersal",0.00108333333333333,0.0390333333333333,0.0200166666666667,60.32455,"Serranidae","formosum",1170
+"Cyprinidae_Discherodontus_ashmeadi_I2636-31","Discherodontus","ashmeadi","","","benthic",0.00116666666666667,0.0281333333333333,0.0161666666666667,67.80255,"Cyprinidae","ashmeadi",150
+"Elopidae_Elops_saurus_E00769","Elops","saurus","","pelagic","pelagic",0.00795714285714286,0.0179142857142857,0.0154428571428571,121.919471428571,"Elopidae","saurus",25
+"Engraulidae_Engraulis_mordax_eurystole_E00351","Engraulis","mordax","","pelagic","pelagic",0.00361428571428571,0.0225857142857143,0.0125285714285714,65.1494857142857,"Engraulidae","mordax",55
+"Fundulidae_Fundulus_heteroclitus_G01293","Fundulus","heteroclitus","Fusiform","benthopelagic","demersal",0.000771428571428571,0.0251285714285714,0.0149714285714286,71.1692857142857,"Fundulidae","heteroclitus",742
+"Percichthyidae_Gadopsis_marmoratus_E01144","Gadopsis","marmoratus","","benthopelagic","demersal",0.0012,0.0223,0.0132857142857143,75.5659714285714,"Percichthyidae","marmoratus",1075
+"Ogcocephalidae_Halieutichthys_aculeatus_E01122","Halieutichthys","aculeatus","Tadpole shaped","benthic","benthic",0.000366666666666667,0.0502833333333333,0.0195333333333333,54.3386666666667,"Ogcocephalidae","aculeatus",1376
+"Chaetodontidae_Hemitaurichthys_polylepis_E00240","Hemitaurichthys","polylepis","Deep bodied","pelagic","pelagic",0.000471428571428571,0.0394142857142857,0.0230285714285714,69.4823714285714,"Chaetodontidae","polylepis",1514
+"Osmeridae_Hypomesus_pretiosus_G01333","Hypomesus","pretiosus","","demersal","demersal",0.004275,0.017075,0.0118875,86.2325625,"Osmeridae","pretiosus",475
+"Pomacentridae_Hypsypops_rubicundus_E00459","Hypsypops","rubicundus","Deep bodied","demersal","demersal",0.00095,0.0370666666666667,0.0198666666666667,60.7575666666667,"Pomacentridae","rubicundus",777
+"Labridae_Labroides_dimidiatus_E00848","Labroides","dimidiatus","Fusiform","demersal","demersal",0.00161428571428571,0.0349571428571429,0.0154714285714286,53.7180142857143,"Labridae","dimidiatus",1657
+"Sparidae_Lagodon_rhomboides_G01346","Lagodon","rhomboides","Deep bodied","demersal","demersal",0.00186666666666667,0.0349166666666667,0.01535,48.78035,"Sparidae","rhomboides",1480
+"Lepidogalaxiidae_Lepidogalaxias_salamandroides_G01350","Lepidogalaxias","salamandroides","Elongate","demersal","demersal",0.006725,0.0239875,0.0157875,79.3596,"Lepidogalaxiidae","salamandroides",449
+"Centrarchidae_Lepomis_macrochirus_E01113","Lepomis","macrochirus","","benthopelagic","demersal",0.00223119488888889,0.0277872465,0.0158860606666667,70.1411408522222,"Centrarchidae","macrochirus",1088
+"Psychrolutidae_Malacocottus_zonurus_E00253","Malacocottus","zonurus","","benthic","benthic",0.00315,0.0289833333333333,0.0172833333333333,75.7243333333333,"Psychrolutidae","zonurus",1289
+"Stomiidae_Malacosteus_niger_E00783","Malacosteus","niger","","pelagic","pelagic",0.0030125,0.0261625,0.0162375,76.0397125,"Stomiidae","niger",507
+"Atherinopsidae_Menidia_beryllina_E00174","Menidia","beryllina","Fusiform","pelagic","demersal",4e-04,0.0241571428571429,0.0122142857142857,61.4297,"Atherinopsidae","beryllina",749
+"Gadidae_Microgadus_proximus_E00333","Microgadus","proximus","Fusiform","demersal","demersal",0.00174285714285714,0.0213285714285714,0.0144714285714286,82.9509285714286,"Gadidae","proximus",634
+"Mugilidae_Mugil_cephalus_E00049","Mugil","cephalus","","benthopelagic","pelagic",0.000585714285714286,0.0365428571428571,0.0168428571428571,54.0692571428571,"Mugilidae","cephalus",817
+"Psychrolutidae_Myoxocephalus_polyacanthocephalus_E00267","Myoxocephalus","polyacanthocephalus","","benthic","benthic",0.00292790772222222,0.0270595895555556,0.0170353402777778,76.9494503522222,"Psychrolutidae","polyacanthocephalus",1298
+"Gempylidae_Nealotus_tripes_E00287","Nealotus","tripes","Fusiform","pelagic","pelagic",0.0019,0.0243875,0.0103625,52.652625,"Gempylidae","tripes",1953
+"Apogonidae_Nectamia_fusca_E00732","Nectamia","fusca","Deep bodied","demersal","demersal",0.00188333333333333,0.0331,0.01725,63.1822166666667,"Apogonidae","fusca",1720
+"Umbridae_Novumbra_hubbsi_G01402","Novumbra","hubbsi","","demersal","demersal",0.00314285714285714,0.0254285714285714,0.0154142857142857,68.7683,"Umbridae","hubbsi",463
+"Batrachoididae_Opsanus_pardus_E00513","Opsanus","pardus","Tadpole shaped","benthic","benthic",0.00123333333333333,0.02755,0.0150166666666667,70.3429,"Batrachoididae","pardus",1962
+"Osteoglossidae_Osteoglossum_bicirrhosum_E00084","Osteoglossum","bicirrhosum","Fusiform","benthopelagic","demersal",0.00437142857142857,0.0170571428571429,0.0140285714285714,104.222042857143,"Osteoglossidae","bicirrhosum",44
+"Pleuronectidae_Parophrys_vetulus_E00445","Parophrys","vetulus","","benthic","benthic",0.00281428571428571,0.0234571428571429,0.0160285714285714,88.8499142857143,"Pleuronectidae","vetulus",974
+"Percopsidae_Percopsis_omiscomaycus_G01433","Percopsis","omiscomaycus","Fusiform","demersal","demersal",0.000585714285714286,0.0259714285714286,0.0156571428571429,72.5195428571429,"Percopsidae","omiscomaycus",588
+"Siluridae_Phalacronotus_bleekeri_P02_A04_RG07","Phalacronotus","bleekeri","","demersal","demersal",3e-04,0.0184285714285714,0.0104857142857143,71.0191,"Siluridae","bleekeri",287
+"Pholidae_Pholis_ornata_N01732","Pholis","ornata","","benthic","benthic",0.00252211833333333,0.013838682625,0.00908763829166667,61.1965889091667,"Pholidae","ornata",1247
+"Heptapteridae_Pimelodella_cristata_P02_E03_RG87","Pimelodella","cristata","","demersal","demersal",0.000585714285714286,0.0247428571428571,0.0147714285714286,76.0045142857143,"Heptapteridae","cristata",332
+"Polymixiidae_Polymixia_lowei_E01025","Polymixia","lowei","Deep bodied","demersal","demersal",0.00218571428571429,0.0318,0.0169142857142857,61.8267142857143,"Polymixiidae","lowei",641
+"Polypteridae_Polypterus_senegalus_G01446","Polypterus","senegalus","","demersal","demersal",0.0004125,0.02535,0.017125,82.1756,"Polypteridae","senegalus",12
+"Gobiidae_Risor_ruber_E00107","Risor","ruber","","benthic","benthic",0.0029,0.0352428571428571,0.0173714285714286,56.9362,"Gobiidae","ruber",1747
+"Blenniidae_Salarias_fasciatus_E00988","Salarias","fasciatus","Tadpole shaped","benthic","benthic",0.00168571428571429,0.0303857142857143,0.0178142857142857,72.5619,"Blenniidae","fasciatus",877
+"Scombridae_Scomber_japonicus_E00247","Scomber","japonicus","","pelagic","pelagic",0.00238571428571429,0.0296428571428571,0.0145,56.1057857142857,"Scombridae","japonicus",1908
+"Serrasalmidae_Serrasalmus_rhombeus_P1_A02_RG27","Serrasalmus","rhombeus","","benthopelagic","demersal",0.00195,0.0273,0.0191666666666667,88.07885,"Serrasalmidae","rhombeus",427
+"Sphyraenidae_Sphyraena_sphyraena_E01143","Sphyraena","sphyraena","","pelagic","pelagic",0.00106666666666667,0.0343666666666667,0.0123166666666667,39.59745,"Sphyraenidae","sphyraena",920
+"Monacanthidae_Stephanolepis_hispidus_E00646","Stephanolepis","hispidus","Deep bodied","demersal","demersal",0.00298,0.05284,0.03038,60.2578,"Monacanthidae","hispidus",1429
+"Cichlidae_Symphysodon_discus_E00390","Symphysodon","discus","","benthopelagic","demersal",0.00208571428571429,0.0336142857142857,0.0235142857142857,80.4346,"Cichlidae","discus",695
