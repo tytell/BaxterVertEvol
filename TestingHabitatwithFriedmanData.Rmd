@@ -178,7 +178,7 @@ pgls_CBL_BodyShape<- gls(CBL_mean ~ Body.Shape, correlation = corBrownian(phy = 
 summary(pgls_CBL_BodyShape)
 anova(pgls_CBL_BodyShape)
 ```
-CBL and body shape significant here.
+CBL and body shape VERY significant here.
 
 ```{r}
 p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d_mean, color=Body.Shape)) +
@@ -198,9 +198,9 @@ coef(pgls_d_BodyShape)
 ```
 What does this mean?
 
-#PGLS with Friedman Habitat Data
+#PGLS with Friedman Habitat Data mean measurements
 ```{r}
-pgls_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
+pgls_d_Habitat <- gls(d_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_d_Habitat)
 anova(pgls_d_Habitat)
@@ -208,7 +208,7 @@ anova(pgls_d_Habitat)
 Not significant with this giant amount of habitats.
 
 ```{r}
-pgls_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
+pgls_CBL_Habitat <- gls(CBL_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
                         data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_Habitat)
 anova(pgls_CBL_Habitat)
@@ -216,12 +216,12 @@ anova(pgls_CBL_Habitat)
 ANOVA also not significant here.
 
 ```{r}
-h1 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=d, color=Habitat_Friedman)) +
+h1 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=d_mean, color=Habitat_Friedman)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
 
-h2 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=CBL, color=Habitat_Friedman)) +
+h2 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=CBL_mean, color=Habitat_Friedman)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
   stat_summary(fun.data = mean_sdl)
 
@@ -231,6 +231,12 @@ Again, what is this red unlabeled column?
 
 #Looking at pelagic d outlier
 The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
+*COME BACK HERE, HAVE TO FIX REMOVING THE OUTLIER, BECAUSE GENUS IS NO LONGER A COLUMN NAME*
+```{r}
+vertmeas.species1 <- names(vertmeas.species1)[1] = "Genus"
+
+vertmeas.species1
+```
 
 ```{r}
 pglsedit <- vertmeas.species1 %>% 
@@ -238,6 +244,7 @@ pglsedit <- vertmeas.species1 %>%
 
 pglsedit
 ```
+
 
 ```{r}
 verttreeedit <- keep.tip(tree, tip=as.vector(pglsedit$Tip))
@@ -327,7 +334,7 @@ pgls_d_HabitatConsensus <- gls(d_mean ~ Habitat, correlation = corBrownian(phy =
 summary(pgls_d_HabitatConsensus)
 anova(pgls_d_HabitatConsensus)
 ```
-Why is it not significant here -- do I have to rerun renv? 
+Why is it not significant here -- do I have to rerun renv? --> even with the changes it's still 0.4104...why is it not significant anymore??
 
 CBL/habitat PGLS
 ```{r}
@@ -453,67 +460,9 @@ pairs(emmeans(pglsedit_CBL_HabitatConsensus, "Habitat"))
 The "PreppedVertMeas.Rmd"" file has the code for formatting both of the data frames with mean and max measurements along the body. 
 
 ```{r}
-vertmeas.speciesmax <- left_join(vertmeas.speciesmax, allspecies, by=c("Genus", "Species"))
-
-vertmeas.speciesmax
-```
-
-```{r}
-left_join(filter(vertmeas.speciesmax, is.na(Tip)),
-          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-  vertmeas.bygenusmax
-```
-
-
-```{r}
-vertmeas.bygenusmax
-```
-
-```{r}
-left_join(vertmeas.speciesmax, vertmeas.bygenusmax,
-          by = c("Genus","Species","Family")) %>%
-  mutate(Tip = coalesce(Tip.x, Tip.y),
-         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
-  select(-Tip.x, -Tip.y) %>%
-  filter(!is.na(Tip)) ->
-  vertmeas.speciesmax1
-vertmeas.speciesmax1
-```
-
-
-```{r}
-vertmeas.speciesmax1 <- column_to_rownames(vertmeas.speciesmax1, var="FullName")
-```
-
-
-```{r}
-verttreemax <- keep.tip(tree, tip=as.vector(vertmeas.speciesmax1$Tip))
-```
-
-
-```{r}
-plotTree(verttreemax)
-```
-
-```{r}
-length(verttreemax$tip.label)
-nrow(vertmeas.speciesmax1)
-```
-
-
-```{r}
-name.check(verttreemax, vertmeas.speciesmax1)
-```
-
-
-```{r}
-pgls_d_HabitatConsensusMax<- gls(d ~ Habitat, correlation = corBrownian(phy = verttreemax),
-                      data = vertmeas.speciesmax1, method = "ML")
+pgls_d_HabitatConsensusMax<- gls(d_max ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
 summary(pgls_d_HabitatConsensusMax)
-```
-
-```{r}
 anova(pgls_d_HabitatConsensusMax)
 ```
 

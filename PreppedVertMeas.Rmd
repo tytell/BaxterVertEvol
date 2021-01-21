@@ -116,31 +116,3 @@ write.csv(vertmeas.species1, "PhyloPreppedVertMeas.csv")
 ```
 
 
-#Same prep, but to create a similar csv except with max measurement value along the body
-```{r}
-vertmeasall %>%
-  group_by(Species, Body.Shape, Habitat) %>%
-  summarise(d = max(d),
-            CBL = max(CBL),
-            D_Ant = max(D_Ant),
-            D_Pos = max(D_Pos),
-            alpha_Pos = max(alpha_Pos),
-            alpha_Ant = max(alpha_Ant)) %>%
-  ungroup() %>%
-  separate(Species, sep='_', into=c("Genus", "Species")) ->
-  vertmeas.speciesmax
-```
-
-```{r}
-vertmeas.speciesmax <- left_join(vertmeas.speciesmax, allspecies, by=c("Genus", "Species"))
-
-vertmeas.speciesmax
-```
-
-```{r}
-left_join(filter(vertmeas.speciesmax, is.na(Tip)),
-          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-  vertmeas.bygenusmax
-```
-
