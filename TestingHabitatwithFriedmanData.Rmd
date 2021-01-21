@@ -30,7 +30,8 @@ library(naniar)
 library(dplyr)
 ```
 
-#START AT LINE 360
+#START AT LINE 450
+Max is not identifying Tip which is weird because it has been identifying it for everything else. Also why are the numbers wrong again...
 
 #Load in csv
 ```{r}
