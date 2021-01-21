@@ -60,13 +60,11 @@ allspecies <-
 allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
+TODO: Make one data file with means, maxes, etc all together. `summarize_at` should do it - see below
 ```{r}
 vertmeasall %>%
   group_by(Species, Body.Shape, Habitat_Friedman, Habitat) %>%
-  summarise(d = mean(d),
-            CBL = mean(CBL),
-            D_Pos = mean(D_Pos),
-            alpha_Pos = mean(alpha_Pos)) %>%
+  summarize_at(vars(d, CBL, D_Pos, alpha_Pos), list(mean=mean, max=max)) %>%
   ungroup() %>%
   separate(Species, sep='_', into=c("Genus", "Species")) ->
   vertmeas.species

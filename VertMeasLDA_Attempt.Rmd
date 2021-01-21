@@ -93,16 +93,38 @@ allvertdata_widefull<-
   allvertdata_wide %>%
   dplyr::select(-contains(c("20", "30"))) %>%
   dplyr::select(starts_with("CBL") | starts_with("d") | 
-           starts_with("alphaPos") | starts_with("DPos"))
+           starts_with("alphaPos") | starts_with("DPos"), Habitat)
 ```
 
+This was failing because your `allvertdata_widefull` data frame didn't contain the column `Habitat`. Your `select` function above just selected the CBL, d, alphaPos and DPos variables.
 ```{r}
 allvertdata.lda <- lda(Habitat ~ ., data = allvertdata_widefull)
 
 allvertdata.lda
 ```
 
+```{r}
+ldadata <- predict(allvertdata.lda, newdata=allvertdata_widefull)
+allvertdata_withlda <- cbind(allvertdata_widefull, ldadata$x)
+
+head(allvertdata_withlda)
+```
+
+```{r}
+ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat)) +
+  geom_point() +
+  stat_ellipse()
+```
+
+```{r}
+ggpairs(allvertdata_withlda, columns = c("LD1", "LD2"),
+        mapping = aes(color = Habitat, shape = Habitat),
+        upper = list(continuous = "blank"),
+        diag = list(continuous = "densityDiag"))
+```
+
 This is I believe what setting up the model would look like based off of the resources I looked at. The resource I'm looking at also gives instructions to make a partition plot, which would look something like this. I'm not totally positive how applicable this is to our case, but it looks like a potential plot that could show at least something interesting.
+
 
 ```{r}
 library(klaR)

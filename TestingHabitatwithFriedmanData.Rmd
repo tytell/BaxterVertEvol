@@ -16,10 +16,8 @@ library(Hmisc)
 library(phytools)
 library(here)
 library(ape)
-renv::install("ape@5.3")
 library(geiger)
 library(nlme)
-renv::install("nlme@3.1-145")
 library(patchwork)
 library(emmeans)
 library(multcompView)
@@ -136,9 +134,12 @@ allspecies <-
 allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
-#Load in csv prepped for phylogenetic analysis
+Load in csv prepped for phylogenetic analysis. NB: CSV files don't save rownames properly, so we need to convert the first column back into rownames
 ```{r}
-vertmeas.species1 <- read.csv("PhyloPreppedVertMeas.csv")
+vertmeas.species1 <- read.csv("PhyloPreppedVertMeas.csv") %>% 
+  column_to_rownames(var = colnames(vertmeas.species1)[1])
+
+head(vertmeas.species1)
 ```
 
 
@@ -146,13 +147,12 @@ vertmeas.species1 <- read.csv("PhyloPreppedVertMeas.csv")
 verttree <- keep.tip(tree, tip=as.vector(vertmeas.species1$Tip))
 ```
 
-#Phylogenetic tree with just measured species 
+Phylogenetic tree with just measured species 
 ```{r}
 plotTree(verttree)
 ```
 
-
-#Check tree and data match
+Check tree and data match
 ```{r}
 length(verttree$tip.label)
 nrow(vertmeas.species1)
@@ -165,7 +165,7 @@ name.check(verttree, vertmeas.species1)
 
 #Start PGLS Analysis with Friedman Habitat Data 
 ```{r}
-pgls_d_BodyShape<- gls(d ~ Body.Shape, correlation = corBrownian(phy = verttree),
+pgls_d_BodyShape<- gls(d_mean ~ Body.Shape, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_d_BodyShape)
 anova(pgls_d_BodyShape)
@@ -173,7 +173,7 @@ anova(pgls_d_BodyShape)
 Body shape significant here.
 
 ```{r}
-pgls_CBL_BodyShape<- gls(CBL ~ Body.Shape, correlation = corBrownian(phy = verttree),
+pgls_CBL_BodyShape<- gls(CBL_mean ~ Body.Shape, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_BodyShape)
 anova(pgls_CBL_BodyShape)
@@ -181,11 +181,11 @@ anova(pgls_CBL_BodyShape)
 CBL and body shape significant here.
 
 ```{r}
-p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d, color=Body.Shape)) +
+p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d_mean, color=Body.Shape)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
-p2 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=CBL, color=Body.Shape)) +
+p2 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=CBL_mean, color=Body.Shape)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
@@ -260,7 +260,7 @@ name.check(verttreeedit, pglsedit)
 
 
 ```{r}
-pglsedit_d_Habitat <- gls(d ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
+pglsedit_d_Habitat <- gls(d_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
                       data = pglsedit, method = "ML")
 summary(pglsedit_d_Habitat)
 anova(pglsedit_d_Habitat)
@@ -279,7 +279,7 @@ Hard to tell differences here because so many habitat categories -- will narrow 
 
 
 ```{r}
-pglsedit_CBL_Habitat <- gls(CBL ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
+pglsedit_CBL_Habitat <- gls(CBL_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
                         data = pglsedit, method = "ML")
 summary(pglsedit_CBL_Habitat)
 anova(pglsedit_CBL_Habitat)
@@ -287,12 +287,12 @@ anova(pglsedit_CBL_Habitat)
 ANOVA not significant here.
 
 ```{r}
-ha1 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=d, color=Habitat_Friedman)) +
+ha1 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=d_mean, color=Habitat_Friedman)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
 
-ha2 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=CBL, color=Habitat_Friedman)) +
+ha2 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=CBL_mean, color=Habitat_Friedman)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
   stat_summary(fun.data = mean_sdl)
 
@@ -322,7 +322,7 @@ name.check(verttree, vertmeas.species1)
 
 Notochordal foramina/habitat PGLS
 ```{r}
-pgls_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttree),
+pgls_d_HabitatConsensus <- gls(d_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_d_HabitatConsensus)
 anova(pgls_d_HabitatConsensus)
@@ -331,19 +331,19 @@ Why is it not significant here -- do I have to rerun renv?
 
 CBL/habitat PGLS
 ```{r}
-pgls_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttree),
+pgls_CBL_HabitatConsensus <- gls(CBL_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                         data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_HabitatConsensus)
 anova(pgls_CBL_HabitatConsensus)
 ```
 
 ```{r}
-hc1 <- ggplot(vertmeas.species1, aes(x=Habitat, y=d, color=Habitat)) +
+hc1 <- ggplot(vertmeas.species1, aes(x=Habitat, y=d_mean, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
   stat_summary(fun.data = mean_sdl)
 
 
-hc2 <- ggplot(vertmeas.species1, aes(x=Habitat, y=CBL, color=Habitat)) +
+hc2 <- ggplot(vertmeas.species1, aes(x=Habitat, y=CBL_mean, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
   stat_summary(fun.data = mean_sdl)
 
@@ -363,7 +363,7 @@ Tried to rerun with renv, still not working.
 #Mean PGLS with D_Pos and habitat consensus
 
 ```{r}
-pgls_DPos_HabitatConsensus <- gls(D_Pos ~ Habitat, correlation = corBrownian(phy = verttree),
+pgls_DPos_HabitatConsensus <- gls(D_Pos_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_DPos_HabitatConsensus)
 anova(pgls_DPos_HabitatConsensus)
@@ -376,7 +376,7 @@ pairs(emmeans(pgls_DPos_HabitatConsensus, "Habitat"))
 #Mean PGLS with alpha_Pos and Habitat Consensus
 
 ```{r}
-pgls_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttree),
+pgls_alphaPos_HabitatConsensus <- gls(alpha_Pos_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = vertmeas.species1, method = "ML")
 summary(pgls_alphaPos_HabitatConsensus)
 anova(pgls_alphaPos_HabitatConsensus)
@@ -409,7 +409,7 @@ name.check(verttreeedit, pglsedit)
 
 
 ```{r}
-pglsedit_d_HabitatConsensus <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreeedit),
+pglsedit_d_HabitatConsensus <- gls(d_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = pglsedit, method = "ML")
 summary(pglsedit_d_HabitatConsensus)
 anova(pglsedit_d_HabitatConsensus)
