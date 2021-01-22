@@ -136,8 +136,8 @@ allspecies$Tip <- seq_len(nrow(allspecies))
 
 Load in csv prepped for phylogenetic analysis. NB: CSV files don't save rownames properly, so we need to convert the first column back into rownames
 ```{r}
-vertmeas.species1 <- read.csv("PhyloPreppedVertMeas.csv") %>% 
-  column_to_rownames(var = colnames(vertmeas.species1)[1])
+vertmeas.species1 <- read.csv("PhyloPreppedVertMeas.csv") %>%
+  column_to_rownames(var = 'X')
 
 head(vertmeas.species1)
 ```
@@ -232,11 +232,6 @@ Again, what is this red unlabeled column?
 #Looking at pelagic d outlier
 The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
 *COME BACK HERE, HAVE TO FIX REMOVING THE OUTLIER, BECAUSE GENUS IS NO LONGER A COLUMN NAME*
-```{r}
-vertmeas.species1 <- names(vertmeas.species1)[1] = "Genus"
-
-vertmeas.species1
-```
 
 ```{r}
 pglsedit <- vertmeas.species1 %>% 
@@ -432,7 +427,7 @@ pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
 
 ```{r}
-pglsedit_alphaPos_HabitatConsensus <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreeedit),
+pglsedit_alphaPos_HabitatConsensus <- gls(alpha_Pos_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = pglsedit, method = "ML")
 
 anova(pglsedit_alphaPos_HabitatConsensus)

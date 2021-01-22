@@ -64,7 +64,9 @@ TODO: Make one data file with means, maxes, etc all together. `summarize_at` sho
 ```{r}
 vertmeasall %>%
   group_by(Species, Body.Shape, Habitat_Friedman, Habitat) %>%
-  summarize_at(vars(d, CBL, D_Pos, alpha_Pos), list(mean=mean, max=max)) %>%
+  summarize_at(vars(d, CBL, D_Pos, alpha_Pos), 
+               list(mean = ~mean(.x, na.rm=TRUE), 
+                    max = ~max(.x, na.rm=TRUE))) %>%
   ungroup() %>%
   separate(Species, sep='_', into=c("Genus", "Species")) ->
   vertmeas.species
