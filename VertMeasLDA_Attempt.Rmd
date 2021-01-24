@@ -117,11 +117,16 @@ ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat)) +
 ```
 
 ```{r}
-ggpairs(allvertdata_withlda, columns = c("LD1", "LD2"),
+LDA_vert <- ggpairs(allvertdata_withlda, columns = c("LD1", "LD2"),
         mapping = aes(color = Habitat, shape = Habitat),
         upper = list(continuous = "blank"),
         diag = list(continuous = "densityDiag"))
 ```
+
+```{r}
+ggsave("LDA_vert.png", LDA_vert, width=5, height=7, units="in")
+```
+
 
 This is I believe what setting up the model would look like based off of the resources I looked at. The resource I'm looking at also gives instructions to make a partition plot, which would look something like this. I'm not totally positive how applicable this is to our case, but it looks like a potential plot that could show at least something interesting.
 
