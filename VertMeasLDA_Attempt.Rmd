@@ -111,10 +111,15 @@ head(allvertdata_withlda)
 ```
 
 ```{r}
-ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat)) +
+LDA_groups <- ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat)) +
   geom_point() +
   stat_ellipse()
 ```
+
+```{r}
+ggsave("LDA_groups.png", LDA_groups, width=6, height=6, units="in")
+```
+
 
 ```{r}
 LDA_vert <- ggpairs(allvertdata_withlda, columns = c("LD1", "LD2"),
@@ -124,7 +129,7 @@ LDA_vert <- ggpairs(allvertdata_withlda, columns = c("LD1", "LD2"),
 ```
 
 ```{r}
-ggsave("LDA_vert.png", LDA_vert, width=5, height=7, units="in")
+ggsave("LDA_vert.png", LDA_vert, width=6, height=6, units="in")
 ```
 
 
