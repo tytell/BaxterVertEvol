@@ -178,7 +178,7 @@ pgls_CBL_BodyShape<- gls(CBL_mean ~ Body.Shape, correlation = corBrownian(phy = 
 summary(pgls_CBL_BodyShape)
 anova(pgls_CBL_BodyShape)
 ```
-CBL and body shape VERY significant here.
+CBL and body shape almost significant here.
 
 ```{r}
 p1 <- ggplot(vertmeas.species1, aes(x=Body.Shape, y=d_mean, color=Body.Shape)) +
@@ -199,40 +199,9 @@ coef(pgls_d_BodyShape)
 What does this mean?
 
 #PGLS with Friedman Habitat Data mean measurements
-```{r}
-pgls_d_Habitat <- gls(d_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
-                      data = vertmeas.species1, method = "ML")
-summary(pgls_d_Habitat)
-anova(pgls_d_Habitat)
-```
-Not significant with this giant amount of habitats.
 
-```{r}
-pgls_CBL_Habitat <- gls(CBL_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttree),
-                        data = vertmeas.species1, method = "ML")
-summary(pgls_CBL_Habitat)
-anova(pgls_CBL_Habitat)
-```
-ANOVA also not significant here.
-
-```{r}
-h1 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=d_mean, color=Habitat_Friedman)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
-
-
-h2 <- ggplot(vertmeas.species1, aes(x=Habitat_Friedman, y=CBL_mean, color=Habitat_Friedman)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
-  stat_summary(fun.data = mean_sdl)
-
-h1 / h2
-```
-Again, what is this red unlabeled column? 
-
-#Looking at pelagic d outlier
-The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see if anything changes.
-*COME BACK HERE, HAVE TO FIX REMOVING THE OUTLIER, BECAUSE GENUS IS NO LONGER A COLUMN NAME*
-
+#Create PGLS edit without outlier Elops saurus
+The outlier seems to be Elops saurus. This is an attempt to run the PGLS without Elops saurus to see differences.
 ```{r}
 pglsedit <- vertmeas.species1 %>% 
   filter(Genus != "Elops") #using dplyr, thanks Ben!
@@ -261,49 +230,7 @@ name.check(verttreeedit, pglsedit)
 ```
 
 
-```{r}
-pglsedit_d_Habitat <- gls(d_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
-                      data = pglsedit, method = "ML")
-summary(pglsedit_d_Habitat)
-anova(pglsedit_d_Habitat)
-```
-Habitat not significant here with ANOVA.
-
-```{r}
-pwpm(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
-```
-
-
-```{r}
-pairs(emmeans(pglsedit_d_Habitat, "Habitat_Friedman"))
-```
-Hard to tell differences here because so many habitat categories -- will narrow to benthic, pelagic, and demersal.
-
-
-```{r}
-pglsedit_CBL_Habitat <- gls(CBL_mean ~ Habitat_Friedman, correlation = corBrownian(phy = verttreeedit),
-                        data = pglsedit, method = "ML")
-summary(pglsedit_CBL_Habitat)
-anova(pglsedit_CBL_Habitat)
-```
-ANOVA not significant here.
-
-```{r}
-ha1 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=d_mean, color=Habitat_Friedman)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
-
-
-ha2 <- ggplot(pglsedit, aes(x=Habitat_Friedman, y=CBL_mean, color=Habitat_Friedman)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
-  stat_summary(fun.data = mean_sdl)
-
-ha1 / ha2
-```
-
-
-
-#Look again at phylogeny
+#Look again at full phylogeny
 
 ```{r}
 plotTree(verttree)
@@ -329,7 +256,7 @@ pgls_d_HabitatConsensus <- gls(d_mean ~ Habitat, correlation = corBrownian(phy =
 summary(pgls_d_HabitatConsensus)
 anova(pgls_d_HabitatConsensus)
 ```
-Why is it not significant here -- do I have to rerun renv? --> even with the changes it's still 0.4104...why is it not significant anymore??
+It's just over the threshold of significance here.
 
 CBL/habitat PGLS
 ```{r}
@@ -338,6 +265,7 @@ pgls_CBL_HabitatConsensus <- gls(CBL_mean ~ Habitat, correlation = corBrownian(p
 summary(pgls_CBL_HabitatConsensus)
 anova(pgls_CBL_HabitatConsensus)
 ```
+CBL ~ Habitat not even close to significant here.
 
 ```{r}
 hc1 <- ggplot(vertmeas.species1, aes(x=Habitat, y=d_mean, color=Habitat)) +
@@ -356,11 +284,11 @@ hc1 / hc2
 ```{r}
 pwpm(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```
+But here, none of the individual pairs are significant but the ANOVA is.
 
 ```{r}
 pairs(emmeans(pgls_d_HabitatConsensus, "Habitat"))
 ```
-Tried to rerun with renv, still not working.
 
 #Mean PGLS with D_Pos and habitat consensus
 
@@ -370,6 +298,7 @@ pgls_DPos_HabitatConsensus <- gls(D_Pos_mean ~ Habitat, correlation = corBrownia
 summary(pgls_DPos_HabitatConsensus)
 anova(pgls_DPos_HabitatConsensus)
 ```
+DPos not significant here.
 
 ```{r}
 pairs(emmeans(pgls_DPos_HabitatConsensus, "Habitat"))
@@ -383,12 +312,12 @@ pgls_alphaPos_HabitatConsensus <- gls(alpha_Pos_mean ~ Habitat, correlation = co
 summary(pgls_alphaPos_HabitatConsensus)
 anova(pgls_alphaPos_HabitatConsensus)
 ```
-But then why is alphaPos still significant here but d is not?
+VERY significant, even with outlier.
 
 ```{r}
 pairs(emmeans(pgls_alphaPos_HabitatConsensus, "Habitat"))
 ```
-Why is just demersal-pelagic significant here?
+Why is just benthic-pelagic significant here?
 
 
 #Consensus Habitat Attempt without Elops saurus
@@ -416,7 +345,7 @@ pglsedit_d_HabitatConsensus <- gls(d_mean ~ Habitat, correlation = corBrownian(p
 summary(pglsedit_d_HabitatConsensus)
 anova(pglsedit_d_HabitatConsensus)
 ```
-Why is this still not significant?
+d_mean VERY significant here. 
 
 ```{r}
 pwpm(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
@@ -425,6 +354,7 @@ pwpm(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```{r}
 pairs(emmeans(pglsedit_d_HabitatConsensus, "Habitat"))
 ```
+Pelagic fully significant with both pairs here.
 
 ```{r}
 pglsedit_alphaPos_HabitatConsensus <- gls(alpha_Pos_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
@@ -432,15 +362,15 @@ pglsedit_alphaPos_HabitatConsensus <- gls(alpha_Pos_mean ~ Habitat, correlation 
 
 anova(pglsedit_alphaPos_HabitatConsensus)
 ```
-
+alphaPos without Elops very significant
 
 ```{r}
 pairs(emmeans(pglsedit_alphaPos_HabitatConsensus, "Habitat"))
 ```
-
+Why is just benthic-pelagic different but demersal-pelagic not? 
 
 ```{r}
-pglsedit_CBL_HabitatConsensus <- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreeedit), data = pglsedit, method = "ML")
+pglsedit_CBL_HabitatConsensus <- gls(CBL_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit), data = pglsedit, method = "ML")
 
 anova(pglsedit_CBL_HabitatConsensus)
 ```
@@ -460,110 +390,112 @@ pgls_d_HabitatConsensusMax<- gls(d_max ~ Habitat, correlation = corBrownian(phy 
 summary(pgls_d_HabitatConsensusMax)
 anova(pgls_d_HabitatConsensusMax)
 ```
+d_max also very significant.
 
 ```{r}
 pairs(emmeans(pgls_d_HabitatConsensusMax, "Habitat"))
 ```
+Both pair comparisons with pelagic significantly different -- pelagic significantly different group. 
 
 #PGLS with max CBL and habitat consensus
 
 ```{r}
-pgls_CBL_HabitatConsensusMax<- gls(CBL ~ Habitat, correlation = corBrownian(phy = verttreemax),
-                      data = vertmeas.speciesmax1, method = "ML")
+pgls_CBL_HabitatConsensusMax<- gls(CBL_max ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
 summary(pgls_CBL_HabitatConsensusMax)
-```
-
-```{r}
 anova(pgls_CBL_HabitatConsensusMax)
-```
-
-```{r}
-pairs(emmeans(pgls_CBL_HabitatConsensusMax, "Habitat"))
 ```
 
 #PGLS with max D_Pos and habitat consensus
 
 ```{r}
-pgls_DPos_HabitatConsensusMax<- gls(D_Pos ~ Habitat, correlation = corBrownian(phy = verttreemax),
-                      data = vertmeas.speciesmax1, method = "ML")
+pgls_DPos_HabitatConsensusMax<- gls(D_Pos_max ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
 summary(pgls_DPos_HabitatConsensusMax)
-```
-
-```{r}
 anova(pgls_DPos_HabitatConsensusMax)
 ```
+ALMOST significant here.
 
-```{r}
-pairs(emmeans(pgls_DPos_HabitatConsensusMax, "Habitat"))
-```
 
 #PGLS with max alpha_Pos and habitat consensus
 
 ```{r}
-pgls_alphaPos_HabitatConsensusMax<- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreemax),
-                      data = vertmeas.speciesmax1, method = "ML")
+pgls_alphaPos_HabitatConsensusMax<- gls(alpha_Pos_max ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = vertmeas.species1, method = "ML")
 summary(pgls_alphaPos_HabitatConsensusMax)
-```
-
-```{r}
 anova(pgls_alphaPos_HabitatConsensusMax)
 ```
+Very significant ANOVA!
 
 ```{r}
 pairs(emmeans(pgls_alphaPos_HabitatConsensusMax, "Habitat"))
 ```
+This is so bizarre...here the benthic is like almost the fully significantly different group.
+
+#alphaPos without Elops
+```{r}
+pglsedit_alphaPos_HabitatConsensusMax <- gls(alpha_Pos_max ~ Habitat, correlation = corBrownian(phy = verttreeedit), data = pglsedit, method = "ML")
+
+anova(pglsedit_alphaPos_HabitatConsensusMax)
+```
+Very significant.
+
+```{r}
+pairs(emmeans(pglsedit_alphaPos_HabitatConsensusMax, "Habitat"))
+```
+
 
 #PGLS Figures for Habitat Consensus Visualization
 
 ```{r}
-hc1 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=d, color=Habitat)) +
+hc1 <- ggplot(pglsedit, aes(x=Habitat, y=d_mean, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  labs(x="Habitat", y="Mean d") +
-  theme(axis.text = element_text(size = 11),
+  labs(x="Habitat", y="Mean notochordal foramen diameter (BL)") +
+  theme(axis.text = element_text(size = 10),
         axis.title = element_text(size = 13)) + 
-  stat_summary(fun.data = mean_sdl)
-
-
-hcm2 <- ggplot(vertmeas.speciesconsensus1, aes(x=Habitat, y=alpha_Pos, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
-  labs(x="Habitat", y="Mean alpha posterior")+
-  theme(axis.text = element_text(size = 11),
-        axis.title = element_text(size = 13)) +
-  stat_summary(fun.data = mean_sdl)
-
-hc1 / hcm2
-```
-
-```{r}
-hce1 <- ggplot(vertmeas.speciespglseditconsensus, aes(x=Habitat, y=d, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  labs(x="Habitat", y="Mean notochordal foramen diameter (body lengths)") +
-  theme(axis.text = element_text(size = 11),
-        axis.title = element_text(size = 12)) + 
-  stat_summary(fun.data = mean_sdl)+
+  stat_summary(fun.data = mean_sdl) +
   annotate("text", x = c(3), y=c(0.0050), label=c("*"), size = 10)
 
-hce1
-```
 
-```{r}
-ggsave("hce_d.png", hce1, width=5, height=7, units="in")
-```
-
-```{r}
-hce2 <- ggplot(vertmeas.speciespglseditconsensus, aes(x=Habitat, y=alpha_Pos, color=Habitat)) +
+hcm2 <- ggplot(pglsedit, aes(x=Habitat, y=d_max, color=Habitat)) +
   geom_point(alpha = 0.5, position = position_jitter(width=0.2)) + 
-  labs(x="Habitat", y="Mean cone angle (degrees)")+
-  theme(axis.text = element_text(size = 11),
+  labs(x="Habitat", y="Max notochordal foramen diameter (BL)")+
+  theme(axis.text = element_text(size = 10),
         axis.title = element_text(size = 13)) +
-  stat_summary(fun.data = mean_sdl)+
-  annotate("text", x = c(3), y=c(100), label=c("*"), size = 10)
+  stat_summary(fun.data = mean_sdl) +
+  annotate("text", x = c(3), y=c(0.0050), label=c("*"), size = 10)
 
-hce2
+d_fig <- hc1 | hcm2
+d_fig
 ```
 
 ```{r}
-ggsave("hce_alphaPos.png", hce2, width=5, height=7, units="in")
+ggsave("d_fig.png", d_fig, width=8, height=5, units="in")
+```
+
+
+```{r}
+hce1 <- ggplot(pglsedit, aes(x=Habitat, y=alpha_Pos_mean, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  labs(x="Habitat", y="Mean posterior cone angle (degrees)") +
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) + 
+  stat_summary(fun.data = mean_sdl)
+
+hce2 <- ggplot(pglsedit, aes(x=Habitat, y=alpha_Pos_max, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  labs(x="Habitat", y="Max posterior cone angle (degrees)") +
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) + 
+  stat_summary(fun.data = mean_sdl)
+
+alphaPos_fig <- hce1 | hce2
+alphaPos_fig
+```
+
+
+```{r}
+ggsave("alphaPos_fig.png", alphaPos_fig, width=8, height=5, units="in")
 ```
 
 
@@ -611,35 +543,5 @@ vertmeas.speciesall1
 ```{r}
 write.csv (vertmeas.speciesall1,"All_Vert_Data.csv")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
