@@ -1,0 +1,95 @@
+---
+title: "Max BW Vert Meas Plots"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(ggthemes)
+library(dplyr)
+library(Hmisc)
+library(phytools)
+library(here)
+library(geiger)
+library(patchwork)
+library(emmeans)
+library(multcompView)
+library(readxl)
+library(naniar)
+```
+
+#Load in csv
+```{r}
+vertmeasBW <- read.csv("MasterVert_Measurements.csv")
+vertmeasBW
+```
+
+#Turning BW measurements into numeric
+```{r}
+vertmeasBW$d_BW <- as.numeric(as.character(vertmeasBW$d_BW))
+vertmeasBW$D_Pos_BW <- as.numeric(as.character(vertmeasBW$D_Pos_BW))
+vertmeasBW$D_Ant_BW <- as.numeric(as.character(vertmeasBW$D_Ant_BW))
+```
+
+
+#Take mean of vertebral measurements
+```{r}
+vertmeasBWmean <- vertmeasBW %>%
+  group_by(Species, Body.Shape, Habitat) %>%
+  summarize_at(vars(d, CBL, D_Pos, alpha_Pos, d_BW, D_Pos_BW, D_Ant_BW),
+               list(mean = ~mean(.x, na.rm = TRUE))) %>%
+  ungroup()
+  
+vertmeasBWmean
+```
+
+#Initial BW normalization measurement plots
+```{r}
+d.plot <- ggplot(vertmeasBWmean, aes(x = Habitat, y = d_mean, color = Habitat)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+  
+dBW.plot <- ggplot(vertmeasBWmean, aes(x = Habitat, y = d_BW_mean, color=Habitat)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+
+d.plot | dBW.plot
+```
+There is a massive outlier here in the pelagic...I think that it is the Elops saurus again.
+
+```{r}
+D_Pos.plot <- ggplot(vertmeasBWmean, aes(x = Habitat, y = D_Pos_mean, color = Habitat)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+  
+D_PosBW.plot <- ggplot(vertmeasBWmean, aes(x = Habitat, y = D_Pos_BW_mean, color=Habitat)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+
+D_Pos.plot | D_PosBW.plot
+```
+This shows something VERY different. I wonder why? Could it be the lack of elongate fishes at the moment?
+
+#Trying the plot quickly without Elops
+```{r}
+vertmeasBWmean.edit <- vertmeasBWmean %>% 
+  filter(Species != "Elops_saurus") 
+
+vertmeasBWmean.edit
+```
+
+```{r}
+d.plot.edit <- ggplot(vertmeasBWmean.edit, aes(x = Habitat, y = d_mean, color = Habitat)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+  
+dBW.plot.edit <- ggplot(vertmeasBWmean.edit, aes(x = Habitat, y = d_BW_mean, color=Habitat)) +
+  stat_summary(fun.data = "mean_cl_boot") +
+  geom_point(position ="jitter", alpha=0.5)
+
+d.plot.edit | dBW.plot.edit
+```
+
