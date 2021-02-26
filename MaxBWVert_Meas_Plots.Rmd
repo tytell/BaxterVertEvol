@@ -93,3 +93,8 @@ dBW.plot.edit <- ggplot(vertmeasBWmean.edit, aes(x = Habitat, y = d_BW_mean, col
 d.plot.edit | dBW.plot.edit
 ```
 
+```{r}
+ggplot(vertmeasBWmean, aes(x = d_mean, y = d_BW_mean, color = Habitat)) + 
+  geom_point()
+```
+
