@@ -73,6 +73,8 @@ D_Pos.plot | D_PosBW.plot
 ```
 This shows something VERY different. I wonder why? Could it be the lack of elongate fishes at the moment?
 
+Variation from others -- analyzing variance within groups, but how to control for phylogeny?
+
 #Trying the plot quickly without Elops
 ```{r}
 vertmeasBWmean.edit <- vertmeasBWmean %>% 
