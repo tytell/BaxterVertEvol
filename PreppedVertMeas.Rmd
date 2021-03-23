@@ -6,7 +6,6 @@ output: html_notebook
 #Load in packages
 ```{r}
 library(rfishbase)
-library(tidyverse)
 library (ggplot2)
 library(Hmisc)
 library(phytools)
@@ -22,6 +21,7 @@ library(plotly)
 library(ggthemes) 
 library(naniar)
 library(dplyr)
+library(tidyverse)
 ```
 
 
