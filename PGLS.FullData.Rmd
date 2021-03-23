@@ -6,7 +6,6 @@ output: html_notebook
 
 #Load in packages 
 ```{r}
-library(tidyverse)
 library(rfishbase)
 library (ggplot2)
 library(Hmisc)
@@ -23,6 +22,7 @@ library(plotly)
 library(ggthemes) 
 library(naniar)
 library(dplyr)
+library(tidyverse)
 ```
 
 #Load in csv
@@ -47,12 +47,16 @@ plotTree(tree)
 ```{r}
 allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
 colnames(allspecies) <- c('FullName')
+
+allspecies
 ```
 
 ```{r}
 allspecies <- 
   allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
                           extra='drop', remove=FALSE)
+
+allspecies
 ```
 
 ```{r}
@@ -60,13 +64,12 @@ allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
 ```{r}
-fullvertmeas.mean <- fullvertmeas %>%
-  group_by(Species, Indiv, Body.Shape, Habitat) %>%
-  select(SL, Max_BW_mm, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant, d_BW, D_Pos_BW, D_Ant_BW) %>%
-  summarize_all(mean, na.rm=TRUE) %>%
-  ungroup() %>% 
-    separate(Species, sep='_', into=c("Genus", "Species"))
-
+fullvertmeas.mean <- vertmeasall %>%
+  group_by(Species, Body.Shape, Habitat_Friedman, Habitat) %>%
+  summarize_at(vars(d, CBL, D_Pos, D_Ant, alpha_Pos, alpha_Ant, d_BW, D_Pos_BW, D_Ant_BW), funs(mean, max, na.rm = TRUE) %>%
+  ungroup() %>%
+  separate(Species, sep='_', into=c("Genus", "Species")))
+               
 fullvertmeas.mean
 ```
 
@@ -120,4 +123,38 @@ name.check(verttree, fullvertmeas.speciesall)
 ```
 
 #PGLS Analysis
+
+```{r}
+pgls_d.BL<- gls(d ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_d.BL)
+anova(pgls_d.BL)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

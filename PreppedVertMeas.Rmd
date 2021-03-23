@@ -70,6 +70,8 @@ vertmeasall %>%
   ungroup() %>%
   separate(Species, sep='_', into=c("Genus", "Species")) ->
   vertmeas.species
+
+vertmeas.species
 ```
 
 ```{r}
