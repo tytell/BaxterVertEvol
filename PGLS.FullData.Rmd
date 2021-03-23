@@ -61,20 +61,63 @@ allspecies$Tip <- seq_len(nrow(allspecies))
 
 ```{r}
 fullvertmeas.mean <- fullvertmeas %>%
-  group_by(Species, Body.Shape, Habitat) %>%
-  summarise_at(vars(d, CBL, D_Pos, alpha_Pos, D_Ant, alpha_Ant, d_BW, D_Pos_BW, D_Ant_BW), 
-               list(mean = ~mean(.x, na.rm=TRUE), 
-                    max = ~max(.x, na.rm=TRUE))) %>%
-  ungroup() %>%
-  separate(Species, sep='_', into=c("Genus", "Species"))
+  group_by(Species, Indiv, Body.Shape, Habitat) %>%
+  select(SL, Max_BW_mm, CBL, d, alpha_Pos, alpha_Ant, D_Pos, D_Ant, d_BW, D_Pos_BW, D_Ant_BW) %>%
+  summarize_all(mean, na.rm=TRUE) %>%
+  ungroup() %>% 
+    separate(Species, sep='_', into=c("Genus", "Species"))
+
+fullvertmeas.mean
 ```
 
+```{r}
+fullvertmeas.species <- left_join(fullvertmeas.mean, allspecies, by=c("Genus", "Species"))
+fullvertmeas.species
+```
 
+```{r}
+fullvertmeas.bygenus <- left_join(filter(fullvertmeas.species, is.na(Tip)),
+          distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) 
 
+fullvertmeas.bygenus
+```
 
+```{r}
+left_join(fullvertmeas.species, fullvertmeas.bygenus,
+          by = c("Genus","Species","Family")) %>%
+  mutate(Tip = coalesce(Tip.x, Tip.y),
+         MatchSpecies = coalesce(MatchSpecies, Species)) %>%
+  select(-Tip.x, -Tip.y) %>%
+  filter(!is.na(Tip)) ->
+  fullvertmeas.speciesall
 
+fullvertmeas.speciesall
+```
 
+```{r}
+fullvertmeas.speciesall <- column_to_rownames(fullvertmeas.speciesall, var="FullName")
 
+fullvertmeas.speciesall
+```
 
+```{r}
+verttree <- keep.tip(tree, tip=as.vector(fullvertmeas.speciesall$Tip))
+```
 
+```{r}
+plotTree(verttree)
+```
+
+#Check if tree and data match
+```{r}
+length(verttree$tip.label)
+nrow(fullvertmeas.speciesall)
+```
+
+```{r}
+name.check(verttree, fullvertmeas.speciesall)
+```
+
+#PGLS Analysis
 
