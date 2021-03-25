@@ -28,7 +28,7 @@ library(tidyverse)
 #Load in csv
 ```{r}
 fullvertmeas <- read.csv("MasterVert_Measurements.csv")
-head(fullvertmeas)
+fullvertmeas
 ```
 
 #Load in phylogenetic information
@@ -64,11 +64,13 @@ allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
 ```{r}
-fullvertmeas.mean <- vertmeasall %>%
+fullvertmeas.mean <- fullvertmeas %>%
   group_by(Species, Body.Shape, Habitat_Friedman, Habitat) %>%
-  summarize_at(vars(d, CBL, D_Pos, D_Ant, alpha_Pos, alpha_Ant, d_BW, D_Pos_BW, D_Ant_BW), funs(mean, max, na.rm = TRUE) %>%
+  summarize_at(vars(d, CBL, D_Pos, D_Ant, alpha_Pos, alpha_Ant, d_BW, D_Pos_BW, D_Ant_BW), 
+               list(mean = ~mean(.x, na.rm = TRUE),
+                    max = ~max(.x, na.rm = TRUE)))%>%
   ungroup() %>%
-  separate(Species, sep='_', into=c("Genus", "Species")))
+  separate(Species, sep='_', into=c("Genus", "Species"))
                
 fullvertmeas.mean
 ```
@@ -125,10 +127,10 @@ name.check(verttree, fullvertmeas.speciesall)
 #PGLS Analysis
 
 ```{r}
-pgls_d.BL<- gls(d ~ Habitat, correlation = corBrownian(phy = verttree),
+pgls_dmean.BL<- gls(d_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_d.BL)
-anova(pgls_d.BL)
+summary(pgls_dmean.BL)
+anova(pgls_dmean.BL)
 ```
 
 
