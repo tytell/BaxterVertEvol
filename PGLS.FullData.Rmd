@@ -68,7 +68,8 @@ fullvertmeas.mean <- fullvertmeas %>%
   group_by(Species, Body.Shape, Habitat_Friedman, Habitat) %>%
   summarize_at(vars(d, CBL, D_Pos, D_Ant, alpha_Pos, alpha_Ant, d_BW, D_Pos_BW, D_Ant_BW), 
                list(mean = ~mean(.x, na.rm = TRUE),
-                    max = ~max(.x, na.rm = TRUE)))%>%
+                    max = ~max(.x, na.rm = TRUE),
+                    min = ~min(.x, na.rm = TRUE)))%>%
   ungroup() %>%
   separate(Species, sep='_', into=c("Genus", "Species"))
                
@@ -247,6 +248,62 @@ pairs(emmeans(pgls_alphaAntmax.BL, "Habitat"))
 ```
 Here, pelagis is fully significant.
 
+#PGLS Analysis for BL min 
+
+```{r}
+pgls_dmin.BL<- gls(d_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_dmin.BL)
+anova(pgls_dmin.BL)
+```
+
+```{r}
+pgls_CBLmin.BL<- gls(CBL_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_CBLmin.BL)
+anova(pgls_CBLmin.BL)
+```
+
+```{r}
+pgls_DPosmin.BL<- gls(D_Pos_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_DPosmin.BL)
+anova(pgls_DPosmin.BL)
+```
+
+```{r}
+pgls_DAntmin.BL<- gls(D_Ant_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_DAntmin.BL)
+anova(pgls_DAntmin.BL)
+```
+
+```{r}
+pgls_alphaPosmin.BL<- gls(alpha_Pos_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_alphaPosmin.BL)
+anova(pgls_alphaPosmin.BL)
+```
+This is very significant!
+
+```{r}
+pairs(emmeans(pgls_alphaPosmin.BL, "Habitat"))
+```
+Only the benthic-pelagic pair is significantly different here.
+
+```{r}
+pgls_alphaAntmin.BL<- gls(alpha_Ant_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_alphaAntmin.BL)
+anova(pgls_alphaAntmin.BL)
+```
+This is also significant.
+
+```{r}
+pairs(emmeans(pgls_alphaAntmin.BL, "Habitat"))
+```
+Again, only the benthic-pelagic pair is significant. 
+
 #PGLS Analysis for BW mean
 
 ```{r}
@@ -292,6 +349,32 @@ pgls_DAntmax.BW <- gls(D_Ant_BW_max ~ Habitat, correlation = corBrownian(phy = v
 summary(pgls_DAntmax.BW)
 anova(pgls_DAntmax.BW)
 ```
+
+#PGLS Analysis for BW min
+
+```{r}
+pgls_dmin.BW<- gls(d_BW_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_dmin.BW)
+anova(pgls_dmin.BW)
+```
+
+
+```{r}
+pgls_DPosmin.BW <- gls(D_Pos_BW_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_DPosmin.BW)
+anova(pgls_DPosmin.BW)
+```
+
+
+```{r}
+pgls_DAntmin.BW <- gls(D_Ant_BW_min ~ Habitat, correlation = corBrownian(phy = verttree),
+                      data = fullvertmeas.speciesall, method = "ML")
+summary(pgls_DAntmin.BW)
+anova(pgls_DAntmin.BW)
+```
+
 
 #PGLS Analysis without Elops saurus
 
@@ -391,6 +474,30 @@ pairs(emmeans(pgls_alphaAntmax.BL.edit, "Habitat"))
 ```
 Pelagic is fully significant here.
 
+```{r}
+pgls_alphaAntmin.BL.edit<- gls(alpha_Ant_min ~ Habitat, correlation = corBrownian(phy = verttreeedit),
+                      data = fullvertmeas.speciesall.edit, method = "ML")
+summary(pgls_alphaAntmin.BL.edit)
+anova(pgls_alphaAntmin.BL.edit)
+```
+
+```{r}
+pairs(emmeans(pgls_alphaAntmin.BL.edit, "Habitat"))
+```
+Still just benthic-pelagic is significant.
+
+```{r}
+pgls_alphaPosmin.BL.edit<- gls(alpha_Pos_min ~ Habitat, correlation = corBrownian(phy = verttreeedit),
+                      data = fullvertmeas.speciesall.edit, method = "ML")
+summary(pgls_alphaPosmin.BL.edit)
+anova(pgls_alphaPosmin.BL.edit)
+```
+
+```{r}
+pairs(emmeans(pgls_alphaPosmin.BL.edit, "Habitat"))
+```
+Still just benthic-pelagic is significant.
+
 #PGLS Figures Without Elops Edit
 
 ```{r}
@@ -426,6 +533,19 @@ f3m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_max, color=Hab
 
 f2m / f3m | f1m
 ```
+
+```{r}
+f2min <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_min, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+f3min <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_min, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
+
+f2min | f3min
+```
+
 
 #PGLS Figures With Elops Edit
 
@@ -463,13 +583,17 @@ e3m <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_max, colo
 e2m / e3m | e1m
 ```
 
+```{r}
+e2min <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Pos_min, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
 
+e3min <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_min, color=Habitat)) +
+  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
+  stat_summary(fun.data = mean_sdl)
 
-
-
-
-
-
+e2min | e3min
+```
 
 
 
