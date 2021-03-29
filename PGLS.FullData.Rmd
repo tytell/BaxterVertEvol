@@ -246,7 +246,7 @@ This ANOVA is also very significant.
 ```{r}
 pairs(emmeans(pgls_alphaAntmax.BL, "Habitat"))
 ```
-Here, pelagis is fully significant.
+Here, pelagic is fully significant.
 
 #PGLS Analysis for BL min 
 
