@@ -1,5 +1,5 @@
 ---
-title: "Vert LDA Attempt"
+title: "Full Vertebral Data LDA"
 output: html_notebook
 ---
 
@@ -20,16 +20,18 @@ The resources I'm looking at say that the data need to be one column with a cate
 ```{r}
 vertdata <- read.csv("All_Vert_Data.csv")
 
-head(vertdata)
+vertdata
 ```
 
 ```{r}
 allvertdata <- vertdata %>%
-  dplyr::select(Genus,Species, Indiv, Body.Shape, Habitat, Tip, Family, FullName, Pos, CBL, d, alpha_Pos, D_Pos) %>%
+  dplyr::select(Genus,Species, Indiv, Body.Shape, Habitat, Tip, Family, FullName, Pos, CBL, d, alpha_Pos, D_Pos, alpha_Ant, D_Ant) %>%
   complete(Pos, nesting(Species, Indiv)) %>%
   arrange(Species, Indiv, Pos) %>%
   rename(alphaPos = alpha_Pos,
-         DPos = D_Pos)
+         DPos = D_Pos,
+         alphaAnt = alpha_Ant,
+         DAnt = D_Ant)
 
 head(allvertdata)
 ```
@@ -39,7 +41,7 @@ I'm just not totally sure what this means... I set up the data to be wide in the
 allvertdata <-
   allvertdata %>%
   group_by(Species, Indiv) %>%
-  fill(Genus, Body.Shape, Habitat, Tip, Family, FullName, .direction='downup') %>%
+  fill(Genus, Habitat, Tip, Family, FullName, .direction='downup') %>%
   ungroup()
 
 head(allvertdata)
@@ -58,7 +60,7 @@ head(allvertdata)
 allvertdata_full <-
   allvertdata %>%
   group_by(Species, Indiv) %>%
-  mutate_at(vars(CBL, d, alphaPos, DPos), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
+  mutate_at(vars(CBL, d, alphaPos, DPos, alphaAnt, DAnt), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
   ungroup()
 
 head(allvertdata_full)
@@ -66,7 +68,7 @@ head(allvertdata_full)
 
 ```{r}
 allvertdata %>%
-  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos')) %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt')) %>%
   summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
   select_if(~ .x < 0.8)
 ```
@@ -74,12 +76,12 @@ allvertdata %>%
 ```{r}
 allvertdata_wide <-
   allvertdata_full %>%
-  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos'))
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt'))
 ```
 
 ```{r}
 allvertdata %>%
-  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos')) %>%
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt')) %>%
   summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
   select_if(~ .x < 0.8)
 ```
@@ -93,7 +95,7 @@ allvertdata_widefull<-
   allvertdata_wide %>%
   dplyr::select(-contains(c("20", "30"))) %>%
   dplyr::select(starts_with("CBL") | starts_with("d") | 
-           starts_with("alphaPos") | starts_with("DPos"), Habitat)
+           starts_with("alphaPos") | starts_with("DPos") | starts_with("alphaAnt") | starts_with("DAnt"), Habitat)
 ```
 
 This was failing because your `allvertdata_widefull` data frame didn't contain the column `Habitat`. Your `select` function above just selected the CBL, d, alphaPos and DPos variables.
