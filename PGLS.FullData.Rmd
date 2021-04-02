@@ -23,6 +23,8 @@ library(ggthemes)
 library(naniar)
 library(dplyr)
 library(tidyverse)
+library(car)
+library(ggbeeswarm)
 ```
 
 #Load in csv
@@ -131,7 +133,7 @@ name.check(verttree, fullvertmeas.speciesall)
 pgls_dmean.BL<- gls(d_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
 summary(pgls_dmean.BL)
-anova(pgls_dmean.BL)
+Anova(pgls_dmean.BL)
 ```
 
 ```{r}
@@ -601,24 +603,57 @@ summary(pgls_dnormCBL.min)
 anova(pgls_dnormCBL.min)
 ```
 
+# Graphics theme
+
+This sets up the overall look of the graph.
+```{r}
+my_theme <-
+  theme_light() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(color="grey70"))
+```
+
 #PGLS Figures Without Elops Edit
 
-```{r}
+
+```{r fig.height=5, fig.width=3.5}
 #mean
-f1 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_mean, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+f1 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_mean, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.4, width=0.3) +
+  stat_summary(fun.data = mean_sdl, size=0.6) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  ylab("Mean d (L)")
 
-f2 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_mean, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+f2 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_mean, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.4, width=0.3) +
+  stat_summary(fun.data = mean_sdl, size=0.6) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
+  coord_cartesian(clip = 'off') +
+  ylab("Mean anterior\nangle (deg)") +
+  xlab("")
 
-f3 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_mean, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+f3 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_mean, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.4, width=0.3) +
+  stat_summary(fun.data = mean_sdl, size=0.6) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 3, y = 126, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Mean posterior\nangle (deg)") +
+  xlab("")
 
+((f2 / f3 / f1) + plot_layout(guides="collect")) & my_theme
+ggsave('fig_means.pdf', width=4, height=5, units="in")
+```
 
-f2 / f3 | f1
+```{r}
+knitr::include_graphics('fig_means.pdf')
 ```
 
 ```{r}
