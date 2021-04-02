@@ -616,44 +616,40 @@ my_theme <-
 #PGLS Figures Without Elops Edit
 
 
-```{r fig.height=5, fig.width=3.5}
+```{r fig.height=2, fig.width=6.8}
 #mean
 f1 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_mean, color=Habitat, shape=Habitat)) +
-  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
-  geom_quasirandom(alpha = 0.4, width=0.3) +
-  stat_summary(fun.data = mean_sdl, size=0.6) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") + 
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
   ylab("Mean d (L)")
 
 f2 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_mean, color=Habitat, shape=Habitat)) +
   stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
-  geom_quasirandom(alpha = 0.4, width=0.3) +
-  stat_summary(fun.data = mean_sdl, size=0.6) +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
   annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
   coord_cartesian(clip = 'off') +
-  ylab("Mean anterior\nangle (deg)") +
-  xlab("")
+  ylab("Mean anterior\nangle (deg)")
 
 f3 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_mean, color=Habitat, shape=Habitat)) +
   stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
-  geom_quasirandom(alpha = 0.4, width=0.3) +
-  stat_summary(fun.data = mean_sdl, size=0.6) +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
   annotate(geom = "text", x = 3, y = 126, label="*", size=12) +
   coord_cartesian(clip = 'off') +
-  ylab("Mean posterior\nangle (deg)") +
-  xlab("")
+  ylab("Mean posterior\nangle (deg)")
 
-((f2 / f3 / f1) + plot_layout(guides="collect")) & my_theme
-ggsave('fig_means.pdf', width=4, height=5, units="in")
-```
-
-```{r}
-knitr::include_graphics('fig_means.pdf')
+((f2 | f3 | f1) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('fig_means.png', width=6.8, height=2, units="in", dpi=300)
 ```
 
 ```{r}
