@@ -132,7 +132,6 @@ name.check(verttree, fullvertmeas.speciesall)
 ```{r}
 pgls_dmean.BL<- gls(d_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dmean.BL)
 Anova(pgls_dmean.BL)
 ```
 
@@ -145,32 +144,28 @@ ANOVA is significant, but the only pair that is significant is benthic-pelagic.
 ```{r}
 pgls_CBLmean.BL<- gls(CBL_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_CBLmean.BL)
-anova(pgls_CBLmean.BL)
+Anova(pgls_CBLmean.BL)
 ```
 
 #PGLS Analysis for D_Pos BL mean 
 ```{r}
 pgls_DPosmean.BL<- gls(D_Pos_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DPosmean.BL)
-anova(pgls_DPosmean.BL)
+Anova(pgls_DPosmean.BL)
 ```
 
 #PGLS Analysis for D_Ant BL mean 
 ```{r}
 pgls_DAntmean.BL<- gls(D_Ant_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DAntmean.BL)
-anova(pgls_DAntmean.BL)
+Anova(pgls_DAntmean.BL)
 ```
 
 #PGLS Analysis for alpha_Pos BL mean 
 ```{r}
 pgls_alphaPosmean.BL<- gls(alpha_Pos_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_alphaPosmean.BL)
-anova(pgls_alphaPosmean.BL)
+Anova(pgls_alphaPosmean.BL)
 ```
 The posterior cone angle is incredibly significant. 
 
@@ -183,8 +178,7 @@ Although also here only the benthic-pelagic pair is significant.
 ```{r}
 pgls_alphaAntmean.BL<- gls(alpha_Ant_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_alphaAntmean.BL)
-anova(pgls_alphaAntmean.BL)
+Anova(pgls_alphaAntmean.BL)
 ```
 Also the anterior cone angle is very significant.
 
@@ -198,8 +192,7 @@ Although also here only the benthic-pelagic pair is significant.
 ```{r}
 pgls_dmax.BL<- gls(d_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dmax.BL)
-anova(pgls_dmax.BL)
+Anova(pgls_dmax.BL)
 ```
 Maximum notochordal foramen diameter is significant.
 
@@ -212,32 +205,28 @@ Super interesting here...demersal-pelagic is significant, and benthic-pelagic is
 ```{r}
 pgls_CBLmax.BL<- gls(CBL_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_CBLmax.BL)
-anova(pgls_CBLmax.BL)
+Anova(pgls_CBLmax.BL)
 ```
 
 #PGLS Analysis for D_Pos BL max
 ```{r}
 pgls_DPosmax.BL<- gls(D_Pos_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DPosmax.BL)
-anova(pgls_DPosmax.BL)
+Anova(pgls_DPosmax.BL)
 ```
 
 #PGLS Analysis for D_Ant BL max
 ```{r}
 pgls_DAntmax.BL<- gls(D_Ant_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DAntmax.BL)
-anova(pgls_DAntmax.BL)
+Anova(pgls_DAntmax.BL)
 ```
 
 #PGLS Analysis for alpha_Pos BL max
 ```{r}
 pgls_alphaPosmax.BL<- gls(alpha_Pos_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_alphaPosmax.BL)
-anova(pgls_alphaPosmax.BL)
+Anova(pgls_alphaPosmax.BL)
 ```
 This ANOVA is very significant!
 
@@ -250,8 +239,7 @@ Here, benthic is fully significant.
 ```{r}
 pgls_alphaAntmax.BL<- gls(alpha_Ant_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_alphaAntmax.BL)
-anova(pgls_alphaAntmax.BL)
+Anova(pgls_alphaAntmax.BL)
 ```
 This ANOVA is also very significant.
 
@@ -265,40 +253,35 @@ Here, pelagic is fully significant.
 ```{r}
 pgls_dmin.BL<- gls(d_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dmin.BL)
-anova(pgls_dmin.BL)
+Anova(pgls_dmin.BL)
 ```
 
 #PGLS Analysis for CBL BL min 
 ```{r}
 pgls_CBLmin.BL<- gls(CBL_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_CBLmin.BL)
-anova(pgls_CBLmin.BL)
+Anova(pgls_CBLmin.BL)
 ```
 
 #PGLS Analysis for D_Pos BL min 
 ```{r}
 pgls_DPosmin.BL<- gls(D_Pos_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DPosmin.BL)
-anova(pgls_DPosmin.BL)
+Anova(pgls_DPosmin.BL)
 ```
 
 #PGLS Analysis for D_Ant BL min 
 ```{r}
 pgls_DAntmin.BL<- gls(D_Ant_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DAntmin.BL)
-anova(pgls_DAntmin.BL)
+Anova(pgls_DAntmin.BL)
 ```
 
 #PGLS Analysis for alpha_Pos BL min 
 ```{r}
 pgls_alphaPosmin.BL<- gls(alpha_Pos_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_alphaPosmin.BL)
-anova(pgls_alphaPosmin.BL)
+Anova(pgls_alphaPosmin.BL)
 ```
 This is very significant!
 
@@ -311,8 +294,7 @@ Only the benthic-pelagic pair is significantly different here.
 ```{r}
 pgls_alphaAntmin.BL<- gls(alpha_Ant_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_alphaAntmin.BL)
-anova(pgls_alphaAntmin.BL)
+Anova(pgls_alphaAntmin.BL)
 ```
 This is also significant.
 
@@ -326,22 +308,19 @@ Again, only the benthic-pelagic pair is significant.
 ```{r}
 pgls_dmean.BW<- gls(d_BW_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dmean.BW)
-anova(pgls_dmean.BW)
+Anova(pgls_dmean.BW)
 ```
 
 ```{r}
 pgls_DPosmean.BW <- gls(D_Pos_BW_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DPosmean.BW)
-anova(pgls_DPosmean.BW)
+Anova(pgls_DPosmean.BW)
 ```
 
 ```{r}
 pgls_DAntmean.BW <- gls(D_Ant_BW_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DAntmean.BW)
-anova(pgls_DAntmean.BW)
+Anova(pgls_DAntmean.BW)
 ```
 
 #PGLS Analysis for BW max 
@@ -349,22 +328,19 @@ anova(pgls_DAntmean.BW)
 ```{r}
 pgls_dmax.BW<- gls(d_BW_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dmax.BW)
-anova(pgls_dmax.BW)
+Anova(pgls_dmax.BW)
 ```
 
 ```{r}
 pgls_DPosmax.BW <- gls(D_Pos_BW_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DPosmax.BW)
-anova(pgls_DPosmax.BW)
+Anova(pgls_DPosmax.BW)
 ```
 
 ```{r}
 pgls_DAntmax.BW <- gls(D_Ant_BW_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DAntmax.BW)
-anova(pgls_DAntmax.BW)
+Anova(pgls_DAntmax.BW)
 ```
 
 #PGLS Analysis for BW min
@@ -372,24 +348,21 @@ anova(pgls_DAntmax.BW)
 ```{r}
 pgls_dmin.BW<- gls(d_BW_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dmin.BW)
-anova(pgls_dmin.BW)
+Anova(pgls_dmin.BW)
 ```
 
 
 ```{r}
 pgls_DPosmin.BW <- gls(D_Pos_BW_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DPosmin.BW)
-anova(pgls_DPosmin.BW)
+Anova(pgls_DPosmin.BW)
 ```
 
 
 ```{r}
 pgls_DAntmin.BW <- gls(D_Ant_BW_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_DAntmin.BW)
-anova(pgls_DAntmin.BW)
+Anova(pgls_DAntmin.BW)
 ```
 
 #PGLS Analysis for SL/BW
@@ -397,8 +370,7 @@ anova(pgls_DAntmin.BW)
 ```{r}
 pgls_SL.BW.mean <- gls(SL.Max_BW_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_SL.BW.mean)
-anova(pgls_SL.BW.mean)
+Anova(pgls_SL.BW.mean)
 ```
 
 #PGLS Analysis for d normalized by CBL
@@ -406,15 +378,13 @@ anova(pgls_SL.BW.mean)
 ```{r}
 pgls_dnormCBL.mean <- gls(d_normCBL_mean ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dnormCBL.mean)
-anova(pgls_dnormCBL.mean)
+Anova(pgls_dnormCBL.mean)
 ```
 
 ```{r}
 pgls_dnormCBL.max <- gls(d_normCBL_max ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dnormCBL.max)
-anova(pgls_dnormCBL.max)
+Anova(pgls_dnormCBL.max)
 ```
 THIS IS SIGNIFICANT.
 
@@ -426,8 +396,7 @@ But none of these have significant pairwise differences...
 ```{r}
 pgls_dnormCBL.min <- gls(d_normCBL_min ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall, method = "ML")
-summary(pgls_dnormCBL.min)
-anova(pgls_dnormCBL.min)
+Anova(pgls_dnormCBL.min)
 ```
 
 
@@ -461,8 +430,7 @@ name.check(verttreeedit, fullvertmeas.speciesall.edit)
 ```{r}
 pgls_dmean.BL.edit<- gls(d_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_dmean.BL.edit)
-anova(pgls_dmean.BL.edit)
+Anova(pgls_dmean.BL.edit)
 ```
 
 ```{r}
@@ -474,8 +442,7 @@ Without Elops, pelagic is fully significant.
 ```{r}
 pgls_alphaPosmean.BL.edit<- gls(alpha_Pos_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_alphaPosmean.BL.edit)
-anova(pgls_alphaPosmean.BL.edit)
+Anova(pgls_alphaPosmean.BL.edit)
 ```
 
 ```{r}
@@ -487,8 +454,7 @@ Without Elops, pelagic is fully significant here.
 ```{r}
 pgls_alphaAntmean.BL.edit<- gls(alpha_Ant_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_alphaAntmean.BL.edit)
-anova(pgls_alphaAntmean.BL.edit)
+Anova(pgls_alphaAntmean.BL.edit)
 ```
 
 ```{r}
@@ -500,8 +466,7 @@ Without Elops, pelagic is fully significant here.
 ```{r}
 pgls_dmax.BL.edit<- gls(d_max ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_dmax.BL.edit)
-anova(pgls_dmax.BL.edit)
+Anova(pgls_dmax.BL.edit)
 ```
 
 ```{r}
@@ -513,8 +478,7 @@ Pelagic is fully significant here.
 ```{r}
 pgls_alphaPosmax.BL.edit<- gls(alpha_Pos_max ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_alphaPosmax.BL.edit)
-anova(pgls_alphaPosmax.BL.edit)
+Anova(pgls_alphaPosmax.BL.edit)
 ```
 
 ```{r}
@@ -526,8 +490,7 @@ Benthic is fully significant here.
 ```{r}
 pgls_alphaAntmax.BL.edit<- gls(alpha_Ant_max ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_alphaAntmax.BL.edit)
-anova(pgls_alphaAntmax.BL.edit)
+Anova(pgls_alphaAntmax.BL.edit)
 ```
 
 ```{r}
@@ -539,8 +502,7 @@ Pelagic is fully significant here.
 ```{r}
 pgls_alphaAntmin.BL.edit<- gls(alpha_Ant_min ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_alphaAntmin.BL.edit)
-anova(pgls_alphaAntmin.BL.edit)
+Anova(pgls_alphaAntmin.BL.edit)
 ```
 
 ```{r}
@@ -552,8 +514,7 @@ Still just benthic-pelagic is significant.
 ```{r}
 pgls_alphaPosmin.BL.edit<- gls(alpha_Pos_min ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_alphaPosmin.BL.edit)
-anova(pgls_alphaPosmin.BL.edit)
+Anova(pgls_alphaPosmin.BL.edit)
 ```
 
 ```{r}
@@ -565,16 +526,14 @@ Still just benthic-pelagic is significant.
 ```{r}
 pgls_SL.BW.mean.edit <- gls(SL.Max_BW_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_SL.BW.mean.edit)
-anova(pgls_SL.BW.mean.edit)
+Anova(pgls_SL.BW.mean.edit)
 ```
 
 #PGLS Analysis for d normalized by CBL without Elops
 ```{r}
 pgls_dnormCBL.mean <- gls(d_normCBL_mean ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_dnormCBL.mean)
-anova(pgls_dnormCBL.mean)
+Anova(pgls_dnormCBL.mean)
 ```
 This is significant.
 
@@ -586,8 +545,7 @@ Only benthic-pelagic is significantly different.
 ```{r}
 pgls_dnormCBL.max <- gls(d_normCBL_max ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_dnormCBL.max)
-anova(pgls_dnormCBL.max)
+Anova(pgls_dnormCBL.max)
 ```
 This is very significant.
 
@@ -599,8 +557,7 @@ Pelagic is fully significant here.
 ```{r}
 pgls_dnormCBL.min <- gls(d_normCBL_min ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall.edit, method = "ML")
-summary(pgls_dnormCBL.min)
-anova(pgls_dnormCBL.min)
+Anova(pgls_dnormCBL.min)
 ```
 
 # Graphics theme
@@ -617,13 +574,15 @@ my_theme <-
 
 
 ```{r fig.height=2, fig.width=6.8}
-#mean
+#Mean with Elops
 f1 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_mean, color=Habitat, shape=Habitat)) +
   stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") + 
   geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
   stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = c(1,2,3), y = 0.007, label=c("a","ab","b"), size=5) +
+  coord_cartesian(clip = 'off') +
   ylab("Mean d (L)")
 
 f2 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_mean, color=Habitat, shape=Habitat)) +
@@ -634,7 +593,7 @@ f2 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_mean, color=Hab
   scale_shape_manual(values = c(0, 4, 19)) +
   annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
   coord_cartesian(clip = 'off') +
-  ylab("Mean anterior\nangle (deg)")
+  ylab("Mean posterior\nangle (deg)")
 
 f3 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_mean, color=Habitat, shape=Habitat)) +
   stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
@@ -642,97 +601,196 @@ f3 <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_mean, color=Hab
   stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
-  annotate(geom = "text", x = 3, y = 126, label="*", size=12) +
+  annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
   coord_cartesian(clip = 'off') +
-  ylab("Mean posterior\nangle (deg)")
+  ylab("Mean anterior\nangle (deg)")
 
 ((f2 | f3 | f1) + 
     plot_layout(guides="collect")) +
   plot_annotation(tag_levels = "A") & my_theme
-ggsave('fig_means.png', width=6.8, height=2, units="in", dpi=300)
+ggsave('fig_means.with.Elops.png', width=6.8, height=2, units="in", dpi=300)
 ```
 
-```{r}
-#max
-f1m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_max, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+```{r fig.height=2, fig.width=6.8}
+#Max with Elops
+f1m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") + 
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = c(1,2,3), y = 0.01, label=c("ab","a","b"), size=5) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum d (L)")
 
-f2m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_max, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+f2m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 1, y = 120, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum posterior\nangle (deg)")
 
-f3m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_max, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+f3m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 3, y = 126, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum anterior\nangle (deg)")
 
-
-f2m / f3m | f1m
+((f2m | f3m | f1m) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('fig_max.with.Elops.png', width=6.8, height=2, units="in", dpi=300)
 ```
 
-```{r}
-#min
-f2min <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_min, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+```{r fig.height=2, fig.width=6.8}
+#Min with Elops
+f1min <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_min, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") + 
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  coord_cartesian(clip = 'off') +
+  ylab("Minimum d (L)")
 
-f3min <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_min, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+f2min <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
+  coord_cartesian(clip = 'off') +
+  ylab("Minimum posterior\nangle (deg)")
 
-f2min | f3min
+f3min <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
+  coord_cartesian(clip = 'off') +
+  ylab("Minimum anterior\nangle (deg)")
+
+((f2min | f3min | f1min) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('fig_min.with.Elops.png', width=6.8, height=2, units="in", dpi=300)
 ```
 
 
 #PGLS Figures With Elops Edit
 
-```{r}
-#mean with edit
-e1 <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=d_mean, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+```{r fig.height=2, fig.width=6.8}
+#Mean without Elops
+e1 <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=d_mean, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") + 
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 3, y = 0.006, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Mean d (L)")
 
-e2 <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Pos_mean, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+e2 <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Pos_mean, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 3, y = 120, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Mean posterior\nangle (deg)")
 
-e3 <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_mean, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+e3 <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_mean, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 3, y = 126, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Mean anterior\nangle (deg)")
 
-
-e2 / e3 | e1
+((e2 | e3 | e1) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('fig_mean.no.Elops.png', width=6.8, height=2, units="in", dpi=300)
 ```
 
-```{r}
-#max with edit
-e1m <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=d_max, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+```{r fig.height=2, fig.width=6.8}
+#Max without Elops
+e1m <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=d_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") + 
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 3, y = 0.0075, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum d (L)")
 
-e2m <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Pos_max, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+e2m <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Pos_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 1, y = 126, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum posterior\nangle (deg)")
 
-e3m <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_max, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+e3m <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = 3, y = 126, label="*", size=12) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum anterior\nangle (deg)")
 
-
-e2m / e3m | e1m
+((e2m | e3m | e1m) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('fig_max.no.Elops.png', width=6.8, height=2, units="in", dpi=300)
 ```
 
-```{r}
-#min with edit
-e2min <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Pos_min, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+```{r fig.height=2, fig.width=6.8}
+#Min without Elops
+e2min <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Pos_min, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum posterior\nangle (deg)")
 
-e3min <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_min, color=Habitat)) +
-  geom_point(alpha = 0.5, position = position_jitter(width=0.2)) +
-  stat_summary(fun.data = mean_sdl)
+e3min <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=alpha_Ant_min, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  annotate(geom = "text", x = c(1,2,3), y = 145, label=c("a","ab","b"), size=5) +
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum anterior\nangle (deg)")
 
-e2min | e3min
+((e2min | e3min) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('fig_max.no.Elops.png', width=6.8, height=2, units="in", dpi=300)
 ```
 
 ```{r}
@@ -743,6 +801,7 @@ e1dCBLmax <- ggplot(fullvertmeas.speciesall.edit, aes(x=Habitat, y=d_normCBL_max
 
 e1dCBLmax
 ```
+
 
 #PGLS Analysis for 80% point
 
@@ -833,23 +892,20 @@ fullvertmeas.speciesall80.edit
 ```{r}
 pgls_d80.BL <- gls(d ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall80, method = "ML")
-summary(pgls_d80.BL)
-anova(pgls_d80.BL)
+Anova(pgls_d80.BL)
 ```
 
 
 ```{r}
 pgls_d80.BL.edit <- gls(d ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall80.edit, method = "ML")
-summary(pgls_d80.BL.edit)
-anova(pgls_d80.BL.edit)
+Anova(pgls_d80.BL.edit)
 ```
 
 ```{r}
 pgls_alphaPos80.BL <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall80, method = "ML")
-summary(pgls_alphaPos80.BL)
-anova(pgls_alphaPos80.BL)
+Anova(pgls_alphaPos80.BL)
 ```
 
 ```{r}
@@ -860,8 +916,7 @@ Benthic is fully significant here.
 ```{r}
 pgls_alphaPos80.BL.edit <- gls(alpha_Pos ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall80.edit, method = "ML")
-summary(pgls_alphaPos80.BL.edit)
-anova(pgls_alphaPos80.BL.edit)
+Anova(pgls_alphaPos80.BL.edit)
 ```
 
 ```{r}
@@ -872,8 +927,7 @@ Benthic is significant here.
 ```{r}
 pgls_alphaAnt80.BL <- gls(alpha_Ant ~ Habitat, correlation = corBrownian(phy = verttree),
                       data = fullvertmeas.speciesall80, method = "ML")
-summary(pgls_alphaAnt80.BL)
-anova(pgls_alphaAnt80.BL)
+Anova(pgls_alphaAnt80.BL)
 ```
 
 ```{r}
@@ -884,8 +938,7 @@ Just benthic-pelagic significant.
 ```{r}
 pgls_alphaAnt80.BL.edit <- gls(alpha_Ant ~ Habitat, correlation = corBrownian(phy = verttreeedit),
                       data = fullvertmeas.speciesall80.edit, method = "ML")
-summary(pgls_alphaAnt80.BL.edit)
-anova(pgls_alphaAnt80.BL.edit)
+Anova(pgls_alphaAnt80.BL.edit)
 ```
 
 ```{r}

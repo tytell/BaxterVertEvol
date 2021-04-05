@@ -3,29 +3,11 @@ title: "ggtree attempt"
 output: html_notebook
 ---
 
-```{r}
-BiocManager::install("ggtree")
-```
-
 
 ```{r}
-library(rfishbase)
-library(tidyverse)
-library (ggplot2)
-library(Hmisc)
-library(phytools)
-library(here)
+library(ggplot2)
 library(ape)
-library(geiger)
-library(nlme)
-library(patchwork)
-library(emmeans)
-library(multcompView)
-library(readxl)
-library(plotly) 
-library(ggthemes) 
-library(naniar)
-library(dplyr)
+library(ggtree) 
 ```
 
 ```{r}
