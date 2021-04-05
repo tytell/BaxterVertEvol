@@ -619,6 +619,7 @@ f1m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=d_max, color=Habitat, sh
   stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
+  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkmagenta", pelagic = "blue1"))+
   annotate(geom = "text", x = c(1,2,3), y = 0.01, label=c("ab","a","b"), size=5) +
   coord_cartesian(clip = 'off') +
   ylab("Maximum d (L)")
@@ -629,6 +630,7 @@ f2m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Pos_max, color=Hab
   stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
+  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkmagenta", pelagic = "blue1"))+
   annotate(geom = "text", x = 1, y = 120, label="*", size=12) +
   coord_cartesian(clip = 'off') +
   ylab("Maximum posterior\nangle (deg)")
@@ -639,6 +641,7 @@ f3m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_max, color=Hab
   stat_summary(fun.data = mean_sdl, size=0.4) +
   scale_x_discrete(labels=c("B", "D", "P")) +
   scale_shape_manual(values = c(0, 4, 19)) +
+  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkmagenta", pelagic = "blue1"))+
   annotate(geom = "text", x = 3, y = 126, label="*", size=12) +
   coord_cartesian(clip = 'off') +
   ylab("Maximum anterior\nangle (deg)")
@@ -648,6 +651,45 @@ f3m <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=alpha_Ant_max, color=Hab
   plot_annotation(tag_levels = "A") & my_theme
 ggsave('fig_max.with.Elops.png', width=6.8, height=2, units="in", dpi=300)
 ```
+
+```{r fig.height=2, fig.width=6.8}
+#Max with Elops, not significant results
+f1mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=CBL_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") + 
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkmagenta", pelagic = "blue1"))+
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum centrum body length (L)")
+
+f2mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=D_Pos_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkmagenta", pelagic = "blue1"))+
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum posterior\ncone diameter (deg)")
+
+f3mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=D_Ant_max, color=Habitat, shape=Habitat)) +
+  stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
+  geom_quasirandom(alpha = 0.6, width=0.3, size=0.5) +
+  stat_summary(fun.data = mean_sdl, size=0.4) +
+  scale_x_discrete(labels=c("B", "D", "P")) +
+  scale_shape_manual(values = c(0, 4, 19)) +
+  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkmagenta", pelagic = "blue1"))+
+  coord_cartesian(clip = 'off') +
+  ylab("Maximum anterior\ncone diameter (deg)")
+
+((f2mns | f3mns | f1mns) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('fig_maxnotsignificant.with.Elops.png', width=6.8, height=2, units="in", dpi=300)
+```
+
 
 ```{r fig.height=2, fig.width=6.8}
 #Min with Elops
