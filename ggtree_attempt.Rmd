@@ -120,7 +120,7 @@ plotTree(verttree)
 treefig <- ggtree(verttree)+
   geom_tiplab() +
   geom_tree(aes(color=Habitat)) +
-  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkorchid1", pelagic = "blue1"))+
+ geom_tip.point(values = c(benthic="darkorange4", demersal = "darkorchid1", pelagic = "blue1"))+
 treefig
 ```
 
