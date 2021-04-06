@@ -8,98 +8,120 @@ output: html_notebook
 library(ggplot2)
 library(ape)
 library(ggtree) 
+library(rfishbase)
+library(Hmisc)
+library(phytools)
+library(here)
+library(geiger)
+library(nlme)
+library(patchwork)
+library(emmeans)
+library(multcompView)
+library(readxl)
+library(plotly) 
+library(ggthemes) 
+library(naniar)
+library(dplyr)
+library(tidyverse)
+library(car)
+library(ggbeeswarm)
+```
+
+```{r}
+vertsheet <- read.csv("MasterVert_Measurements.csv")
+vertsheet
 ```
 
 ```{r}
 treefile <- '12862_2017_958_MOESM2_ESM.tre'
 ```
 
-
 ```{r}
 tree <- read.tree(here('..', treefile))
 ```
-
 
 ```{r}
 plotTree(tree)
 ```
 
-
 ```{r}
-# first just get the tip labels. These look Family_Genus_Species_Code
 allspecies <- as.data.frame(tree$tip.label, stringsAsFactors = FALSE) 
 colnames(allspecies) <- c('FullName')
 
-# split the label into columns on the underscores, but then merge genus and species again into
-# a binomial separated by a space
+allspecies
+```
+
+```{r}
 allspecies <- 
   allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
                           extra='drop', remove=FALSE)
 
-# add in the tip number, which is just 1 to the number of species
+allspecies
+```
+
+```{r}
 allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
-
 ```{r}
-vertmeasall
-```
-
-
-```{r}
-vertmeasall %>%
-  group_by(Species, Body.Shape, Habitat_Friedman) %>%
-  summarise(d = mean(d),
-            CBL = mean(CBL)) %>%
+fullvertsheet <- vertsheet %>%
+  group_by(Species, Body.Shape, Habitat_Friedman, Habitat) %>%
+  summarize_at(vars(d, CBL, D_Pos, D_Ant, alpha_Pos, alpha_Ant, d_BW, D_Pos_BW, D_Ant_BW, SL.Max_BW, d_normCBL), 
+               list(mean = ~mean(.x, na.rm = TRUE),
+                    max = ~max(.x, na.rm = TRUE),
+                    min = ~min(.x, na.rm = TRUE)))%>%
   ungroup() %>%
-  separate(Species, sep='_', into=c("Genus", "Species")) ->
-  vertmeas.species
+  separate(Species, sep='_', into=c("Genus", "Species"))
+               
+fullvertsheet
 ```
 
-
 ```{r}
-vertmeas.species <- left_join(vertmeas.species, allspecies, by=c("Genus", "Species"))
-vertmeas.species
+fullvertsheet.tree <- left_join(fullvertsheet, allspecies, by=c("Genus", "Species"))
+fullvertsheet.tree
 ```
 
-
 ```{r}
-left_join(filter(vertmeas.species, is.na(Tip)),
+fullvertsheet.bygenus <- left_join(filter(fullvertsheet.tree, is.na(Tip)),
           distinct(allspecies, Genus, .keep_all=TRUE), by=c("Genus")) %>%
-  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) ->
-  vertmeas.bygenus
-```
+  transmute(Genus=Genus, Species=Species.x, Family=Family.y, MatchSpecies=Species.y, Tip=Tip.y) 
 
-
-```{r}
-vertmeas.bygenus
+fullvertsheet.bygenus
 ```
 
 ```{r}
-left_join(vertmeas.species, vertmeas.bygenus,
+left_join(fullvertsheet.tree, fullvertsheet.bygenus,
           by = c("Genus","Species","Family")) %>%
   mutate(Tip = coalesce(Tip.x, Tip.y),
          MatchSpecies = coalesce(MatchSpecies, Species)) %>%
   select(-Tip.x, -Tip.y) %>%
   filter(!is.na(Tip)) ->
-  vertmeas.species1
-vertmeas.species1
-```
+  fullvertsheet.all
 
+fullvertsheet.all
+```
 
 ```{r}
-vertmeas.species1 <- column_to_rownames(vertmeas.species1, var="FullName")
-```
+fullvertsheet.all <- column_to_rownames(fullvertsheet.all, var="FullName")
 
+fullvertsheet.all
+```
 
 ```{r}
-verttree <- keep.tip(tree, tip=as.vector(vertmeas.species1$Tip))
+verttree <- keep.tip(tree, tip=as.vector(fullvertsheet.all$Tip))
 ```
-
 
 ```{r}
 plotTree(verttree)
 ```
 
+
+```{r}
+treefig <- ggtree(verttree)+
+  geom_tiplab() +
+  geom_tree(aes(color=Habitat)) +
+ geom_tip.point(values = c(benthic="darkorange4", demersal = "darkorchid1", pelagic = "blue1"))+
+treefig
+```
 
 

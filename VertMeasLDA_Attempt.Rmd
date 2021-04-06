@@ -140,9 +140,24 @@ head(allvertdata_withlda)
 ```
 
 ```{r}
-LDA_groups <- ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat, shape=correct)) +
+my_theme <-
+  theme_light() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(color="grey70"))
+```
+
+
+```{r fig.height=4, fig.width=6.8}
+LDA_groups <- ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat, shape=Habitat)) +
   geom_point() +
-  stat_ellipse()
+  stat_ellipse() +
+  scale_shape_manual(values = c(benthic = 0, demersal = 4, pelagic = 19)) +
+  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkorchid1", pelagic = "blue1"))
+
+((LDA_groups) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+ggsave('LDA.ellipse.groups.png', width=6, height=6, units="in", dpi=300)
 ```
 
 ```{r}
