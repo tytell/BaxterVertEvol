@@ -41,7 +41,7 @@ I'm just not totally sure what this means... I set up the data to be wide in the
 allvertdata <-
   allvertdata %>%
   group_by(Species, Indiv) %>%
-  fill(Genus, Habitat, Tip, Family, FullName, .direction='downup') %>%
+  fill(Genus, Habitat, Tip, Family, FullName, Body.Shape, .direction='downup') %>%
   ungroup()
 
 head(allvertdata)
@@ -77,6 +77,8 @@ allvertdata %>%
 allvertdata_wide <-
   allvertdata_full %>%
   pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt'))
+
+head(allvertdata_wide)
 ```
 
 ```{r}
@@ -98,6 +100,11 @@ allvertdata_widefull<-
            starts_with("alphaPos") | starts_with("DPos") | starts_with("alphaAnt") | starts_with("DAnt"), Habitat)
 ```
 
+
+```{r}
+allvertdata_widefull
+```
+
 This was failing because your `allvertdata_widefull` data frame didn't contain the column `Habitat`. Your `select` function above just selected the CBL, d, alphaPos and DPos variables.
 ```{r}
 allvertdata.lda <- lda(Habitat ~ ., data = allvertdata_widefull)
@@ -106,20 +113,69 @@ allvertdata.lda
 ```
 
 ```{r}
-ldadata <- predict(allvertdata.lda, newdata=allvertdata_widefull)
-allvertdata_withlda <- cbind(allvertdata_widefull, ldadata$x)
+allvertdata.cv <- lda(Habitat ~ ., data = allvertdata_widefull, CV=TRUE)
+```
+
+```{r}
+vertdata.class <- table(allvertdata_widefull$Habitat, allvertdata.cv$class)
+```
+
+
+```{r}
+allvertdata.cv <- cbind(allvertdata_widefull, as.data.frame(allvertdata.cv$class)) %>%
+  rename(PredictHabitat = `allvertdata.cv$class`) %>%
+  mutate(correct = Habitat == PredictHabitat)
+
+allvertdata.cv
+```
+```{r}
+allvertdata_widefull
+```
+
+```{r}
+ldadata <- predict(allvertdata.lda, newdata=allvertdata.cv)
+allvertdata_withlda <- cbind(allvertdata.cv, ldadata$x)
 
 head(allvertdata_withlda)
 ```
 
 ```{r}
-LDA_groups <- ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat)) +
+LDA_groups <- ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat, shape=correct)) +
   geom_point() +
   stat_ellipse()
 ```
 
 ```{r}
-ggsave("LDA_groups.png", LDA_groups, width=6, height=6, units="in")
+LDA_groups
+```
+
+```{r}
+ggsave("LDA_groups.png", LDA_groups, width=4, height=2.5, units="in")
+```
+
+```{r}
+biplotdata <- as.data.frame(allvertdata.lda$scaling) %>% 
+  rownames_to_column(var="var")
+```
+
+```{r}
+biplotdata <-
+  biplotdata %>%
+  mutate(mag = sqrt(LD1^2 + LD2^2)) %>%
+  separate(var, into=c("var", "pos"), sep="_")
+```
+
+```{r}
+biplotdata %>%
+  mutate(LD1 = if_else(str_starts(var, "alpha"), LD1 * 2000, LD1),
+         LD2 = if_else(str_starts(var, "alpha"), LD2 * 2000, LD2)) %>%
+  
+#  filter(mag < 1) %>%
+#  slice_sample(n=10) %>%
+  ggplot(aes(x=0, y=0, xend=LD1, yend=LD2, color=var)) +
+  geom_segment() # arrow = arrow(length = unit(10, "pt"))) 
+  #geom_label(aes(x = LD1, y = LD2, label=var))
+
 ```
 
 
