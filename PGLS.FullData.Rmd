@@ -662,7 +662,7 @@ f1mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=CBL_max, color=Habitat
   scale_shape_manual(values = c(0, 4, 19)) +
   scale_color_manual(values = c(benthic="darkorange4", demersal = "darkorchid1", pelagic = "blue1"))+
   coord_cartesian(clip = 'off') +
-  ylab("Maximum centrum body length (L)")
+  ylab("Maximum centrum \nbody length (L)")
 
 f2mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=D_Pos_max, color=Habitat, shape=Habitat)) +
   stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
