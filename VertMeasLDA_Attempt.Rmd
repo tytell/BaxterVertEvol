@@ -13,12 +13,14 @@ library(GGally)
 library(scico)
 library(MASS)
 library(tidyverse)
+library(ggrepel)
 ```
 
 The resources I'm looking at say that the data need to be one column with a categorical variable (our consensus habitat column) and numeric predictor variables (our measurements, like d_40, CBL_50, etc.). With that being said, I think that all I would maybe have to do for this before running the model would maybe be to make sure that the data look organized in that way?
 
 ```{r}
-vertdata <- read.csv("All_Vert_Data.csv")
+vertdata <- read.csv("All_Vert_Data.csv") %>%
+  mutate(Habitat = factor(Habitat, levels=c('benthic','demersal','pelagic')))
 
 vertdata
 ```
@@ -35,7 +37,6 @@ allvertdata <- vertdata %>%
 
 head(allvertdata)
 ```
-I'm just not totally sure what this means... I set up the data to be wide in the same way that you did for the PCA but I'm getting an unused argument error here, and I don't see anything in the command that looks like an issue in terms of obvious errors, but I'll keep digging.
 
 ```{r}
 allvertdata <-
@@ -57,48 +58,51 @@ head(allvertdata)
 ```
 
 ```{r}
+allvertdata <-
+  allvertdata %>%
+  mutate(across(c("CBL", "d", "alphaPos", "DPos", "alphaAnt", "DAnt"), ~ sd(., na.rm=TRUE), .names="{.col}.sd"))
+```
+
+```{r}
 allvertdata_full <-
   allvertdata %>%
   group_by(Species, Indiv) %>%
   mutate_at(vars(CBL, d, alphaPos, DPos, alphaAnt, DAnt), ~ replace(.x, is.na(.x), mean(.x, na.rm=TRUE))) %>%
-  ungroup()
+  mutate(CBL.n = CBL / CBL.sd,
+         d.n = d / d.sd,
+         alphaPos.n = alphaPos / alphaPos.sd,
+         DPos.n = DPos / DPos.sd,
+         alphaAnt.n = alphaAnt / alphaAnt.sd,
+         DAnt.n = DAnt / DAnt.sd) %>%
+  ungroup() %>%
+  select(-ends_with(".sd"))
 
 head(allvertdata_full)
 ```
 
-```{r}
-allvertdata %>%
-  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt')) %>%
-  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
-  select_if(~ .x < 0.8)
-```
+
 
 ```{r}
 allvertdata_wide <-
   allvertdata_full %>%
-  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt'))
+  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt',
+                                                'CBL.n', 'alphaPos.n', 'd.n', 
+                                                'DPos.n', 'alphaAnt.n', 'DAnt.n'))
 
 head(allvertdata_wide)
-```
-
-```{r}
-allvertdata %>%
-  pivot_wider(names_from = Pos, values_from = c('CBL', 'alphaPos', 'd', 'DPos', 'alphaAnt', 'DAnt')) %>%
-  summarize_if(is.numeric, ~ sum(!is.na(.x)) / n()) %>%
-  select_if(~ .x < 0.8)
-```
-
-```{r}
-allvertdata_wide
 ```
 
 ```{r}
 allvertdata_widefull<- 
   allvertdata_wide %>%
   dplyr::select(-contains(c("20", "30"))) %>%
-  dplyr::select(starts_with("CBL") | starts_with("d") | 
-           starts_with("alphaPos") | starts_with("DPos") | starts_with("alphaAnt") | starts_with("DAnt"), Habitat)
+  # dplyr::select(-contains(c("40"))) %>%
+  #dplyr::select(contains(c("60", "70", "80")), Habitat) %>%
+  dplyr::select(starts_with("CBL.n") | starts_with("d.n") |
+                  starts_with("alphaPos.n") | starts_with("DPos.n") |
+                  starts_with("alphaAnt.n") | starts_with("DAnt.n"), Habitat)
 ```
+
 
 
 ```{r}
@@ -113,11 +117,9 @@ allvertdata.lda
 ```
 
 ```{r}
-allvertdata.cv <- lda(Habitat ~ ., data = allvertdata_widefull, CV=TRUE)
-```
-
-```{r}
-vertdata.class <- table(allvertdata_widefull$Habitat, allvertdata.cv$class)
+allvertdata_widefull %>%
+  group_by(Habitat) %>%
+  summarize(proportion = n() / nrow(allvertdata_widefull))
 ```
 
 
@@ -127,9 +129,6 @@ allvertdata.cv <- cbind(allvertdata_widefull, as.data.frame(allvertdata.cv$class
   mutate(correct = Habitat == PredictHabitat)
 
 allvertdata.cv
-```
-```{r}
-allvertdata_widefull
 ```
 
 ```{r}
@@ -144,6 +143,9 @@ my_theme <-
   theme_light() +
   theme(panel.border = element_blank(),
         axis.line = element_line(color="grey70"))
+
+bdpmarkers <- c(benthic = 0, demersal = 5, pelagic = 19)
+bdpcolors <- c(benthic = '#72511f', pelagic = '#53a0c9', demersal = '#ffbf00')
 ```
 
 
@@ -151,21 +153,15 @@ my_theme <-
 LDA_groups <- ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat, shape=Habitat)) +
   geom_point() +
   stat_ellipse() +
-  scale_shape_manual(values = c(benthic = 0, demersal = 4, pelagic = 19)) +
-  scale_color_manual(values = c(benthic="darkorange4", demersal = "darkorchid1", pelagic = "blue1"))
+  scale_shape_manual(values = bdpmarkers) +
+  scale_color_manual(values = bdpcolors)
+#  geom_point(data = filter(allvertdata_withlda, !correct), aes(x=LD1, y=LD2), inherit.aes = FALSE,
+#             color = 'red', shape=4)
 
 ((LDA_groups) + 
     plot_layout(guides="collect")) +
   plot_annotation(tag_levels = "A") & my_theme
-ggsave('LDA.ellipse.groups.png', width=6, height=6, units="in", dpi=300)
-```
-
-```{r}
-LDA_groups
-```
-
-```{r}
-ggsave("LDA_groups.png", LDA_groups, width=4, height=2.5, units="in")
+# ggsave('LDA.ellipse.groups.png', width=6, height=6, units="in", dpi=300)
 ```
 
 ```{r}
@@ -176,20 +172,19 @@ biplotdata <- as.data.frame(allvertdata.lda$scaling) %>%
 ```{r}
 biplotdata <-
   biplotdata %>%
-  mutate(mag = sqrt(LD1^2 + LD2^2)) %>%
+  mutate(mag = sqrt(LD1^2 + LD2^2),
+         varpos = var) %>%
   separate(var, into=c("var", "pos"), sep="_")
 ```
 
 ```{r}
 biplotdata %>%
-  mutate(LD1 = if_else(str_starts(var, "alpha"), LD1 * 2000, LD1),
-         LD2 = if_else(str_starts(var, "alpha"), LD2 * 2000, LD2)) %>%
-  
+
 #  filter(mag < 1) %>%
 #  slice_sample(n=10) %>%
   ggplot(aes(x=0, y=0, xend=LD1, yend=LD2, color=var)) +
-  geom_segment() # arrow = arrow(length = unit(10, "pt"))) 
-  #geom_label(aes(x = LD1, y = LD2, label=var))
+  geom_segment(arrow = arrow(length = unit(10, "pt"))) +
+  geom_label_repel(aes(x = LD1, y = LD2, label=varpos))
 
 ```
 
@@ -210,15 +205,123 @@ This is I believe what setting up the model would look like based off of the res
 
 
 ```{r}
-library(klaR)
+allvertdata_widefull %>%
+#  select(starts_with(c("CBL", "d", "alphaAnt", "alphaPos", "DAnt", "DPos"))) %>%
+  pivot_longer(
+               cols = contains(c("CBL", "d", "alphaAnt", "alphaPos", "DAnt", "DPos")), 
+               names_to = c(".value", "pos"),
+               names_pattern = "(.+)_(.+)")
 ```
 
 ```{r}
-partimat(Habitat ~ ., data = allvertdata_widefull, method = "lda")
+seldata = list()
+
+for (i in 2:6) {
+  positions <- combn(seq(40, 90, by=10), i)
+  
+  data1 <- as_tibble(positions) %>%
+    pivot_longer(names_to = "select", values_to = "positions", cols = everything()) %>%
+    mutate(nselect = i) %>%
+    group_by(select) %>%
+    nest(positions = c("positions"))
+  
+  seldata <- append(seldata, list(data1))
+}
+
+seldata <- bind_rows(seldata)
 ```
 
-Ideally the axes we would use would be alphaPos and d, and the three categories of the habitats would be the categorical variables that the data are grouped by, but I'm not totally positive how to define that yet.
+
+```{r}
+seldata <-
+  seldata %>%
+  mutate(data = map(positions, ~ select(allvertdata_widefull, contains(sapply(., as.character)), "Habitat"))) %>%
+  mutate(lda = map(data, ~ lda(Habitat ~ ., data = .x)),
+         cv = map(data, ~ lda(Habitat ~ ., data = .x, CV = TRUE)),
+         predhab = map(cv, ~ .x$class))
+```
+
+```{r}
+correct <- 
+  seldata %>%
+  unnest(c("data", "predhab")) %>%
+  select(select, nselect, positions, Habitat, predhab) %>%
+  group_by(select, nselect, positions) %>%
+  summarize(correctfrac = sum(Habitat == predhab) / n()) %>%
+  ungroup() %>%
+  arrange(desc(correctfrac))
+
+slice_head(correct)
+slice_head(correct) %>% pull(positions)
+```
+```{r}
+bestlda <-
+  seldata %>%
+  filter(select == "V10" & nselect == 3) %>%
+  slice_head() %>%
+  pull(lda)
+bestlda = bestlda[[1]]
+
+bestpred <-
+  seldata %>%
+  filter(select == "V10" & nselect == 3) %>%
+  slice_head() %>%
+  pull(predhab)
+bestpred <- bestpred[[1]]
+
+seldata1 <-
+  seldata %>%
+  filter(select == "V10" & nselect == 3) %>%
+  slice_head() %>%
+  pull(data)
+seldata1 = seldata1[[1]]
+```
+
+```{r}
+ldadata <- predict(bestlda, newdata=seldata1)
+allvertdata_withbestlda <- cbind(seldata1, ldadata$x)
+allvertdata_withbestlda <- cbind(allvertdata_withbestlda, bestpred) %>%
+  mutate(correct = Habitat == bestpred)
+
+head(allvertdata_withbestlda)
+```
+
+```{r fig.height=4, fig.width=6.8}
+LDA_groups <- ggplot(allvertdata_withbestlda, aes(x=LD1, y=LD2, color=Habitat, shape=Habitat)) +
+  geom_point(size = 4) +
+  stat_ellipse() +
+  scale_shape_manual(values = bdpmarkers) +
+  scale_color_manual(values = bdpcolors) +
+  geom_point(data = filter(allvertdata_withbestlda, !correct), aes(x=LD1, y=LD2), inherit.aes = FALSE,
+             color = 'red', shape=4, size=2)
+
+((LDA_groups) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+# ggsave('LDA.ellipse.groups.png', width=6, height=6, units="in", dpi=300)
+```
 
 
+```{r}
+biplotdata <- as.data.frame(bestlda$scaling) %>% 
+  rownames_to_column(var="var")
+```
 
+```{r}
+biplotdata <-
+  biplotdata %>%
+  mutate(mag = sqrt(LD1^2 + LD2^2),
+         varpos = var) %>%
+  separate(var, into=c("var", "pos"), sep="_")
+```
 
+```{r}
+biplotdata %>%
+
+#  filter(mag < 1) %>%
+#  slice_sample(n=10) %>%
+  ggplot(aes(x=0, y=0, xend=LD1, yend=LD2, color=var)) +
+  geom_segment(arrow = arrow(length = unit(10, "pt"))) +
+  geom_label_repel(aes(x = LD1, y = LD2, label=varpos))
+
+```
