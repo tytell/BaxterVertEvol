@@ -8,8 +8,6 @@ output: html_notebook
 library(ggplot2)
 library(ape)
 library(ggtree) 
-library(rfishbase)
-library(Hmisc)
 library(phytools)
 library(here)
 library(geiger)
@@ -17,14 +15,13 @@ library(nlme)
 library(patchwork)
 library(emmeans)
 library(multcompView)
-library(readxl)
-library(plotly) 
 library(ggthemes) 
 library(naniar)
 library(dplyr)
 library(tidyverse)
 library(car)
-library(ggbeeswarm)
+library(treeio)
+library(ggimage)
 ```
 
 ```{r}
@@ -117,10 +114,15 @@ plotTree(verttree)
 
 
 ```{r}
-treefig <- ggtree(verttree)+
+treefig1 <- ggtree(verttree) %<+% fullvertsheet.all
+treefig1
+
+treefig <- treefig1 +
   geom_tiplab() +
-  geom_tree(aes(color=Habitat)) +
- geom_tip.point(values = c(benthic="darkorange4", demersal = "darkorchid1", pelagic = "blue1"))+
+  geom_tippoint(aes(shape=Habitat, color=Habitat)) +
+  theme(legend.position = "right")+
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"))
+
 treefig
 ```
 
