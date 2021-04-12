@@ -56,13 +56,14 @@ allvertdata <-
 
 head(allvertdata)
 ```
-
+This gets the standard deviations of all of the six measurements.
 ```{r}
 allvertdata <-
   allvertdata %>%
   mutate(across(c("CBL", "d", "alphaPos", "DPos", "alphaAnt", "DAnt"), ~ sd(., na.rm=TRUE), .names="{.col}.sd"))
 ```
 
+Then make normalized variables, dividing each one by its standard deviation. Normalized variables end with `.n`.
 ```{r}
 allvertdata_full <-
   allvertdata %>%
@@ -80,8 +81,7 @@ allvertdata_full <-
 head(allvertdata_full)
 ```
 
-
-
+Make the wide data set, so that we have columns for each variable at each position.
 ```{r}
 allvertdata_wide <-
   allvertdata_full %>%
@@ -91,7 +91,7 @@ allvertdata_wide <-
 
 head(allvertdata_wide)
 ```
-
+Get rid of the 20 and 30% measurements, since we have many fewer of those, and just keep the normalized values.
 ```{r}
 allvertdata_widefull<- 
   allvertdata_wide %>%
@@ -103,105 +103,26 @@ allvertdata_widefull<-
                   starts_with("alphaAnt.n") | starts_with("DAnt.n"), Habitat)
 ```
 
-
-
-```{r}
-allvertdata_widefull
-```
-
-This was failing because your `allvertdata_widefull` data frame didn't contain the column `Habitat`. Your `select` function above just selected the CBL, d, alphaPos and DPos variables.
+Run the LDA on the complete data set.
 ```{r}
 allvertdata.lda <- lda(Habitat ~ ., data = allvertdata_widefull)
 
 allvertdata.lda
 ```
-
+This returns the proportion of the different habitats in our data set.
 ```{r}
 allvertdata_widefull %>%
   group_by(Habitat) %>%
   summarize(proportion = n() / nrow(allvertdata_widefull))
 ```
 
+# Combinations of variables
 
+This constructs a data set containing all of the different combinations of vertebrae from 40 to 90% in groups of sizes from 2 to 6.
 ```{r}
-my_theme <-
-  theme_light() +
-  theme(panel.border = element_blank(),
-        axis.line = element_line(color="grey70"))
+seldata <- list()
 
-bdpmarkers <- c(benthic = 0, demersal = 5, pelagic = 19)
-bdpcolors <- c(benthic = '#72511f', pelagic = '#53a0c9', demersal = '#ffbf00')
-```
-
-
-```{r fig.height=4, fig.width=6.8}
-LDA_groups <- ggplot(allvertdata_withlda, aes(x=LD1, y=LD2, color=Habitat, shape=Habitat)) +
-  geom_point() +
-  stat_ellipse() +
-  scale_shape_manual(values = bdpmarkers) +
-  scale_color_manual(values = bdpcolors)
-#  geom_point(data = filter(allvertdata_withlda, !correct), aes(x=LD1, y=LD2), inherit.aes = FALSE,
-#             color = 'red', shape=4)
-
-((LDA_groups) + 
-    plot_layout(guides="collect")) +
-  plot_annotation(tag_levels = "A") & my_theme
-# ggsave('LDA.ellipse.groups.png', width=6, height=6, units="in", dpi=300)
-```
-
-```{r}
-biplotdata <- as.data.frame(allvertdata.lda$scaling) %>% 
-  rownames_to_column(var="var")
-```
-
-```{r}
-biplotdata <-
-  biplotdata %>%
-  mutate(mag = sqrt(LD1^2 + LD2^2),
-         varpos = var) %>%
-  separate(var, into=c("var", "pos"), sep="_")
-```
-
-```{r}
-biplotdata %>%
-
-#  filter(mag < 1) %>%
-#  slice_sample(n=10) %>%
-  ggplot(aes(x=0, y=0, xend=LD1, yend=LD2, color=var)) +
-  geom_segment(arrow = arrow(length = unit(10, "pt"))) +
-  geom_label_repel(aes(x = LD1, y = LD2, label=varpos))
-
-```
-
-
-```{r}
-LDA_vert <- ggpairs(allvertdata_withlda, columns = c("LD1", "LD2"),
-        mapping = aes(color = Habitat, shape = Habitat),
-        upper = list(continuous = "blank"),
-        diag = list(continuous = "densityDiag"))
-```
-
-```{r}
-ggsave("LDA_vert.png", LDA_vert, width=6, height=6, units="in")
-```
-
-
-This is I believe what setting up the model would look like based off of the resources I looked at. The resource I'm looking at also gives instructions to make a partition plot, which would look something like this. I'm not totally positive how applicable this is to our case, but it looks like a potential plot that could show at least something interesting.
-
-
-```{r}
-allvertdata_widefull %>%
-#  select(starts_with(c("CBL", "d", "alphaAnt", "alphaPos", "DAnt", "DPos"))) %>%
-  pivot_longer(
-               cols = contains(c("CBL", "d", "alphaAnt", "alphaPos", "DAnt", "DPos")), 
-               names_to = c(".value", "pos"),
-               names_pattern = "(.+)_(.+)")
-```
-
-```{r}
-seldata = list()
-
-for (i in 2:6) {
+for (i in 3:6) {
   positions <- combn(seq(40, 90, by=10), i)
   
   data1 <- as_tibble(positions) %>%
@@ -216,7 +137,7 @@ for (i in 2:6) {
 seldata <- bind_rows(seldata)
 ```
 
-
+Run the LDA and the cross-validation on all of them.
 ```{r}
 seldata <-
   seldata %>%
@@ -226,6 +147,7 @@ seldata <-
          predhab = map(cv, ~ .x$class))
 ```
 
+Check how many they get correct:
 ```{r}
 correct <- 
   seldata %>%
@@ -235,41 +157,70 @@ correct <-
   summarize(correctfrac = sum(Habitat == predhab) / n()) %>%
   ungroup() %>%
   arrange(desc(correctfrac))
-
-slice_head(correct)
-slice_head(correct) %>% pull(positions)
 ```
+
+Join the data set and the selection of vertebrae and the number correct.
+```{r}
+seldatacorr <-
+  seldata %>%
+  ungroup() %>%
+  left_join(correct, by=c("select", "nselect", "positions")) %>%
+  arrange(desc(correctfrac))
+```
+
+The pull out the best one.
+```{r}
+seldatacorr %>%
+  slice_head() %>%
+  select(select, nselect, correctfrac)
+
+seldatacorr %>%
+  slice_head() %>%
+  pull(positions)
+```
+
+And get the LDA for the best one, with the predictions and the reduced data set.
 ```{r}
 bestlda <-
-  seldata %>%
-  filter(select == "V10" & nselect == 3) %>%
+  seldatacorr %>%
   slice_head() %>%
   pull(lda)
 bestlda = bestlda[[1]]
 
 bestpred <-
-  seldata %>%
-  filter(select == "V10" & nselect == 3) %>%
+  seldatacorr %>%
   slice_head() %>%
   pull(predhab)
 bestpred <- bestpred[[1]]
 
-seldata1 <-
-  seldata %>%
-  filter(select == "V10" & nselect == 3) %>%
+bestdata <-
+  seldatacorr %>%
   slice_head() %>%
   pull(data)
-seldata1 = seldata1[[1]]
+bestdata <- bestdata[[1]]
 ```
 
+Then build up a data set with the predictions from the LDA.
 ```{r}
-ldadata <- predict(bestlda, newdata=seldata1)
-allvertdata_withbestlda <- cbind(seldata1, ldadata$x)
+ldadata <- predict(bestlda, newdata=bestdata)
+allvertdata_withbestlda <- cbind(bestdata, ldadata$x)
 allvertdata_withbestlda <- cbind(allvertdata_withbestlda, bestpred) %>%
   mutate(correct = Habitat == bestpred)
 
 head(allvertdata_withbestlda)
 ```
+
+And plot!
+```{r}
+my_theme <-
+  theme_light() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(color="grey70"))
+
+bdpmarkers <- c(benthic = 0, demersal = 5, pelagic = 19)
+bdpcolors <- c(benthic = '#72511f', pelagic = '#53a0c9', demersal = '#ffbf00')
+```
+
 
 ```{r fig.height=4, fig.width=6.8}
 LDA_groups <- ggplot(allvertdata_withbestlda, aes(x=LD1, y=LD2, color=Habitat, shape=Habitat)) +
@@ -284,6 +235,20 @@ LDA_groups <- ggplot(allvertdata_withbestlda, aes(x=LD1, y=LD2, color=Habitat, s
     plot_layout(guides="collect")) +
   plot_annotation(tag_levels = "A") & my_theme
 # ggsave('LDA.ellipse.groups.png', width=6, height=6, units="in", dpi=300)
+```
+
+
+
+```{r}
+LDA_vert <- ggpairs(allvertdata_withbestlda, columns = c("LD1", "LD2"),
+        mapping = aes(color = Habitat, shape = Habitat),
+        upper = list(continuous = "blank"),
+        diag = list(continuous = "densityDiag"))
+LDA_vert
+```
+
+```{r}
+ggsave("LDA_vert.png", LDA_vert, width=6, height=6, units="in")
 ```
 
 
@@ -307,6 +272,92 @@ biplotdata %>%
 #  slice_sample(n=10) %>%
   ggplot(aes(x=0, y=0, xend=LD1, yend=LD2, color=var)) +
   geom_segment(arrow = arrow(length = unit(10, "pt"))) +
-  geom_label_repel(aes(x = LD1, y = LD2, label=varpos))
+  geom_label_repel(aes(x = LD1, y = LD2, label=varpos)) +
+  xlab("LD1") + ylab("LD2") +
+  my_theme
 
+```
+
+Run the LDA on the same best data set, but just to distinguish bethic vs pelagic.
+```{r}
+bvspdata <-
+  bestdata %>%
+  filter(Habitat != "demersal") %>%
+  mutate(Habitat = fct_drop(Habitat))
+
+bvsp.lda <- lda(Habitat ~ ., 
+                data = bvspdata)
+bvsp.lda
+```
+
+```{r}
+bvsp.cv <-  lda(Habitat ~ ., 
+                data = bvspdata, CV = TRUE)
+bvsp.predhab = bvsp.cv$class
+```
+
+```{r}
+ldadata <- predict(bvsp.lda, newdata=bvspdata)
+bvspdata2 <- cbind(bvspdata, ldadata$x)
+bvspdata2 <- cbind(bvspdata2, bvsp.predhab) %>%
+  rename(predhab = bvsp.predhab) %>%
+  mutate(correct = Habitat == predhab)
+
+head(bvspdata2)
+```
+```{r}
+bvspdata2 %>%
+  summarize(correctfrac = sum(Habitat == predhab) / n())
+
+```
+
+Here's the LDA on the entire original data set:
+```{r}
+ldaall <-
+  seldatacorr %>%
+  filter(nselect == 6) %>%
+  pull(lda)
+ldaall = ldaall[[1]]
+
+predall <-
+  seldatacorr %>%
+  filter(nselect == 6) %>%
+  pull(predhab)
+predall <- predall[[1]]
+
+dataall <-
+  seldatacorr %>%
+  filter(nselect == 6) %>%
+  pull(data)
+dataall <- dataall[[1]]
+```
+
+```{r}
+seldatacorr %>%
+  filter(nselect == 6) %>%
+  select(nselect, correctfrac)
+```
+
+```{r}
+ldadata <- predict(ldaall, newdata=dataall)
+allvertdata_withoriglda <- cbind(dataall, ldadata$x)
+allvertdata_withoriglda <- cbind(allvertdata_withoriglda, predall) %>%
+  mutate(correct = Habitat == predall)
+
+head(allvertdata_withoriglda)
+```
+
+```{r fig.height=4, fig.width=6.8}
+LDA_groups <- ggplot(allvertdata_withoriglda, aes(x=LD1, y=LD2, color=Habitat, shape=Habitat)) +
+  geom_point(size = 4) +
+  stat_ellipse() +
+  scale_shape_manual(values = bdpmarkers) +
+  scale_color_manual(values = bdpcolors) +
+  geom_point(data = filter(allvertdata_withoriglda, !correct), aes(x=LD1, y=LD2), inherit.aes = FALSE,
+             color = 'red', shape=4, size=2)
+
+((LDA_groups) + 
+    plot_layout(guides="collect")) +
+  plot_annotation(tag_levels = "A") & my_theme
+# ggsave('LDA.ellipse.groups.png', width=6, height=6, units="in", dpi=300)
 ```
