@@ -124,21 +124,6 @@ allvertdata_widefull %>%
 
 
 ```{r}
-allvertdata.cv <- cbind(allvertdata_widefull, as.data.frame(allvertdata.cv$class)) %>%
-  rename(PredictHabitat = `allvertdata.cv$class`) %>%
-  mutate(correct = Habitat == PredictHabitat)
-
-allvertdata.cv
-```
-
-```{r}
-ldadata <- predict(allvertdata.lda, newdata=allvertdata.cv)
-allvertdata_withlda <- cbind(allvertdata.cv, ldadata$x)
-
-head(allvertdata_withlda)
-```
-
-```{r}
 my_theme <-
   theme_light() +
   theme(panel.border = element_blank(),
