@@ -672,7 +672,7 @@ f2mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=D_Pos_max, color=Habit
   scale_shape_manual(values = c(0, 4, 19)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"))+
   coord_cartesian(clip = 'off') +
-  ylab("Maximum posterior\ncone diameter (deg)")
+  ylab("Maximum posterior\ncone diameter (L)")
 
 f3mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=D_Ant_max, color=Habitat, shape=Habitat)) +
   stat_summary(fun = mean, geom="line", aes(group=1), color=I("gray70"), linetype="dashed") +
@@ -682,7 +682,7 @@ f3mns <- ggplot(fullvertmeas.speciesall, aes(x=Habitat, y=D_Ant_max, color=Habit
   scale_shape_manual(values = c(0, 4, 19)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"))+
   coord_cartesian(clip = 'off') +
-  ylab("Maximum anterior\ncone diameter (deg)")
+  ylab("Maximum anterior\ncone diameter (L)")
 
 ((f2mns | f3mns | f1mns) + 
     plot_layout(guides="collect")) +
