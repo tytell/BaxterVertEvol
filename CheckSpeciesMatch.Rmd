@@ -1,0 +1,191 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(phytools)
+library(rfishbase)
+library(here)
+```
+
+# Load data
+
+## Vertebral measurements
+
+```{r}
+fullvertmeas <- read_csv(here("MasterVert_Measurements.csv")) %>%
+  separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_")
+fullvertmeas
+```
+
+## Phylogeny
+
+This is the whole Betancur-R tree.
+```{r}
+tree <- read.tree(here('..', '12862_2017_958_MOESM2_ESM.tre'))
+```
+
+Get the names of species from the tree.
+```{r}
+allspecies <- tibble(tree$tip.label)
+colnames(allspecies) <- c('FullName')
+head(allspecies)
+```
+
+And split the names into family, genus, and species.
+```{r}
+allspecies <- 
+  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
+                          extra='drop', remove=FALSE)
+```
+
+Set up the tip number (just the row)
+```{r}
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+## Match our species to the tree
+
+Now let's look at just the distinct species in our data set.
+```{r}
+ourspecies <-
+  fullvertmeas %>%
+  distinct(Species, .keep_all=TRUE) %>%
+  separate(Species, sep='_', into=c("Genus", "Species")) %>%
+  select(Genus, Species, Family, MatchGenus, MatchSpecies)
+ourspecies
+```
+
+Join up our species with the data table of all of the species.
+```{r}
+ourspecies <-
+  ourspecies %>%
+  left_join(allspecies, by = c("Genus", "Species")) %>%
+  mutate(Family = coalesce(Family.x, Family.y)) %>%
+  select(-Family.x, -Family.y)
+```
+
+We are working to set up new columns called MatchGenus and MatchSpecies and that are the matching genus and species in the Betancur tree.
+
+For species that have matches in the big tree (so that Tip is not NA), the "MatchSpecies" and "MatchGenus" are just the same as Genus and Species. 
+```{r}
+ourspecies <-
+  ourspecies %>%
+  mutate(MatchSpecies = if_else(!is.na(Tip), Species, MatchSpecies),
+         MatchGenus = if_else(!is.na(Tip), Genus, MatchGenus))
+```
+
+### Deal with species that do not match
+
+For species that aren't in the Betancur tree, we have to find the most appropriate other species. First, find species in our data set that are not in the Betancur tree.
+```{r}
+missingspecies <- anti_join(ourspecies, allspecies, by=c("Genus", "Species"))
+missingspecies
+```
+
+Look for species in the Betancur tree in the same genera as the missing species:
+```{r}
+left_join(missingspecies, allspecies, by=c("Genus")) %>%
+  group_by(Genus, Species.x) %>%
+  summarize(n = sum(!is.na(Species.y)))
+```
+
+For species and genera with 1 or more matches in the Betancur tree, we can assume that the phylogenetic relationship is the same as another species in the genus, so long as our data set doesn't have more than one species in that genus.
+
+Check for genera for which we have multiple species:
+```{r}
+missingspecies <-
+  missingspecies %>%
+  group_by(Genus) %>%
+  mutate(n_in_genus = sum(!is.na(Species)))
+
+missingspecies %>%
+  filter(n_in_genus > 1)
+```
+
+For species where the genus only shows up once in our data set, we can choose any other species in the Betancur tree that is in the same genus
+```{r}
+matchspecies <-
+  missingspecies %>%
+  filter(n_in_genus == 1 & is.na(MatchSpecies)) %>%
+  left_join(allspecies, by=c("Genus")) %>%
+  group_by(Genus, Species.x) %>%
+  mutate(Family = coalesce(Family.x, Family.y)) %>%
+  summarize(MatchSpecies = first(Species.y),
+            MatchGenus = if_else(!is.na(MatchSpecies), first(Genus), NA_character_),
+            Tip = first(Tip.y),
+            Family = first(Family)) %>%
+  rename(Species = Species.x)
+matchspecies
+```
+
+Here is the full list of our species and the best matching species from the Betancur tree.
+```{r}
+matchspecies <-
+  ourspecies %>%
+  left_join(matchspecies, by = c("Genus", "Species")) %>%
+  mutate(MatchGenus = coalesce(MatchGenus.x, MatchGenus.y),
+         MatchSpecies = coalesce(MatchSpecies.x, MatchSpecies.y),
+         Family = coalesce(Family.x, Family.y),
+         Tip = coalesce(Tip.x, Tip.y)) %>%
+  select(-(ends_with('.x') | ends_with('.y'))) %>%
+  select(Genus, Species, MatchGenus, MatchSpecies) %>%
+  unite("MatchSpecies", c(MatchGenus, MatchSpecies)) %>%
+  unite("Species", c(Genus, Species))  %>%
+  mutate(MatchSpecies = if_else(MatchSpecies == "NA_NA", NA_character_, MatchSpecies))
+
+matchspecies
+```
+
+These are the species we couldn't match:
+```{r}
+matchspecies %>%
+  filter(is.na(MatchSpecies))
+```
+
+Set up the final data table with a filled in MatchSpecies column.
+```{r}
+fullvertmeas_matched <-
+  fullvertmeas %>%
+  unite("MatchSpecies", c(MatchGenus, MatchSpecies)) %>%
+  mutate(MatchSpecies = if_else(MatchSpecies == "NA_NA", NA_character_, MatchSpecies)) %>%
+  left_join(matchspecies, by = c("Species")) %>%
+  mutate(MatchSpecies = coalesce(MatchSpecies.x, MatchSpecies.y)) %>%
+  select(-(ends_with(".x") | ends_with(".y")))
+```
+
+And write it out!
+```{r}
+write_csv(fullvertmeas_matched, "MasterVert_Measurements_Matched.csv")
+```
+
+# Check output file
+
+Load in the matched data set.
+```{r}
+fullvertmeas <- read_csv("MasterVert_Measurements_Matched.csv") %>%
+  separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
+  relocate(MatchGenus, MatchSpecies, .after=Species)
+fullvertmeas
+```
+
+Find the matches in the full phylogeny.
+```{r}
+fullvertmeas.species <- left_join(fullvertmeas, allspecies, by=c("MatchGenus"="Genus", "MatchSpecies"="Species"))
+```
+
+And check to see how many species we have. It should be the same number as those in the `matchspecies` data set, minus those we couldn't match.
+```{r}
+checkspecies <-
+  fullvertmeas.species %>%
+  filter(!is.na(Tip)) %>%
+  distinct(Species, .keep_all = TRUE)
+```
+
+```{r}
+nrow(checkspecies) == nrow(filter(matchspecies, !is.na(MatchSpecies)))
+```
+
+
