@@ -1,0 +1,241 @@
+---
+title: "VertMCMCglmm"
+author: "ADClark"
+date: "3/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ape)
+library(geiger)
+library(phytools)
+library(nlme)
+library(caper)
+library(adephylo)
+library(phangorn)
+library(surface)
+library(vegan)
+library(animation)
+library(readxl)
+library(MCMCglmm)
+library(tidyverse)
+library(car)
+
+library(here)
+```
+
+# Load data
+
+## Vertebral measurements
+
+```{r}
+vertdata_sp <- read_csv(here("vertdata_sp.csv"))
+
+head(vertdata_sp)
+```
+
+This is the whole Betancur-R tree.
+```{r}
+tree <- read.tree(here('..', '12862_2017_958_MOESM2_ESM.tre'))
+```
+
+Get the names of species from the tree.
+```{r}
+allspecies <- tibble(tree$tip.label)
+colnames(allspecies) <- c('FullName')
+head(allspecies)
+```
+Set up the tip number (just the row)
+```{r}
+allspecies$Tip <- seq_len(nrow(allspecies))
+```
+
+```{r}
+ourspecies <-
+  vertdata_sp %>%
+  distinct(Species, .keep_all=TRUE)
+```
+
+
+```{r}
+verttree <- keep.tip(tree, tip=as.vector(ourspecies$Tip))
+```
+
+Check if tree and data match.
+
+```{r}
+vertdata_sp <-
+  vertdata_sp %>%
+  column_to_rownames("FullName")
+```
+
+```{r}
+length(verttree$tip.label)
+nrow(vertdata_sp)
+```
+
+```{r}
+name.check(verttree, vertdata_sp)
+```
+
+```{r}
+Fishtree <- treedata(verttree, vertdata_sp, sort=T, warnings=F)
+# Fishtree
+cat("is.ultrametric(Fishtree): ", is.ultrametric(Fishtree$phy))
+```
+
+```{r}
+plot(Fishtree$phy)
+```
+
+```{r}
+vertdata2 <-
+  vertdata_sp %>%
+  mutate(Habitat = factor(Habitat)) %>%
+  rownames_to_column("taxon")
+```
+
+```{r}
+Fishmodel_phy <-Fishtree$phy # a class phylo
+Fishmodel_dat <- vertdata2 # a matrix
+```
+
+```{r}
+Ainv <- inverseA(Fishmodel_phy)$Ainv
+```
+
+```{r}
+alphaPos_mn.glm <- glm(alphaPos_ctr_mn ~ Habitat, family = "gaussian", data = vertdata2)
+summary(alphaPos_mn.glm)
+Anova(alphaPos_mn.glm)
+```
+
+```{r}
+ggplot(vertdata2, aes(x = Habitat, y = alphaPos_ctr_mn)) +
+  geom_jitter(width=0.1) +
+  geom_boxplot(alpha = 0.5, width = 0.1)
+```
+
+```{r}
+priorComb <- list(G = list(G1 = list(V = diag(1),nu = 0.002)),R = list(V = diag(1),nu = 0.002))
+  
+  
+Fishmodel <- MCMCglmm(alphaPos_ctr_mn ~ Habitat,
+                      random=~taxon, # corrects for phylogeny as assumes taxa is random
+                      ginverse=list(taxon=Ainv),
+                      data=vertdata2,
+                      prior=priorComb,
+                      family ="gaussian",
+                      pl = TRUE,
+                      nitt=1000000, # more than 20 000 000 is suggested
+                      burnin=100000,
+                      thin=1000,
+                      verbose=TRUE)
+  
+summary(Fishmodel)
+
+```
+
+```{r}
+plot(Fishmodel$Sol)
+```
+
+```{r}
+plot(Fishmodel$VCV)
+```
+
+```{r}
+priorComb <- list(G = list(G1 = list(V = diag(1),nu = 0.002)),R = list(V = diag(1),nu = 0.002))
+  
+  
+Fishmodel.d <- MCMCglmm(d_ctr_mn ~ Habitat,
+                      random=~taxon, # corrects for phylogeny as assumes taxa is random
+                      ginverse=list(taxon=Ainv),
+                      data=vertdata2,
+                      prior=priorComb,
+                      family ="gaussian",
+                      pl = TRUE,
+                      nitt=1000000, # more than 20 000 000 is suggested
+                      burnin=100000,
+                      thin=1000,
+                      verbose=TRUE)
+  
+summary(Fishmodel.d)
+
+```
+
+
+```{r MCMCglmm with just habitat as random, include=FALSE}
+priorSep <- list(G = list(G1 = list(V = diag(3),nu = 0.002)),R = list(V = diag(3),nu = 0.002))
+mTempSep <- MCMCglmm(d_mean ~ Habitat, random =~Habitat, rcov =~idh(Habitat):units, nitt = 120000, thin = 10, burnin = 20000, prior = priorSep, data = data2)
+```
+
+
+
+```{r MCMCglmm with habitat and taxon as random, include=FALSE}
+  #priorComb <- list(G = list(G1 = list(V = diag(1),nu = 0.002)),R = list(V = diag(1),nu = 0.002))
+  #priorComb <- list(G = list(G1 = list(V = diag(3),nu = 0.002)),R = list(V = diag(3),nu = 0.002))
+  priorComb <- list(G = list(G1 = list(V = diag(1),nu = 0.002), G2 = list(V = diag(1),nu = 0.002)),R = list(V = diag(1),nu = 0.002))
+
+  Fishmodel <- MCMCglmm(d_mean ~ Habitat,
+                                                  random=~taxon + Habitat, # corrects for phylogeny as assumes taxa is random
+                                                  ginverse=list(taxon=Ainv),
+                                                  data=data2,
+                                                  prior=priorComb,
+                                                  family ="gaussian",
+                                                  pl = TRUE,
+                                                  nitt=1000000, # more than 20 000 000 is suggested
+                                                  burnin=100000,
+                                                  thin=1000,
+                                                  verbose=TRUE)
+  summary(Fishmodel)
+```
+```{r Analysis, echo = FALSE}
+
+  Plot.multi.dens <- function(s)
+  {
+    junk.x = NULL
+    junk.y = NULL
+    for(i in 1:length(s))
+    {
+      junk.x = c(junk.x, density(s[[i]])$x)
+      junk.y = c(junk.y, density(s[[i]])$y)
+    }
+    xr <- c(0,.015)
+    yr <- c(0,1950)
+    plot(density(s[[1]]), xlim = xr, ylim = yr, main = "", xlab="", ylab="", cex.axis=1.2)
+    
+    if(length(s)==2)
+    {
+      for(i in 1)
+      {
+        lines(density(s[[i]]), xlim = xr, ylim = yr, col = 'black',lwd=2.5)
+      }
+      
+      for(i in 2)
+      {
+        lines(density(s[[i]]), xlim = xr, ylim = yr, col = "red", lty = 2,lwd=2.5)
+      }
+    }
+    else
+    {
+      for(i in 1)
+      {
+        lines(density(s[[i]]), xlim = xr, ylim = yr, col = 'black',lwd=2.5)
+      }
+      for(i in 2)
+      {
+        lines(density(s[[i]]), xlim = xr, ylim = yr, col = "cornflowerblue", lty = 3,lwd=2.5)
+      }
+      for(i in 3:length(s))
+      {
+        lines(density(s[[i]]), xlim = xr, ylim = yr, col = "green", lty = 5,lwd=2.5)
+      }
+    }
+  }
+
+
+Plot.multi.dens(list(Fishmodel$VCV[,1],Fishmodel$VCV[,2]))
+
+
+```

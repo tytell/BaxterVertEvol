@@ -16,28 +16,14 @@ library(nlme)
 library(ape)
 library(geiger)
 library(ggtree)
+library(emmeans)
 library(car)
 ```
 
 # Load data
 
-## Vertebral measurements
-
 ```{r}
-vertdata <- read_csv(here("MasterVert_Measurements_Matched.csv")) %>%
-  separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
-  relocate(MatchGenus, MatchSpecies, .after=Species) %>%
-  rename(alphaPos = alpha_Pos,
-         alphaAnt = alpha_Ant,
-         DPos = D_Pos,
-         DAnt = D_Ant,
-         BodyShape = `Body Shape`,
-         dBW = d_BW,
-         DAntBW = D_Ant_BW,
-         DPosBW = D_Pos_BW,
-         fineness = `SL/Max_BW`)
-
-head(vertdata)
+vertdata_sum <- read_csv(here("vertdata_summary.csv"))
 ```
 
 ## Phylogeny
@@ -67,7 +53,7 @@ allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
 ```{r}
-vertdata <- left_join(vertdata, allspecies, 
+vertdata <- left_join(vertdata_sum, allspecies, 
                                   by=c("MatchGenus"="Genus", "MatchSpecies"="Species")) %>%
   select(-(ends_with(".x") | ends_with(".y")))
 vertdata
@@ -78,7 +64,7 @@ Drop species without a match
 vertdata %>%
   filter(is.na(Tip)) %>%
   distinct(Species, .keep_all=TRUE) %>%
-  select(Species, MatchGenus, MatchSpecies, Tip)
+  select(Species, MatchGenus, MatchSpecies, Tip, Habitat)
 ```
 
 ```{r}
@@ -103,195 +89,11 @@ verttree <- keep.tip(tree, tip=as.vector(ourspecies$Tip))
 plotTree(verttree)
 ```
 
-# Basic plots
-
-```{r}
-vertdata <-
-  vertdata %>%
-  mutate(Pos = Pos/100,
-         Pos = factor(Pos))
-```
-
-Calculate the mean of each variable at each body position.
-```{r}
-vertdata_bypos <-
-  vertdata %>%
-  group_by(Pos) %>%
-  summarize(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DPosBW, DAntBW), 
-                   list(mn = ~ mean(.x, na.rm = TRUE),
-                        med = ~ median(.x, na.rm = TRUE),
-                        iqr = ~ IQR(.x, na.rm = TRUE),
-                        sd = ~ sd(.x, na.rm = TRUE))))
-```
-
-```{r}
-vertdata_bypos %>%
-  pivot_longer(!Pos, names_to=c("var", ".value"),
-               names_pattern = "(.*)_(.*)") %>%
-  arrange(var, Pos) %>%
-  ggplot(aes(x = Pos, y = med, group = 1)) +
-  geom_ribbon(aes(ymin = med-iqr, ymax = med+iqr), alpha = 0.5) +
-  geom_line() +
-  geom_line(aes(y = mn), color="red") +
-  facet_wrap(~ var, scales = "free")
-```
-
-```{r}
-vertdata <-
-  vertdata %>%
-  group_by(Pos) %>%
-  mutate(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DAntBW, DPosBW), 
-                   list(ctr = ~.x - median(.x, na.rm = TRUE))))
-```
-
-```{r}
-vertdata %>%
-  ggplot(aes(x = Pos, y = d_ctr, color=Habitat)) +
-  geom_boxplot() +
-  geom_beeswarm() +
-  geom_line(data = filter(vertdata, d > 0.006 & Habitat == "pelagic"),
-            aes(group=Species, linetype=Species)) +
-  geom_label(data = filter(vertdata, d > 0.006 & Pos == 0.9 & Habitat == "pelagic"),
-             aes(label = Species)) +
-  facet_grid(. ~ Habitat) +
-  labs(x = "Vertebra position (L)",
-       y = "Foramen diameter (L)")
-```
-
-```{r}
-vertdata %>%
-  ggplot(aes(x = Pos, y = dBW_ctr, color=Habitat)) +
-  geom_boxplot() +
-  geom_beeswarm() +
-  geom_line(data = filter(vertdata, dBW_ctr > 0.05 & Habitat == "pelagic"),
-             aes(group=Species, linetype=Species)) +
-  geom_label(data = filter(vertdata, dBW_ctr > 0.05 & Pos == 0.9 & Habitat == "pelagic"),
-              aes(label = Species)) +
-  facet_grid(. ~ Habitat) +
-  labs(x = "Vertebra position (L)",
-       y = "Foramen diameter (L)")
-```
-
-Let's exclude Elops and Mirorictus from the rest of the analysis for right now.
-```{r}
-vertdata2 <-
-  vertdata %>%
-  filter((Species != "Elops_saurus") &
-           Species != "Mirorictus_taningi")
-```
-
-```{r}
-plot_position_habitat_distribution <- function(df, var, var_ctr) 
-{
-  var <- enquo(var)
-  var_ctr <- enquo(var_ctr)
-  
-  p1 <-
-    df %>%
-    filter(!is.na(!!var)) %>%
-    ggplot(aes(x = Pos, y = !!var, color=Habitat, fill=Habitat, group=Habitat)) +
-    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
-    stat_summary(fun = "mean", geom="line")
-  
-  p2 <-
-    df %>%
-    filter(!is.na(!!var)) %>%
-    ggplot(aes(x = Habitat, y = !!var, color=Habitat)) +
-    geom_violin() +
-    geom_boxplot(width=0.3, alpha=0.5) +
-    stat_summary(aes(group = 1), fun = "median", geom = "line")
-  
-  p3 <-
-    df %>%
-    filter(!is.na(!!var_ctr)) %>%
-    ggplot(aes(x = Pos, y = !!var_ctr, color=Habitat, fill=Habitat, group=Habitat)) +
-    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
-    stat_summary(fun = "mean", geom="line")
-  
-  p4 <-
-    df %>%
-    filter(!is.na(!!var_ctr)) %>%
-    ggplot(aes(x = Habitat, y = !!var_ctr, color=Habitat)) +
-    geom_violin() +
-    geom_boxplot(width=0.3, alpha=0.5) +
-    stat_summary(aes(group = 1), fun = "median", geom = "line")
-  
-  p1 + p2 + p3 + p4 + plot_layout(widths = c(3,1), guides = 'collect')  
-}
-```
-
-```{r}
-plot_position_habitat_distribution(vertdata2, d, d_ctr)
-```
-Here we're plotting the foramen diameter (normalized by body length) relative to position on the left, and the overall distributions relative to habitat on the right. The bottom row has the overall mean pattern relative to body length subtracted.
-
-```{r}
-plot_position_habitat_distribution(vertdata2, dBW, dBW_ctr)
-```
-
-```{r}
-plot_position_habitat_distribution(vertdata2, CBL, CBL_ctr)
-```
-
-```{r}
-plot_position_habitat_distribution(vertdata2, alphaAnt, alphaAnt_ctr)
-```
-
-```{r}
-plot_position_habitat_distribution(vertdata2, alphaPos, alphaPos_ctr)
-```
-
-```{r}
-plot_position_habitat_distribution(vertdata2, DAnt, DAnt_ctr)
-```
-
-# Compare summary statistics
-
-First generate the summary statistics, summarizing across the body positions.
-
-This gives us the mean, median, and max values for each of the measurements.
-```{r}
-vertdata_sp <-
-  vertdata2 %>%
-  filter(Pos != 0.2 & Pos != 0.3) %>%
-  group_by(Species, Habitat, FullName, Tip) %>%
-  summarize(across(c(CBL_ctr, d_ctr, alphaAnt_ctr, alphaPos_ctr, DAnt_ctr, DPos_ctr, 
-                     dBW_ctr, DAntBW_ctr, DPosBW_ctr),
-                   list(mn = ~ mean(.x, na.rm = TRUE),
-                        med = ~ median(.x, na.rm = TRUE),
-                        max = ~ max(.x, na.rm = TRUE)))) %>%
-  ungroup()
-```
-
-And this gives us the values at 80%.
-```{r}
-vertdata_sp <-
-  vertdata2 %>%
-  filter(Pos == 0.8) %>%
-  group_by(Species, Habitat, FullName, Tip) %>%
-  summarize(across(c(CBL_ctr, d_ctr, alphaAnt_ctr, alphaPos_ctr, DAnt_ctr, DPos_ctr),
-                   list(`80` = ~ mean(.x, na.rm = TRUE)))) %>%
-  ungroup() %>%
-  right_join(vertdata_sp, by = c("Species", "Habitat", "FullName", "Tip")) %>%
-  distinct(FullName, .keep_all = TRUE)
-  
-```
-
-```{r}
-vertdata_sp %>%
-  select(ends_with("mn") | Habitat | Species) %>%
-  pivot_longer(c(CBL_ctr_mn, d_ctr_mn, alphaAnt_ctr_mn, alphaPos_ctr_mn, DAnt_ctr_mn, DPos_ctr_mn),
-               names_to = "var", values_to = "value") %>%
-  ggplot(aes(x = Habitat, y = value, color = Habitat)) +
-  geom_violin() +
-  geom_boxplot(width=0.3, alpha=0.5) +
-  stat_summary(aes(group = 1), fun = "median", geom = "line") +
-  facet_wrap(~ var, scales = "free")
-```
 
 ```{r}
 vertdata_sp <- 
-  vertdata_sp %>%
+  vertdata %>%
+  distinct(FullName, .keep_all = TRUE) %>%
   mutate(rowname = FullName) %>%
   column_to_rownames(var = "rowname")
 ```
@@ -300,14 +102,13 @@ vertdata_sp <-
 verttree <- keep.tip(tree, tip=as.vector(vertdata_sp$Tip))
 ```
 
-
 ```{r}
 left_join(as_tibble(verttree),
           vertdata_sp %>%
             rownames_to_column("label") %>%
             select(label, Habitat)) %>%
   tidytree::as.treedata() %>%
-  ggtree(layout = 'circular') +
+  ggtree(layout = 'circular') + # geom_tiplab() +
   geom_tippoint(aes(color = Habitat))
 ```
 Check if tree and data match
@@ -320,66 +121,27 @@ nrow(vertdata_sp)
 name.check(verttree, vertdata_sp)
 ```
 
-# PGLS Analysis for d BL mean
+## PGLS Analysis for means, maxes, medians, and 80%
 
 ```{r}
-pgls_dmean.BL<- gls(d_ctr_80 ~ Habitat, correlation = corBrownian(1, phy = verttree, form = ~FullName),
-                      data = vertdata_sp, method = "ML")
-Anova(pgls_dmean.BL)
-```
-
-
-```{r}
-pgls_model <- function(df, var) {
-  # var <- enquo(var)
-  fmla <- as.formula(paste(var, "Habitat", sep = " ~ "))
-  mod <- gls(fmla, correlation = corBrownian(1, phy = verttree, form = ~FullName),
-                      data = df, method = "ML")
-  Anova(mod)
-}
-
-tidy_anova <- function(mod) {
-  as.data.frame(anova(mod, test="Chisq")) %>%
-    rownames_to_column('effect') %>%
-    as_tibble() %>%
-    mutate(effect = str_replace_all(effect, "[:punct:]", "")) %>%
-    # column_to_rownames(effect) %>%
-    rename(F = `F-value`,
-           p = `p-value`)
-}
-
-lm_model <- function(df) {
-  lm(value ~ Habitat, data = df)
-}
+vertdata_sp0 <-
+  vertdata_sp %>%
+  mutate(across(contains('slope') | contains('quad'), 
+                ~ replace_na(., 0)))
 ```
 
 ```{r}
-nested <- vertdata_sp %>%
-  select(ends_with("80") | Habitat | Species | FullName) %>%
-  pivot_longer(c(CBL_ctr_80, d_ctr_80, alphaAnt_ctr_80, alphaPos_ctr_80, DAnt_ctr_80, DPos_ctr_80),
-               names_to = "var", values_to = "value") %>%
-  group_by(var) %>%
-  nest(data = c(Species, FullName, Habitat, value)) %>%
-  mutate(model = purrr::map(data, pgls_model),
-         anovatab = purrr::map(model, tidy_anova),
-         phabitat = purrr::map_dbl(anovatab, ~ filter(.x, effect == "Habitat") %>% pull(p)))
-```
-
-```{r}
-var <- c('CBL_ctr_mn', 'd_ctr_mn', 'alphaAnt_ctr_mn', 'alphaPos_ctr_mn', 'DAnt_ctr_mn', 'DPos_ctr_mn', 
-         'dBW_ctr_mn', 'DAntBW_ctr_mn', 'DPosBW_ctr_mn',
-         'CBL_ctr_max', 'd_ctr_max', 'alphaAnt_ctr_max', 'alphaPos_ctr_max', 'DAnt_ctr_max', 'DPos_ctr_max', 
-         'dBW_ctr_max', 'DAntBW_ctr_max', 'DPosBW_ctr_max',
-         'CBL_ctr_med', 'd_ctr_med', 'alphaAnt_ctr_med', 'alphaPos_ctr_med', 'DAnt_ctr_med', 'DPos_ctr_med', 
-         'dBW_ctr_med', 'DAntBW_ctr_med', 'DPosBW_ctr_med',
-         'CBL_ctr_80', 'd_ctr_80', 'alphaAnt_ctr_80', 'alphaPos_ctr_80', 'DAnt_ctr_80', 'DPos_ctr_80')
+var <- c('CBL_mid', 'd_mid', 'alphaAnt_mid', 'alphaPos_mid', 'DAnt_mid', 'DPos_mid', 
+         'CBL_slope', 'd_slope', 'alphaAnt_slope', 'alphaPos_slope', 'DAnt_slope', 'DPos_slope', 
+         'CBL_quad', 'd_quad', 'alphaAnt_quad', 'alphaPos_quad', 'DAnt_quad', 'DPos_quad', 
+         'CBL_order', 'd_order', 'alphaAnt_order', 'alphaPos_order', 'DAnt_order', 'DPos_order')
 
 modeltests <- tibble()
 
 for (i in seq_along(var)) {
   fmla <- as.formula(paste(var[i], "Habitat", sep = " ~ "))
   mod <- gls(fmla, correlation = corBrownian(1, phy = verttree, form = ~FullName),
-                      data = vertdata_sp, method = "ML")
+                      data = vertdata_sp0, method = "ML")
   
   ava <- broom::tidy(Anova(mod))
   ava$var = var[i]
@@ -392,5 +154,109 @@ modeltests %>%
   dplyr::select(var, statistic, p.value, everything()) %>%
   filter(p.value < 0.05) %>%
   arrange(p.value)
+```
+```{r}
+compare_habitats <- function(model) {
+  emm <- emmeans(model, ~Habitat)
+  p <- as.data.frame(pairs(emm))
+  es <- as.data.frame(eff_size(emm, sigma = sigma(model), edf = model$dims$N - model$dims$p))
+  p$effect.size <- es$effect.size
+  
+  p %>%
+    mutate(contrast = str_replace(contrast, "(\\w+) - (\\w+)", "\\1_\\2")) %>%
+    select(contrast, p.value, effect.size) %>%
+    rename(p = p.value, eff = effect.size) %>%
+    pivot_wider(names_from = contrast, values_from = c(p, eff),
+                names_glue = "{contrast}_{.value}")
+}
+```
+
+```{r}
+modeltests %>%
+  dplyr::select(var, statistic, p.value, everything()) %>%
+  filter(p.value < 0.05) %>%
+  mutate(mc = purrr::map(model, compare_habitats)) %>%
+  unnest(mc) %>%
+  mutate(total_eff = abs(benthic_demersal_eff) + abs(benthic_pelagic_eff) + abs(demersal_pelagic_eff)) %>%
+  # filter(total_eff > 0.5) %>%
+  relocate(total_eff, .after = p.value) %>%
+  arrange(desc(total_eff))
+```
+
+## Mean plots with stats
+
+```{r}
+vertdata_sp0 %>%
+  select(Habitat, d_mid, alphaPos_mid, DPosBW_quad, dBW_quad, DAntBW_slope, DAntBW_quad, DPosBW_slope, dBW_slope) %>%
+  pivot_longer(cols = !Habitat, names_to = "var", values_to = "value") %>%
+  filter(!is.na(var)) %>%
+  ggplot(aes(x = Habitat, y = value, color = Habitat)) +
+  geom_quasirandom(width=0.3) +
+  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
+  stat_summary(aes(group = 1), fun = "median", geom = "line") +
+  facet_wrap(~ var, scales = "free_y")
+```
+
+
+## Pairs of species
+
+```{r}
+pairs <-
+  as_tibble(verttree) %>%
+  left_join(vertdata_sp0 %>%
+              rownames_to_column("label") %>%
+              select(label, Habitat, Family,
+                     d_max, alphaPos_max)) %>%
+  filter(!is.na(Habitat)) %>%
+  group_by(parent) %>%
+  arrange(Habitat) %>%
+  mutate(nsib = n(),
+         diffhab = any(Habitat != first(Habitat)),
+         compare = str_c(str_sub(Habitat, start=1, end=1), collapse="-")) %>%
+  ungroup() %>%
+  filter(nsib == 2 & diffhab) %>%
+  select(-nsib, -diffhab) %>%
+  arrange(parent, Habitat)
+```
+
+```{r}
+pairs <-
+  pairs %>%
+  pivot_longer(c(d_max, alphaPos_max), 
+               names_to="var", values_to="value") %>%
+  group_by(var, parent) %>%
+  arrange(Habitat) %>%
+  mutate(change = if_else(lead(value) > value, "increase", "decrease")) %>%
+  fill(change) %>%
+  mutate(change = factor(change),
+         parent = factor(parent)) %>%
+  ungroup() %>%
+  arrange(var, parent, Habitat)
+```
+
+```{r}
+pairs <-
+  pairs %>%
+  mutate(ptsize = round(400/branch.length),
+         ptsize = if_else(ptsize > 15, 15, ptsize))
+```
+
+```{r}
+pairs %>%
+  # filter(str_detect(var, "mn")) %>%
+  filter(var == "alphaPos_max") %>%
+  ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent),
+             color=compare, linetype=change, size=ptsize)) +
+  geom_line(size = 1) + geom_point()
+  #facet_grid(var ~ ., scales="free_y")
+```
+
+```{r}
+pairs %>%
+  # filter(!str_detect(var, "ctr")) %>%
+  ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent),
+             color=compare, size = ptsize, linetype=change)) +
+  geom_line(size = 1) + geom_point(alpha = 0.7) +
+  facet_grid(var ~ ., scales="free_y")
 ```
 

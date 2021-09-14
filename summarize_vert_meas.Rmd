@@ -1,0 +1,339 @@
+---
+title: "Summarize vertebral measurements"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(emmeans)
+library(ggbeeswarm)
+library(patchwork)
+library(here)
+```
+
+# Load data
+
+## Vertebral measurements
+
+```{r}
+vertdata <- read_csv(here("MasterVert_Measurements_Matched.csv")) %>%
+  separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
+  relocate(MatchGenus, MatchSpecies, .after=Species) %>%
+  rename(alphaPos = alpha_Pos,
+         alphaAnt = alpha_Ant,
+         DPos = D_Pos,
+         DAnt = D_Ant,
+         BodyShape = `Body Shape`,
+         dBW = d_BW,
+         DAntBW = D_Ant_BW,
+         DPosBW = D_Pos_BW,
+         fineness = `SL/Max_BW`)
+
+head(vertdata)
+```
+
+# Basic plots
+
+```{r}
+vertdata <-
+  vertdata %>%
+  mutate(Pos = Pos/100,
+         Pos = factor(Pos))
+```
+
+Calculate the mean of each variable at each body position.
+```{r}
+vertdata_bypos <-
+  vertdata %>%
+  group_by(Pos) %>%
+  summarize(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DPosBW, DAntBW), 
+                   list(mn = ~ mean(.x, na.rm = TRUE),
+                        med = ~ median(.x, na.rm = TRUE),
+                        iqr = ~ IQR(.x, na.rm = TRUE),
+                        sd = ~ sd(.x, na.rm = TRUE))))
+```
+
+```{r}
+vertdata_bypos %>%
+  pivot_longer(!Pos, names_to=c("var", ".value"),
+               names_pattern = "(.*)_(.*)") %>%
+  arrange(var, Pos) %>%
+  ggplot(aes(x = Pos, y = med, group = 1)) +
+  geom_ribbon(aes(ymin = med-iqr, ymax = med+iqr), alpha = 0.5) +
+  geom_line() +
+  geom_line(aes(y = mn), color="red") +
+  facet_wrap(~ var, scales = "free")
+```
+
+```{r}
+vertdata <-
+  vertdata %>%
+  group_by(Pos) %>%
+  mutate(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DAntBW, DPosBW), 
+                   list(ctr = ~.x - median(.x, na.rm = TRUE))))
+```
+
+```{r}
+write_csv(vertdata, "vertdata_centered.csv")
+```
+
+```{r}
+vertdata %>%
+  ggplot(aes(x = Pos, y = d_ctr, color=Habitat)) +
+  geom_boxplot() +
+  geom_beeswarm() +
+  geom_line(data = filter(vertdata, d > 0.006 & Habitat == "pelagic"),
+            aes(group=Species, linetype=Species)) +
+  geom_label(data = filter(vertdata, d > 0.006 & Pos == 0.9 & Habitat == "pelagic"),
+             aes(label = Species)) +
+  facet_grid(. ~ Habitat) +
+  labs(x = "Vertebra position (L)",
+       y = "Foramen diameter (L)")
+```
+
+```{r}
+vertdata %>%
+  ggplot(aes(x = Pos, y = dBW_ctr, color=Habitat)) +
+  geom_boxplot() +
+  geom_beeswarm() +
+  geom_line(data = filter(vertdata, dBW_ctr > 0.05 & Habitat == "pelagic"),
+             aes(group=Species, linetype=Species)) +
+  geom_label(data = filter(vertdata, dBW_ctr > 0.05 & Pos == 0.9 & Habitat == "pelagic"),
+              aes(label = Species)) +
+  facet_grid(. ~ Habitat) +
+  labs(x = "Vertebra position (L)",
+       y = "Foramen diameter (L)")
+```
+
+Let's exclude Elops and Mirorictus from the rest of the analysis for right now.
+```{r}
+vertdata2 <-
+  vertdata %>%
+  filter((Species != "Elops_saurus") &
+           Species != "Mirorictus_taningi")
+```
+
+```{r}
+plot_position_habitat_distribution <- function(df, var, var_ctr) 
+{
+  var <- enquo(var)
+  var_ctr <- enquo(var_ctr)
+  
+  p1 <-
+    df %>%
+    filter(!is.na(!!var)) %>%
+    ggplot(aes(x = Pos, y = !!var, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
+    stat_summary(fun = "mean", geom="line")
+  
+  p2 <-
+    df %>%
+    filter(!is.na(!!var)) %>%
+    ggplot(aes(x = Habitat, y = !!var, color=Habitat)) +
+    geom_violin() +
+    geom_boxplot(width=0.3, alpha=0.5) +
+    stat_summary(aes(group = 1), fun = "median", geom = "line")
+  
+  p3 <-
+    df %>%
+    filter(!is.na(!!var_ctr)) %>%
+    ggplot(aes(x = Pos, y = !!var_ctr, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
+    stat_summary(fun = "mean", geom="line")
+  
+  p4 <-
+    df %>%
+    filter(!is.na(!!var_ctr)) %>%
+    ggplot(aes(x = Habitat, y = !!var_ctr, color=Habitat)) +
+    geom_violin() +
+    geom_boxplot(width=0.3, alpha=0.5) +
+    stat_summary(aes(group = 1), fun = "median", geom = "line")
+  
+  p1 + p2 + p3 + p4 + plot_layout(widths = c(3,1), guides = 'collect')  
+}
+```
+
+```{r}
+plot_position_habitat_distribution(vertdata2, d, d_ctr)
+```
+Here we're plotting the foramen diameter (normalized by body length) relative to position on the left, and the overall distributions relative to habitat on the right. The bottom row has the overall mean pattern relative to body length subtracted.
+
+```{r}
+plot_position_habitat_distribution(vertdata2, dBW, dBW_ctr)
+```
+
+```{r}
+plot_position_habitat_distribution(vertdata2, CBL, CBL_ctr)
+```
+
+```{r}
+plot_position_habitat_distribution(vertdata2, alphaAnt, alphaAnt_ctr)
+```
+
+```{r}
+plot_position_habitat_distribution(vertdata2, alphaPos, alphaPos_ctr)
+```
+
+```{r}
+plot_position_habitat_distribution(vertdata2, DAnt, DAnt_ctr)
+```
+
+# Compare summary statistics
+
+First generate the summary statistics, summarizing across the body positions.
+
+This gives us the mean, median, and max values for each of the measurements.
+```{r}
+vertdata_sp <-
+  vertdata2 %>%
+  filter(Pos != 0.2 & Pos != 0.3) %>%
+  group_by(Species, Indiv, Habitat, MatchSpecies, MatchGenus) %>%
+  summarize(across(c(CBL, d, alphaAnt, alphaPos, DAnt, DPos, 
+                     dBW, DAntBW, DPosBW,
+                     CBL_ctr, d_ctr, alphaAnt_ctr, alphaPos_ctr, DAnt_ctr, DPos_ctr, 
+                     dBW_ctr, DAntBW_ctr, DPosBW_ctr),
+                   list(med = ~ median(.x, na.rm = TRUE),
+                        max = ~ max(.x, na.rm = TRUE)))) %>%
+  ungroup()
+```
+
+And this gives us the values at 80%.
+```{r}
+vertdata_sp <-
+  vertdata2 %>%
+  filter(Pos == 0.8) %>%
+  group_by(Species, Indiv, Habitat, MatchSpecies, MatchGenus) %>%
+  summarize(across(c(CBL, d, alphaAnt, alphaPos, DAnt, DPos,
+                     CBL_ctr, d_ctr, alphaAnt_ctr, alphaPos_ctr, DAnt_ctr, DPos_ctr),
+                   list(`80` = ~ mean(.x, na.rm = TRUE)))) %>%
+  ungroup() %>%
+  right_join(vertdata_sp, by = c("Species", "Indiv", "Habitat", 
+                                 "MatchSpecies", "MatchGenus")) %>%
+  distinct(Species, .keep_all = TRUE)
+```
+
+```{r}
+head(vertdata_sp)
+```
+
+```{r}
+vertdata_sp %>%
+  select(ends_with("max") | Habitat | Species) %>%
+  pivot_longer(contains("ctr_max"),
+               names_to = "var", values_to = "value") %>%
+  ggplot(aes(x = Habitat, y = value, color = Habitat)) +
+  geom_violin() +
+  geom_boxplot(width=0.3, alpha=0.5) +
+  stat_summary(aes(group = 1), fun = "median", geom = "line") +
+  facet_wrap(~ var, scales = "free")
+```
+
+```{r}
+vertdata_sp %>%
+  select((ends_with("max") & !contains("ctr")) | Habitat | Species) %>%
+  pivot_longer(ends_with("max"), 
+               names_to = "var", values_to = "value") %>%
+  ggplot(aes(x = Habitat, y = value, color = Habitat)) +
+  geom_violin() +
+  geom_boxplot(width=0.3, alpha=0.5) +
+  stat_summary(aes(group = 1), fun = "median", geom = "line") +
+  facet_wrap(~ var, scales = "free")
+```
+
+# Fit quadratic curves to everything
+
+Function to get the coefficients from an `lm` type model and rename them appropriately.
+```{r}
+get_coefs <- function(model) {
+  c <- data.frame(coef(model)) %>%
+    rownames_to_column("term") %>%
+    mutate(term = case_when(term == "(Intercept)"  ~  "int",
+                            term == "Pos"  ~  "slope",
+                            term == "I(Pos^2)"  ~  "quad")) %>%
+    rename(coef = coef.model.) %>%
+    pivot_wider(names_from = term, values_from = coef)
+  if (model$rank > 1) {
+    emm <- as.data.frame(emmeans(model, specs = ~Pos, at = list(Pos = 0.8)))
+  } else {
+    emm <- as.data.frame(emmeans(model, specs = ~1))
+  }
+  c$mid = emm$emmean
+  c
+}
+```
+
+First, pivot the data frame so that each of the variables are stacked in one column, so that we can fit the pattern for each variable in one go.
+```{r}
+vertdata_lm <-
+  vertdata %>%
+  select(Species, Indiv, Pos, Habitat, d, CBL, alphaPos, alphaAnt, DPos, DAnt,
+         dBW, DAntBW, DPosBW) %>%
+  mutate(Pos = as.numeric(as.character(Pos))) %>%
+  pivot_longer(c(d, CBL, alphaPos, alphaAnt, DPos, DAnt, dBW, DAntBW, DPosBW), 
+               names_to = "var", values_to = "value")
+```
+
+Next, for each species and variable, fit models with just an intercept, a slope, or a quadratic term.
+```{r}
+vertdata_lm <-
+  vertdata_lm %>%
+  group_by(Species, Habitat, var) %>%
+  nest() %>%
+  mutate(model0 = purrr::map(data, ~lm(value ~ 1, data = .x)),
+         model1 = purrr::map(data, ~lm(value ~ Pos, data = .x)),
+         model2 = purrr::map(data, ~lm(value ~ Pos + I(Pos^2), data = .x)))
+```
+
+Now pivot the frame even longer so that the models are stacked and are identified by order. Then run through all the models and extract the AIC.
+```{r}
+vertdata_lm <- 
+  vertdata_lm %>%
+  select(-data) %>%
+  pivot_longer(contains("model"), names_to = "order", values_to = "model") %>%
+  mutate(order = str_extract(order, '[0-9]')) %>%
+  group_by(Species, Indiv, Habitat, var) %>%
+  mutate(fit = purrr::map(model, broom::glance)) %>%
+  unnest(fit) %>%
+  select(Species:model, AIC)
+
+head(vertdata_lm)
+```
+
+Then, group by each species and variable, extract the model with the lowest AIC, and pull out the coefficients of that model. This may give us just a midpoint, a midpoint and a slope, or a midpoint, slope, and quadratic term. By "midpoint", I mean the estimated marginal value at 50% of the length of the body, which we use instead of an intercept or an overall mean. The intercept can be hard to interpret, particularly for the quadratic models, and the overall mean is sometimes a bit weird if we have more points for some fish than others.
+```{r}
+vertdata_lm <-
+  vertdata_lm %>%
+  group_by(Species, Indiv, Habitat, var) %>%
+  filter(AIC == min(AIC)) %>%
+  mutate(coefs = purrr::map(model, get_coefs)) %>%
+  unnest(coefs)
+```
+
+```{r}
+vertdata_lm <-
+  distinct(vertdata_lm, Species, Indiv, Habitat, var, .keep_all = TRUE)
+```
+
+Now pivot the frame back wider so that each variable with its mean, slope, and quadratic term, are stored in columns.
+```{r}
+vertdata_lm <-
+  vertdata_lm %>%
+  select(Species, Indiv, Habitat, var, order, mid, slope, quad) %>%
+  pivot_wider(names_from = "var", names_glue = "{var}_{.value}",
+              values_from = c(mid, slope, quad, order))
+```
+
+```{r}
+head(vertdata_lm)
+```
+
+And finally, join this data frame with the earlier one that has the maxima, medians, and 80% values.
+```{r}
+vertdata_summary <-
+  left_join(vertdata_sp, vertdata_lm, by=c("Species", "Indiv", "Habitat"))
+```
+
+```{r}
+write_csv(vertdata_summary, "vertdata_summary.csv")
+```
+
