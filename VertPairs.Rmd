@@ -1,0 +1,96 @@
+---
+title: "Vert Pairs"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(here)
+```
+
+```{r}
+here(i_am('Code/VertPairs.Rmd'))
+```
+
+
+```{r}
+verttree <- readRDS(here('Processed Data/vert_tree.rds'))
+verttree_data <- read_csv(here('Processed Data/vertdata_summary_lm_species.csv'))
+```
+```{r}
+verttree_data <-
+  as_tibble(verttree) %>%
+  left_join(verttree_data %>%
+              rename(label = FullName))
+```
+
+
+# Pairs of species
+
+Look for pairs of species that have the same parent node but differ in habitats.
+```{r}
+pairs <-
+  verttree_data %>%
+  filter(!is.na(Habitat)) %>%
+  group_by(parent) %>%
+  arrange(Habitat) %>%
+  mutate(nsib = n(),
+         diffhab = any(Habitat != first(Habitat)),
+         compare = str_c(str_sub(Habitat, start=1, end=1), collapse="-")) %>%
+  ungroup() %>%
+  filter(nsib == 2 & diffhab) %>%
+  select(-nsib, -diffhab) %>%
+  arrange(parent, Habitat)
+```
+
+Then look at a few specific variables and see whether they increase or decrease across the habitats.
+```{r}
+pairs <-
+  pairs %>%
+  pivot_longer(c(d_max, dBW_mid, alphaPos_mid), 
+               names_to="var", values_to="value") %>%
+  group_by(var, parent) %>%
+  arrange(Habitat) %>%
+  mutate(change = if_else(lead(value) > value, "increase", "decrease")) %>%
+  fill(change) %>%
+  mutate(change = factor(change),
+         parent = factor(parent)) %>%
+  ungroup() %>%
+  arrange(var, parent, Habitat)
+```
+
+Construct a transformation for point size that is the inverse of branch lengths, so that long branches would have small points.
+```{r}
+branch_len_trans <- function() 
+  scales::trans_new('branch_len',
+                    function(x) 400/x,
+                    function(x) 400/x,
+                    domain = c(0, Inf))
+```
+
+Plot the pairs
+```{r}
+pairplot <- function(df, varname) {
+  df %>%
+    filter(str_detect(var, varname)) %>%
+    ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent),
+               color=compare, size = branch.length,
+               linetype=change)) +
+    geom_line(size = 1, position = position_dodge(width = 0.2)) + 
+    geom_point(alpha = 0.7, position = position_dodge(width = 0.2)) +
+    scale_size(trans = "branch_len", range = c(1, 12)) +
+    labs(y = varname)
+}
+
+#p1 <- pairplot(pairs, "d_max")
+p2 <- pairplot(pairs, "alphaPos")
+p1 <- pairplot(pairs, "dBW")
+p1 + p2 + plot_layout(guides = 'collect')  
+```
+```{r}
+write_csv(pairs, here('Processed Data/vertdata_pairs.csv'))
+```
+

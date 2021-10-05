@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup}
@@ -18,19 +20,24 @@ library(geiger)
 library(ggtree)
 library(emmeans)
 library(car)
+library(Hmisc)
 ```
 
 # Load data
 
 ```{r}
-vertdata_sum <- read_csv(here("vertdata_summary.csv"))
+here(i_am('Code/VertPGLS.Rmd'))
+```
+
+```{r}
+vertdata_sum <- read_csv(here("Processed Data/vertdata_summary_lm.csv"))
 ```
 
 ## Phylogeny
 
 This is the whole Betancur-R tree.
 ```{r}
-tree <- read.tree(here('..', '12862_2017_958_MOESM2_ESM.tre'))
+tree <- read.tree(here('Raw Data/12862_2017_958_MOESM2_ESM.tre'))
 ```
 
 Get the names of species from the tree.
@@ -121,6 +128,22 @@ nrow(vertdata_sp)
 name.check(verttree, vertdata_sp)
 ```
 
+Merge the measurements and the tree
+```{r}
+verttree_data <-
+  as_tibble(verttree) %>%
+  left_join(vertdata_sp %>%
+              rownames_to_column("label") %>%
+              select(label, Habitat, Family,
+                     ends_with("80"), ends_with("max"), ends_with("med"), ends_with("slope"), ends_with("quad")))
+```
+
+Save out the tree data. There is something subtly different about saving the data out as a csv file and saving it as an RDS file. The base class of the tree is tbl_tree, but when we load it back in from a csv, despite having exactly the same data, it won't work with the tidytree functions. So we save it in an RDS file, which preserves the class.
+```{r}
+write_csv(vertdata_sp, here('Processed Data/vertdata_summary_lm_species.csv'))
+saveRDS(verttree, here('Processed Data/vert_tree.rds'))
+```
+
 ## PGLS Analysis for means, maxes, medians, and 80%
 
 ```{r}
@@ -131,10 +154,16 @@ vertdata_sp0 <-
 ```
 
 ```{r}
-var <- c('CBL_mid', 'd_mid', 'alphaAnt_mid', 'alphaPos_mid', 'DAnt_mid', 'DPos_mid', 
-         'CBL_slope', 'd_slope', 'alphaAnt_slope', 'alphaPos_slope', 'DAnt_slope', 'DPos_slope', 
-         'CBL_quad', 'd_quad', 'alphaAnt_quad', 'alphaPos_quad', 'DAnt_quad', 'DPos_quad', 
-         'CBL_order', 'd_order', 'alphaAnt_order', 'alphaPos_order', 'DAnt_order', 'DPos_order')
+var <- c(#'CBL_80', 'd_80', 'alphaAnt_80', 'alphaPos_80', 'DAnt_80', 'DPos_80', 
+         'CBL_max', 'd_max', 'alphaAnt_max', 'alphaPos_max', 'DAnt_max', 'DPos_max',
+         'CBL_mn', 'd_mn', 'alphaAnt_mn', 'alphaPos_mn', 'DAnt_mn', 'DPos_mn',
+         'CBL_med', 'd_med', 'alphaAnt_med', 'alphaPos_med', 'DAnt_med', 'DPos_med',
+         'dBW_mn', 'DAntBW_mn', 'DPosBW_mn')
+         #'dBW_slope', 'DAntBW_slope', 'DPosBW_slope',
+         #'dBW_quad', 'DAntBW_quad', 'DPosBW_quad',
+         #'CBL_slope', 'd_slope', 'alphaAnt_slope', 'alphaPos_slope', 'DAnt_slope', 'DPos_slope', 
+         #'CBL_quad', 'd_quad', 'alphaAnt_quad', 'alphaPos_quad', 'DAnt_quad', 'DPos_quad')
+         #'CBL_order', 'd_order', 'alphaAnt_order', 'alphaPos_order', 'DAnt_order', 'DPos_order')
 
 modeltests <- tibble()
 
@@ -172,91 +201,79 @@ compare_habitats <- function(model) {
 ```
 
 ```{r}
-modeltests %>%
+habitat_means <- function(model) {
+  emm <- emmeans(model, ~Habitat)
+  as.data.frame(emm) %>%
+    select(Habitat, emmean, SE) %>%
+    rename(mn = emmean,
+           se = SE) %>%
+    pivot_wider(names_from = Habitat, values_from = c(mn, se),
+                names_glue = "{Habitat}_{.value}")
+    
+}
+```
+
+```{r}
+modeltests <-
+  modeltests %>%
   dplyr::select(var, statistic, p.value, everything()) %>%
   filter(p.value < 0.05) %>%
   mutate(mc = purrr::map(model, compare_habitats)) %>%
   unnest(mc) %>%
   mutate(total_eff = abs(benthic_demersal_eff) + abs(benthic_pelagic_eff) + abs(demersal_pelagic_eff)) %>%
+  mutate(hm = purrr::map(model, habitat_means)) %>%
+  unnest(hm) %>%
   # filter(total_eff > 0.5) %>%
   relocate(total_eff, .after = p.value) %>%
   arrange(desc(total_eff))
 ```
 
+```{r}
+modeltests
+```
+```{r}
+emmeans(modeltests$model[[5]], ~Habitat)
+```
+
+```{r}
+ggplot(vertdata_sp0, aes(x = Habitat, y = d_mn)) +
+  geom_point()
+```
+
+```{r}
+sigvars <- pull(modeltests, var)
+```
+
+```{r}
+write_csv(modeltests, here("Processed Data/modeltests.csv"))
+```
+
 ## Mean plots with stats
 
+This sets up the data in long form, with all the variables stacked, and the variables ordered by descending total effect size.
 ```{r}
-vertdata_sp0 %>%
-  select(Habitat, d_mid, alphaPos_mid, DPosBW_quad, dBW_quad, DAntBW_slope, DAntBW_quad, DPosBW_slope, dBW_slope) %>%
-  pivot_longer(cols = !Habitat, names_to = "var", values_to = "value") %>%
+vertdata_long <-
+  vertdata_sp0 %>%
+  select(Habitat, Species, !!sigvars) %>%
+  pivot_longer(cols = !Habitat & !Species, names_to = "var", values_to = "value") %>%
+  left_join(
+    modeltests %>%
+      select(var, total_eff), 
+    by = "var") %>%
+  mutate(var = as.factor(var),
+         var = fct_reorder(var, total_eff, .desc = TRUE))
+  
+```
+
+Plot all the effects
+```{r}
+vertdata_long %>%
   filter(!is.na(var)) %>%
   ggplot(aes(x = Habitat, y = value, color = Habitat)) +
-  geom_quasirandom(width=0.3) +
-  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
-  stat_summary(aes(group = 1), fun = "median", geom = "line") +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = mean_sdl) +
+  # geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
+  stat_summary(aes(group = 1), fun = "mean", geom = "line") +
   facet_wrap(~ var, scales = "free_y")
-```
-
-
-## Pairs of species
-
-```{r}
-pairs <-
-  as_tibble(verttree) %>%
-  left_join(vertdata_sp0 %>%
-              rownames_to_column("label") %>%
-              select(label, Habitat, Family,
-                     d_max, alphaPos_max)) %>%
-  filter(!is.na(Habitat)) %>%
-  group_by(parent) %>%
-  arrange(Habitat) %>%
-  mutate(nsib = n(),
-         diffhab = any(Habitat != first(Habitat)),
-         compare = str_c(str_sub(Habitat, start=1, end=1), collapse="-")) %>%
-  ungroup() %>%
-  filter(nsib == 2 & diffhab) %>%
-  select(-nsib, -diffhab) %>%
-  arrange(parent, Habitat)
-```
-
-```{r}
-pairs <-
-  pairs %>%
-  pivot_longer(c(d_max, alphaPos_max), 
-               names_to="var", values_to="value") %>%
-  group_by(var, parent) %>%
-  arrange(Habitat) %>%
-  mutate(change = if_else(lead(value) > value, "increase", "decrease")) %>%
-  fill(change) %>%
-  mutate(change = factor(change),
-         parent = factor(parent)) %>%
-  ungroup() %>%
-  arrange(var, parent, Habitat)
-```
-
-```{r}
-pairs <-
-  pairs %>%
-  mutate(ptsize = round(400/branch.length),
-         ptsize = if_else(ptsize > 15, 15, ptsize))
-```
-
-```{r}
-pairs %>%
-  # filter(str_detect(var, "mn")) %>%
-  filter(var == "alphaPos_max") %>%
-  ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent),
-             color=compare, linetype=change, size=ptsize)) +
-  geom_line(size = 1) + geom_point()
-  #facet_grid(var ~ ., scales="free_y")
-```
-
-```{r}
-pairs %>%
-  # filter(!str_detect(var, "ctr")) %>%
-  ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent),
-             color=compare, size = ptsize, linetype=change)) +
-  geom_line(size = 1) + geom_point(alpha = 0.7) +
-  facet_grid(var ~ ., scales="free_y")
 ```
 
