@@ -1,0 +1,235 @@
+---
+title: "Process FCSV files"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup}
+library(tidyverse)
+library(here)
+```
+
+```{r}
+here(i_am('Code/ProcessFCSVfiles.Rmd'))
+```
+
+# Process Cymatogaster data
+
+Dana processed the Cymatogaster aggregata scans separately, so we need to add them to the MasterVert_Measuremenst file.
+
+They're in one file per vertebra:
+```{r}
+datadir <- 'Scans/Cymatogaster'
+vertfiles <- c('Cymatogaster_aggregata_30.fcsv',
+           'Cymatogaster_aggregata_40.fcsv',
+           'Cymatogaster_aggregata_50.fcsv',
+           'Cymatogaster_aggregata_60.fcsv',
+           'Cymatogaster_aggregata_70.fcsv',
+           'Cymatogaster_aggregata_80.fcsv',
+           'Cymatogaster_aggregata_90.fcsv')
+bodyfile <- 'Cymatogaster_aggregata_bodyMarks.fcsv'
+```
+
+```{r}
+filenames <- map_chr(vertfiles, ~here(file.path(datadir, .x)))
+```
+
+Load in the coordinates
+```{r}
+coords <-
+  map_dfr(filenames, ~read_csv(.x, skip=2)) %>%
+  select(x,z,label)
+```
+
+```{r}
+head(coords)
+```
+The x coordinate from the file is what we call y in the data set, and the z coordinate is x, so rename the columns. Plus extract the point number and position from the labels.
+```{r}
+coordsxy <-
+  coords %>%
+  mutate(Pos = str_extract(label, "(?<=_)\\d+"),
+         PtNum = str_extract(label, "(?<=-)\\d+"),
+         PtNum = as.numeric(PtNum) - 1) %>%
+  rename(y = x, x = z)
+
+coordsxy
+```
+Check the coordinates and make sure they make sense based on the previous data.
+```{r}
+coordsxy %>%
+  group_by(Pos) %>%
+  ggplot(aes(x = x, y = y, color=Pos, label=PtNum)) +
+  geom_point() + geom_text(hjust=-0.1, vjust=0.5)
+```
+
+Make the wide data set like we have in the MasterVert_Measurements file.
+```{r}
+coordswide <-
+  coordsxy %>%
+  pivot_wider(values_from = c(x, y), id_cols = Pos,
+              names_from = "PtNum", names_glue = "Pt{PtNum}{.value}")
+
+coordswide
+```
+
+Functions for 2d and 3d distance.
+```{r}
+dist2 <- function(x1,y1, x2,y2) {
+  sqrt((x2 - x1)^2 + (y2 - y1)^2)
+}
+
+dist3 <- function(x1,y1,z1, x2,y2,z2) {
+  sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+}
+```
+
+This calculates the different variables based on the points. (Pulled from Excel functions)
+```{r}
+vertmeasurements <- function(df) {
+  df %>%
+    mutate(CBL_raw = dist2(Pt1x, Pt1y, Pt4x, Pt4y),
+           CBL2_raw = (abs(Pt1x - Pt3x) + abs(Pt2x - Pt4x))/2,
+         alpha_Pos_raw = acos((dist2(Pt5x,Pt5y, Pt2x,Pt2y)^2 + dist2(Pt5x,Pt5y, Pt1x,Pt1y)^2 -
+                                dist2(Pt1x,Pt1y, Pt2x,Pt2y)^2) / 
+                               (2 * dist2(Pt5x,Pt5y, Pt2x,Pt2y) * dist2(Pt5x,Pt5y, Pt1x,Pt1y))) * 180/pi,
+         alpha_Ant_raw = acos((dist2(Pt5x,Pt5y, Pt4x,Pt4y)^2 + dist2(Pt5x,Pt5y, Pt3x,Pt3y)^2 -
+                                dist2(Pt3x,Pt3y, Pt4x,Pt4y)^2) / 
+                               (2 * dist2(Pt5x,Pt5y, Pt4x,Pt4y) * dist2(Pt5x,Pt5y, Pt3x,Pt3y))) * 180/pi,
+         d_raw = dist2(Pt6x,Pt6y, Pt7x,Pt7y),
+         D_Pos_raw = dist2(Pt1x,Pt1y, Pt2x,Pt2y),
+         D_Ant_raw = dist2(Pt3x,Pt3y, Pt4x,Pt4y))
+}
+
+reversemeasurements <- function(df) {
+  df %>%
+    mutate(Pt1x = D_Pos_raw / 2 / tan(alpha_Pos_raw/2 * pi/180),
+           Pt2x = D_Pos_raw / 2 / tan(alpha_Pos_raw/2 * pi/180),
+           Pt3x = -D_Ant_raw / 2 / tan(alpha_Ant_raw/2 * pi/180),
+           Pt4x = -D_Ant_raw / 2 / tan(alpha_Ant_raw/2 * pi/180),
+           Pt5x = 0,
+           Pt6x = 0,
+           Pt7x = 0,
+           Pt1y = D_Pos_raw / 2,
+           Pt2y = -D_Pos_raw / 2,
+           Pt3y = D_Ant_raw / 2,
+           Pt4y = -D_Ant_raw / 2,
+           Pt5y = 0,
+           Pt6y = d_raw / 2,
+           Pt7y = -d_raw / 2)
+}
+```
+
+```{r}
+coordswide <-
+  coordswide %>% 
+  vertmeasurements()
+
+coordswide
+```
+The body file contains marks for the standard length.
+```{r}
+bodydata <- read_csv(here(file.path(datadir, bodyfile)), skip=2) %>%
+  select(x,y,z, label)
+bodydata
+```
+
+These I digitized directly in the CT scan in Slicer.
+```{r}
+maxWidth.mm <- 175.3
+maxWidthSlide <- 422
+maxHeight.mm <- 492
+maxHeightSlide <- 563
+```
+
+Here we pull out the standard length
+```{r}
+SL <-
+  bodydata %>%
+  mutate(Pt = str_extract(label, "(?<=Marks-)\\w+")) %>%
+  select(-label) %>%
+  pivot_wider(values_from = c(x, y, z), 
+              names_from = "Pt", names_glue = "{Pt}{.value}") %>%
+  mutate(SL = dist3(snoutx,snouty,snoutz, caudalx,caudaly,caudalz)) %>%
+  pull(SL)
+```
+
+And normalize all the variables.
+```{r}
+coordswide <-
+  coordswide %>%
+  mutate(SL = SL,
+         Max_BW_mm = maxWidth.mm,
+         BW_slide = maxWidthSlide,
+         Max_BH_mm = maxHeight.mm,
+         BH_slide = maxHeightSlide,
+         d = d_raw / SL,
+         D_Ant = D_Ant_raw / SL,
+         D_Pos = D_Pos_raw / SL,
+         CBL = CBL_raw / SL,
+         alpha_Pos = alpha_Pos_raw,
+         alpha_Ant = alpha_Ant_raw,
+         d_BW = d_raw / Max_BW_mm,
+         D_Pos_BW = D_Pos_raw / Max_BW_mm,
+         D_Ant_BW = D_Ant_raw / Max_BW_mm,
+         `SL/Max_BW` = SL / Max_BW_mm,
+         Species = "Cymatogaster_aggregata",
+         Indiv = 1,
+         Habitat = "pelagic",
+         Pos = as.numeric(Pos))
+```
+
+# Merge with other data file
+
+```{r}
+vertmeasdata <- read_csv(here('Raw Data/MasterVert_Measurements_old.csv'))
+head(vertmeasdata)
+```
+
+Check that the calculations we've done here match the data in the data table.
+```{r}
+checkcalc <-
+  vertmeasdata %>%
+  rename_with(~ str_c(.x, "_orig"), ends_with("raw")) %>%
+  vertmeasurements() %>%
+  mutate(alpha_Ant_raw_orig = alpha_Ant_raw_orig * 180/pi,
+         alpha_Pos_raw_orig = alpha_Pos_raw_orig * 180/pi) %>%
+  rename_with(~ str_c(.x, "_orig"), starts_with("Pt")) %>%
+  group_by(Species, Indiv) %>%
+  mutate(across(starts_with("Pt") & ends_with("x_orig"), ~ .x - Pt5x_orig),
+         across(starts_with("Pt") & ends_with("y_orig"), ~ .x - Pt5y_orig)) %>%
+  reversemeasurements()
+```
+
+```{r}
+checkcalc %>%
+  ggplot(aes(x = alpha_Ant_raw_orig, y = alpha_Ant_raw)) +
+  geom_point()
+```
+
+
+```{r}
+checkcalc %>%
+  ggplot(aes(x = CBL_raw_orig, y = CBL2_raw)) +
+  geom_point() +
+  geom_point(aes(y = CBL_raw), color="red")
+```
+They match!
+
+```{r}
+checkcalc %>%
+  ggplot(aes(x = Pt7y_orig, y = Pt7y)) +
+  geom_point()
+```
+
+Now merge the Cymatogaster data in, and save the data file.
+```{r}
+vertmeasdata <-
+  bind_rows(vertmeasdata, coordswide)
+```
+
+```{r}
+write_csv(vertmeasdata, here('Raw Data/MasterVert_Measurements.csv'))
+```
+
