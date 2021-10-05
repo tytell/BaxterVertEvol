@@ -1,0 +1,141 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(ggbeeswarm)
+library(patchwork)
+library(here)
+```
+
+# Load data
+
+```{r}
+here(i_am('Code/VertLM.Rmd'))
+```
+
+```{r}
+vertdata <- read_csv(here("Processed Data/vertdata_centered.csv"))
+
+head(vertdata)
+```
+
+
+# Fit quadratic curves to everything
+
+Function to get the coefficients from an `lm` type model and rename them appropriately.
+```{r}
+get_coefs <- function(model) {
+  c <- data.frame(coef(model)) %>%
+    rownames_to_column("term") %>%
+    mutate(term = case_when(term == "(Intercept)"  ~  "int",
+                            term == "Pos"  ~  "slope",
+                            term == "I(Pos^2)"  ~  "quad")) %>%
+    rename(coef = coef.model.) %>%
+    pivot_wider(names_from = term, values_from = coef)
+  if (model$rank > 1) {
+    emm <- as.data.frame(emmeans(model, specs = ~Pos, at = list(Pos = 0.8)))
+  } else {
+    emm <- as.data.frame(emmeans(model, specs = ~1))
+  }
+  c$`80` = emm$emmean
+  c
+}
+```
+
+First, pivot the data frame so that each of the variables are stacked in one column, so that we can fit the pattern for each variable in one go.
+```{r}
+vertdata_lm <-
+  vertdata %>%
+  select(Species, Indiv, Pos, Habitat, Water_Type, 
+         d, CBL, alphaPos, alphaAnt, DPos, DAnt,
+         dBW, DAntBW, DPosBW) %>%
+  mutate(Pos = as.numeric(as.character(Pos))) %>%
+  pivot_longer(c(d, CBL, alphaPos, alphaAnt, DPos, DAnt, dBW, DAntBW, DPosBW), 
+               names_to = "var", values_to = "value")
+```
+
+Next, for each species and variable, fit models with just an intercept, a slope, or a quadratic term.
+```{r}
+vertdata_lm <-
+  vertdata_lm %>%
+  group_by(Species, Habitat, var) %>%
+  nest() %>%
+  mutate(model0 = purrr::map(data, ~lm(value ~ 1, data = .x)),
+         model1 = purrr::map(data, ~lm(value ~ Pos, data = .x)),
+         model2 = purrr::map(data, ~lm(value ~ Pos + I(Pos^2), data = .x)))
+```
+
+Now pivot the frame even longer so that the models are stacked and are identified by order. Then run through all the models and extract the AIC.
+```{r}
+vertdata_lm <- 
+  vertdata_lm %>%
+  select(-data) %>%
+  pivot_longer(contains("model"), names_to = "order", values_to = "model") %>%
+  mutate(order = str_extract(order, '[0-9]')) %>%
+  group_by(Species, Habitat, var) %>%
+  mutate(fit = purrr::map(model, broom::glance)) %>%
+  unnest(fit) %>%
+  select(Species:model, AIC)
+
+head(vertdata_lm)
+```
+
+Then, group by each species and variable, extract the model with the lowest AIC, and pull out the coefficients of that model. This may give us just a midpoint, a midpoint and a slope, or a midpoint, slope, and quadratic term. By "midpoint", I mean the estimated marginal value at 50% of the length of the body, which we use instead of an intercept or an overall mean. The intercept can be hard to interpret, particularly for the quadratic models, and the overall mean is sometimes a bit weird if we have more points for some fish than others.
+```{r}
+vertdata_lm <-
+  vertdata_lm %>%
+  group_by(Species, Habitat, var) %>%
+  filter(AIC == min(AIC)) %>%
+  mutate(coefs = purrr::map(model, get_coefs)) %>%
+  unnest(coefs)
+```
+
+```{r}
+vertdata_lm <-
+  distinct(vertdata_lm, Species, Habitat, var, .keep_all = TRUE)
+```
+
+```{r}
+saveRDS(vertdata_lm, here('Processed Data/vertdata_summary_lm_models.Rds'))
+```
+
+Now pivot the frame back wider so that each variable with its mean, slope, and quadratic term, are stored in columns.
+```{r}
+vertdata_lm <-
+  vertdata_lm %>%
+  select(Species, Habitat, var, order, `80`, slope, quad) %>%
+  pivot_wider(names_from = "var", names_glue = "{var}_{.value}",
+              values_from = c(`80`, slope, quad, order))
+```
+
+```{r}
+head(vertdata_lm)
+```
+
+# Join with the summary data
+
+```{r}
+vertdata_summary <- read_csv(here("Processed Data/vertdata_summary.csv"))
+```
+For any species with multiple individuals, just take the first one.
+```{r}
+vertdata_summary <-
+  vertdata_summary %>%
+  filter(Indiv == 1) %>%
+  select(-Indiv)
+```
+
+And finally, join this data frame with the earlier one that has the maxima, medians, and 80% values.
+```{r}
+vertdata_summary_lm <-
+  left_join(vertdata_summary, vertdata_lm, by=c("Species", "Habitat"))
+```
+
+```{r}
+write_csv(vertdata_summary_lm, here("Processed Data/vertdata_summary_lm.csv"))
+```
+
+
