@@ -1,0 +1,203 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+library(tidyverse)
+library(patchwork)
+library(emmeans)
+library(here)
+```
+
+```{r}
+here(i_am("Code/plot_fits_and_summary.Rmd"))
+```
+
+```{r}
+vertdata <- read_csv(here("Processed Data/vertdata_summary_lm_species.csv"))
+models <- readRDS(here('Processed Data/vertdata_summary_lm_models.Rds'))
+vertdata_all <- read_csv(here("Processed Data/vertdata_centered.csv"))
+modeltests <- read_csv(here("Processed Data/modeltests.csv"))
+```
+
+```{r}
+modelmeans <-
+  modeltests %>%
+  select(var, ends_with("mn"), ends_with("se")) %>%
+  pivot_longer(ends_with("mn") | ends_with("se"), names_to = "HabitatEff", values_to = "value") %>%
+  separate(HabitatEff, sep = "_", into = c("Habitat", "Eff")) %>%
+  unite(var, c(var, Eff)) %>%
+  pivot_wider(names_from = var, values_from = value)
+
+modelmeans
+```
+
+```{r}
+```
+
+```{r}
+p1 <- ggplot(vertdata, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = mean_cl_boot, size = 1) +
+  stat_summary(aes(group = 1), fun = "mean", geom = "line") +
+  annotate("text", x = 3, y = 0.004, label = "*", size = 12) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"))
+
+p2 <- ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = mean_cl_boot, size=1) +
+  stat_summary(aes(group = 1), fun = "mean", geom = "line") +
+  annotate("text", x = 1, y = 90, label = "*", size = 12) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"))
+
+p1 + p2 + plot_layout(guides = 'collect')  
+```
+
+```{r}
+ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_pointrange(data = modelmeans, aes(x = Habitat, y = alphaPos_mn_mn, ymax = alphaPos_mn_mn+alphaPos_mn_se, ymin = alphaPos_mn_mn-alphaPos_mn_se), inherit.aes = FALSE)
+```
+
+```{r}
+reversemeasurements <- function(df) {
+  df %>%
+    mutate(Pt1x = DPos / 2 / tan(alphaPos/2 * pi/180),
+           Pt2x = DPos / 2 / tan(alphaPos/2 * pi/180),
+           Pt3x = -DAnt / 2 / tan(alphaAnt/2 * pi/180),
+           Pt4x = -DAnt / 2 / tan(alphaAnt/2 * pi/180),
+           Pt5x = 0,
+           Pt6x = 0,
+           Pt7x = 0,
+           Pt8x = d/2 * tan(alphaPos/2 * pi/180),
+           Pt9x = d/2 * tan(alphaPos/2 * pi/180),
+           Pt10x = -d/2 * tan(alphaAnt/2 * pi/180),
+           Pt11x = -d/2 * tan(alphaAnt/2 * pi/180),
+           Pt1y = DPos / 2,
+           Pt2y = -DPos / 2,
+           Pt3y = DAnt / 2,
+           Pt4y = -DAnt / 2,
+           Pt5y = 0,
+           Pt6y = d / 2,
+           Pt7y = -d / 2,
+           Pt8y = d / 2,
+           Pt9y = -d / 2,
+           Pt10y = d / 2,
+           Pt11y = -d / 2)
+}
+```
+
+
+```{r}
+vertshape <-
+  vertdata %>%
+  ungroup() %>%
+  group_by(Habitat) %>%
+  dplyr::summarize(across(c(d_mn, DPos_mn, DAnt_mn, alphaPos_mn, alphaAnt_mn), mean)) %>%
+  dplyr::rename_with(~ str_replace(.x, "_mn", ""), ends_with("mn")) %>%
+  reversemeasurements() 
+
+vertshape
+```
+
+```{r}
+vertshape <-
+  vertshape %>%
+  mutate(Shape1x = Pt1x,
+         Shape2x = Pt2x,
+         Shape3x = Pt9x,
+         Shape4x = Pt11x,
+         Shape5x = Pt4x,
+         Shape6x = Pt3x,
+         Shape7x = Pt10x,
+         Shape8x = Pt8x,
+         Shape9x = Pt1x,
+         Shape1y = Pt1y,
+         Shape2y = Pt2y,
+         Shape3y = Pt9y,
+         Shape4y = Pt11y,
+         Shape5y = Pt4y,
+         Shape6y = Pt3y,
+         Shape7y = Pt10y,
+         Shape8y = Pt8y,
+         Shape9y = Pt1y)
+```
+
+```{r}
+vertshape <-
+  vertshape %>%
+  select(!starts_with("Pt")) %>%
+  pivot_longer(starts_with("Shape"), names_to = "Pt", values_to = "value") %>%
+  extract(Pt, into = c("Num", "XY"), regex = "Shape(\\d+)(x|y)") %>%
+  pivot_wider(names_from = XY, values_from = value)
+
+```
+
+```{r}
+vertshape %>%
+  ggplot(aes(x = x, y = y, color = Habitat)) +
+  geom_text(aes(label = Num)) +
+  geom_path()
+```
+
+```{r}
+vertdata_all %>%
+  filter(Pos >= 0.4) %>%
+  ggplot(aes(x = Pos, y = dBW, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
+    stat_summary(fun = "mean", geom="line")
+```
+
+```{r}
+get_model_vals <- function(xvals, model) {
+  yvals <- predict(model, newdata=xvals)
+  vals <- xvals
+  vals$y = yvals
+  vals
+}
+```
+
+```{r}
+posvals <- data.frame(Pos = seq(0.4, 0.9, by = 0.1))
+
+models %>%
+  ungroup() %>%
+  filter(var == 'dBW') %>%
+  filter((Species != "Elops_saurus") &
+           Species != "Mirorictus_taningi") %>%
+  select(Species, Habitat, model) %>%
+  mutate(pred = purrr::map(model, ~get_model_vals(posvals, .x))) %>%
+  unnest(pred) %>%
+  ggplot(aes(x = Pos, y = y, color = Habitat, group=Species)) +
+  geom_line() +
+  facet_grid(rows = ~Habitat)
+  
+```
+```{r}
+vertdata0 <-
+  vertdata %>%
+  mutate(across(contains('slope') | contains('quad'), ~ if_else(is.na(.x), 0, .x)))
+```
+
+```{r}
+p1 <- ggplot(vertdata0, aes(x = Habitat, y = dBW_80, color = Habitat)) +
+  geom_quasirandom(width=0.3) +
+  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
+  stat_summary(aes(group = 1), fun = "median", geom = "line")
+
+p2 <- ggplot(vertdata0, aes(x = Habitat, y = dBW_slope, color = Habitat)) +
+  geom_quasirandom(width=0.3) +
+  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
+  stat_summary(aes(group = 1), fun = "median", geom = "line")
+
+p3 <- ggplot(vertdata0, aes(x = Habitat, y = dBW_quad, color = Habitat)) +
+  geom_quasirandom(width=0.3) +
+  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
+  stat_summary(aes(group = 1), fun = "median", geom = "line")
+
+p1 + p2 + p3 + plot_layout(guides = 'collect')  
+```
+
