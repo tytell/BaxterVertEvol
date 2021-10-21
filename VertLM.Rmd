@@ -49,11 +49,11 @@ First, pivot the data frame so that each of the variables are stacked in one col
 ```{r}
 vertdata_lm <-
   vertdata %>%
-  select(Species, Indiv, Pos, Habitat, Water_Type, 
+  select(Species, Indiv, Pos,
          d, CBL, alphaPos, alphaAnt, DPos, DAnt,
-         dBW, DAntBW, DPosBW) %>%
+         dBW, DAntBW, DPosBW, d_normCBL, d_normD, Iratio) %>%
   mutate(Pos = as.numeric(as.character(Pos))) %>%
-  pivot_longer(c(d, CBL, alphaPos, alphaAnt, DPos, DAnt, dBW, DAntBW, DPosBW), 
+  pivot_longer(c(d, CBL, alphaPos, alphaAnt, DPos, DAnt, dBW, DAntBW, DPosBW, d_normCBL, d_normD, Iratio), 
                names_to = "var", values_to = "value")
 ```
 
@@ -61,7 +61,7 @@ Next, for each species and variable, fit models with just an intercept, a slope,
 ```{r}
 vertdata_lm <-
   vertdata_lm %>%
-  group_by(Species, Habitat, var) %>%
+  group_by(Species, var) %>%
   nest() %>%
   mutate(model0 = purrr::map(data, ~lm(value ~ 1, data = .x)),
          model1 = purrr::map(data, ~lm(value ~ Pos, data = .x)),
@@ -75,7 +75,7 @@ vertdata_lm <-
   select(-data) %>%
   pivot_longer(contains("model"), names_to = "order", values_to = "model") %>%
   mutate(order = str_extract(order, '[0-9]')) %>%
-  group_by(Species, Habitat, var) %>%
+  group_by(Species, var) %>%
   mutate(fit = purrr::map(model, broom::glance)) %>%
   unnest(fit) %>%
   select(Species:model, AIC)
@@ -83,30 +83,30 @@ vertdata_lm <-
 head(vertdata_lm)
 ```
 
-Then, group by each species and variable, extract the model with the lowest AIC, and pull out the coefficients of that model. This may give us just a midpoint, a midpoint and a slope, or a midpoint, slope, and quadratic term. By "midpoint", I mean the estimated marginal value at 50% of the length of the body, which we use instead of an intercept or an overall mean. The intercept can be hard to interpret, particularly for the quadratic models, and the overall mean is sometimes a bit weird if we have more points for some fish than others.
+Then, group by each species and variable, extract the model with the lowest AIC, and pull out the coefficients of that model. This may give us just a midpoint, a midpoint and a slope, or a midpoint, slope, and quadratic term. By "midpoint", I mean the estimated marginal value at 80% of the length of the body, which we use instead of an intercept or an overall mean. The intercept can be hard to interpret, particularly for the quadratic models, and the overall mean is sometimes a bit weird if we have more points for some fish than others.
 ```{r}
 vertdata_lm <-
   vertdata_lm %>%
-  group_by(Species, Habitat, var) %>%
-  filter(AIC == min(AIC)) %>%
+  group_by(Species, var) %>%
+  filter(order == 2) %>% # AIC == min(AIC)) %>%
   mutate(coefs = purrr::map(model, get_coefs)) %>%
   unnest(coefs)
 ```
 
 ```{r}
-vertdata_lm <-
-  distinct(vertdata_lm, Species, Habitat, var, .keep_all = TRUE)
+models <-
+  distinct(vertdata_lm, Species, var, .keep_all = TRUE)
 ```
 
 ```{r}
-saveRDS(vertdata_lm, here('Processed Data/vertdata_summary_lm_models.Rds'))
+saveRDS(models, here('Processed Data/vertdata_summary_lm_models.Rds'))
 ```
 
 Now pivot the frame back wider so that each variable with its mean, slope, and quadratic term, are stored in columns.
 ```{r}
 vertdata_lm <-
-  vertdata_lm %>%
-  select(Species, Habitat, var, order, `80`, slope, quad) %>%
+  models %>%
+  select(Species, var, order, `80`, slope, quad) %>%
   pivot_wider(names_from = "var", names_glue = "{var}_{.value}",
               values_from = c(`80`, slope, quad, order))
 ```
@@ -114,6 +114,7 @@ vertdata_lm <-
 ```{r}
 head(vertdata_lm)
 ```
+
 
 # Join with the summary data
 
@@ -128,14 +129,75 @@ vertdata_summary <-
   select(-Indiv)
 ```
 
-And finally, join this data frame with the earlier one that has the maxima, medians, and 80% values.
+And finally, join this data frame with the earlier one that has the maxima and medians.
 ```{r}
 vertdata_summary_lm <-
-  left_join(vertdata_summary, vertdata_lm, by=c("Species", "Habitat"))
+  left_join(vertdata_summary, vertdata_lm, by=c("Species"))
 ```
+
 
 ```{r}
 write_csv(vertdata_summary_lm, here("Processed Data/vertdata_summary_lm.csv"))
 ```
 
+# Plot the fits
+
+```{r}
+get_model_vals <- function(model, df) {
+  val <- predict(model, newdata=df)
+  df$value <- val
+  df
+}
+```
+
+```{r}
+posvals <- tibble(Pos = seq(0.3, 0.9, by=0.1))
+
+modelfits <-
+  models %>%
+  select(Species, var, model) %>%
+  filter(var %in% c('dBW', 'CBL', 'alphaAnt', 'alphaPos', 'DAntBW', 'DPosBW')) %>%
+  mutate(pred = purrr::map(model, ~ get_model_vals(.x, posvals))) %>%
+  unnest(pred) %>%
+  select(-model) %>%
+  pivot_wider(id_cols = c(Species, Pos), names_from = var, values_from = value) %>%
+  rename_with(~ str_c(.x, '_fit'), .cols = c(dBW, CBL, alphaAnt, alphaPos, DAntBW, DPosBW)) # %>%
+
+#  left_join(vertdata_summary, by = c("Species"))
+```
+
+```{r}
+modelfits <-
+  vertdata %>%
+  filter(Indiv == 1) %>%
+  select(Species, Pos, Habitat, dBW, CBL, alphaAnt, alphaPos, DAntBW, DPosBW) %>%
+  inner_join(modelfits, by = c("Species", "Pos"))
+```
+
+```{r}
+poshabitat = expand_grid(Pos = seq(0.4, 0.9, by=0.1), Habitat = c("benthic", "demersal", "pelagic"))
+
+meanparams <-
+  vertdata_summary_lm %>%
+  group_by(Habitat) %>%
+  dplyr::summarize(across(c(dBW_80, dBW_slope, dBW_quad), mean)) %>%
+  mutate(dBW_int = dBW_80 - 0.8^2 * dBW_quad - 0.8 * dBW_slope) %>%
+  right_join(poshabitat) %>%
+  mutate(dBW = dBW_quad * Pos^2 + dBW_slope * Pos + dBW_int)
+```
+
+```{r}
+modelfits %>%
+  # filter(str_starts(Species, "Alectis") | str_starts(Species, "Sphyraena") | 
+  #          str_starts(Species, 'Cymatogaster') | str_starts(Species, 'Amia') |
+  #          str_starts(Species, 'Opsanus')) %>%
+  ggplot(aes(x = Pos, y = dBW, color = Habitat, fill = Habitat)) +
+  stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
+  stat_summary(fun = "mean", geom="line") +
+  stat_summary(aes(y = dBW_fit), fun = mean, geom="line", linetype="dashed") +
+  geom_line(data = meanparams, aes(x = Pos, y = dBW, color=Habitat), linetype="dotted") +
+#  geom_point() +
+  #geom_path(aes(y = dBW_fit, group=Species)) +
+  facet_grid(. ~ Habitat)
+```
 

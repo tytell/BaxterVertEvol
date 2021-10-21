@@ -5,6 +5,7 @@ output: html_notebook
 
 ```{r setup}
 library(tidyverse)
+library(ggbeeswarm)
 library(patchwork)
 library(emmeans)
 library(here)
@@ -22,6 +23,19 @@ modeltests <- read_csv(here("Processed Data/modeltests.csv"))
 ```
 
 ```{r}
+overallmeans <-
+  vertdata %>%
+  group_by(Habitat) %>%
+  dplyr::summarize(across(c(alphaPos_mn, alphaAnt_mn, CBL_mn, d_mn, DAnt_mn, DPos_mn,
+                     alphaPos_80, alphaAnt_80, CBL_80, d_80, DAnt_80, DPos_80,
+                     alphaPos_vtx, alphaAnt_vtx, CBL_vtx, d_vtx, DAnt_vtx, DPos_vtx,
+                     alphaPos_quad, alphaAnt_quad, CBL_quad, d_quad, DAnt_quad, DPos_quad), 
+                   list(mn = mean, se = ~ sd(.x) / sqrt(length(.x)))))
+
+overallmeans
+```
+
+```{r}
 modelmeans <-
   modeltests %>%
   select(var, ends_with("mn"), ends_with("se")) %>%
@@ -31,35 +45,6 @@ modelmeans <-
   pivot_wider(names_from = var, values_from = value)
 
 modelmeans
-```
-
-```{r}
-```
-
-```{r}
-p1 <- ggplot(vertdata, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
-  geom_quasirandom(width=0.3, alpha = 0.5) +
-  stat_summary(fun.data = mean_cl_boot, size = 1) +
-  stat_summary(aes(group = 1), fun = "mean", geom = "line") +
-  annotate("text", x = 3, y = 0.004, label = "*", size = 12) +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"))
-
-p2 <- ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
-  geom_quasirandom(width=0.3, alpha = 0.5) +
-  stat_summary(fun.data = mean_cl_boot, size=1) +
-  stat_summary(aes(group = 1), fun = "mean", geom = "line") +
-  annotate("text", x = 1, y = 90, label = "*", size = 12) +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"))
-
-p1 + p2 + plot_layout(guides = 'collect')  
-```
-
-```{r}
-ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
-  geom_quasirandom(width=0.3, alpha = 0.5) +
-  geom_pointrange(data = modelmeans, aes(x = Habitat, y = alphaPos_mn_mn, ymax = alphaPos_mn_mn+alphaPos_mn_se, ymin = alphaPos_mn_mn-alphaPos_mn_se), inherit.aes = FALSE)
 ```
 
 ```{r}
@@ -90,18 +75,13 @@ reversemeasurements <- function(df) {
 }
 ```
 
-
 ```{r}
 vertshape <-
-  vertdata %>%
-  ungroup() %>%
-  group_by(Habitat) %>%
-  dplyr::summarize(across(c(d_mn, DPos_mn, DAnt_mn, alphaPos_mn, alphaAnt_mn), mean)) %>%
-  dplyr::rename_with(~ str_replace(.x, "_mn", ""), ends_with("mn")) %>%
-  reversemeasurements() 
-
-vertshape
+  modelmeans %>%
+  rename_with(~ str_replace(.x, "_mn_mn", "")) %>%
+  reversemeasurements()
 ```
+
 
 ```{r}
 vertshape <-
@@ -137,67 +117,288 @@ vertshape <-
 ```
 
 ```{r}
-vertshape %>%
-  ggplot(aes(x = x, y = y, color = Habitat)) +
-  geom_text(aes(label = Num)) +
-  geom_path()
+vertshape_panel <-
+  vertshape %>%
+  ggplot(aes(x = x, y = y, color = Habitat, fill = Habitat)) +
+  geom_path() +
+  geom_polygon(alpha = 0.2) +
+  coord_fixed() +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"),
+                     guide = "none") +
+  scale_fill_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"),
+                     guide = "none") +
+  annotate("line", x = c(0.01, 0.01), y = c(-0.003, -0.007), color = "black") +
+  annotate("text", x = 0.01, y = -0.005, label = "0.004 BL", angle=90, size=4, vjust = 1.3) +
+  theme_minimal() +
+  theme(line = element_blank(),
+        text = element_blank(),
+        title = element_blank())
+
+vertshape_panel
 ```
-
 ```{r}
-vertdata_all %>%
-  filter(Pos >= 0.4) %>%
-  ggplot(aes(x = Pos, y = dBW, color=Habitat, fill=Habitat, group=Habitat)) +
-    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
-    stat_summary(fun = "mean", geom="line")
-```
-
-```{r}
-get_model_vals <- function(xvals, model) {
-  yvals <- predict(model, newdata=xvals)
-  vals <- xvals
-  vals$y = yvals
-  vals
-}
-```
-
-```{r}
-posvals <- data.frame(Pos = seq(0.4, 0.9, by = 0.1))
-
-models %>%
-  ungroup() %>%
-  filter(var == 'dBW') %>%
-  filter((Species != "Elops_saurus") &
-           Species != "Mirorictus_taningi") %>%
-  select(Species, Habitat, model) %>%
-  mutate(pred = purrr::map(model, ~get_model_vals(posvals, .x))) %>%
-  unnest(pred) %>%
-  ggplot(aes(x = Pos, y = y, color = Habitat, group=Species)) +
-  geom_line() +
-  facet_grid(rows = ~Habitat)
+modeltests %>%
+  filter(str_detect(var, "alphaPos_mn") | str_detect(var, "d_mn")) %>%
+  arrange(var)
   
 ```
+
 ```{r}
-vertdata0 <-
-  vertdata %>%
-  mutate(across(contains('slope') | contains('quad'), ~ if_else(is.na(.x), 0, .x)))
+
+dyl = 0.0005
+yl = max(vertdata$d_mn) + dyl
+
+d_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = d_mn_mn, group = 1), color = "black") +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = d_mn_mn, 
+                      ymin = d_mn_mn - d_mn_se, ymax = d_mn_mn + d_mn_se), size = 0.8) +
+  annotate("line", x = c(2,3), y = c(yl, yl), color = "black") +
+  annotate("text", x = 2.5, y = yl, label = "* 0.37", size = 3, vjust = -0.2) +
+  annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
+  annotate("text", x = 2, y = yl+dyl, label = "* 0.43", size = 3, vjust = -0.2) +
+  labs(y = "Mean foramen\ndiameter (BL)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+d_mn_panel
 ```
 
 ```{r}
-p1 <- ggplot(vertdata0, aes(x = Habitat, y = dBW_80, color = Habitat)) +
-  geom_quasirandom(width=0.3) +
-  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
-  stat_summary(aes(group = 1), fun = "median", geom = "line")
+dyl = 5
+yl = max(vertdata$alphaPos_mn) + dyl
 
-p2 <- ggplot(vertdata0, aes(x = Habitat, y = dBW_slope, color = Habitat)) +
-  geom_quasirandom(width=0.3) +
-  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
-  stat_summary(aes(group = 1), fun = "median", geom = "line")
+alphaPos_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = alphaPos_mn_mn, group = 1), color = "black") +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = alphaPos_mn_mn, 
+                      ymin = alphaPos_mn_mn - alphaPos_mn_se, ymax = alphaPos_mn_mn + alphaPos_mn_se), size = 0.8) +
+  annotate("line", x = c(1,2), y = c(yl, yl), color = "black") +
+  annotate("text", x = 1.5, y = yl, label = "*** 0.34", size = 3, vjust = -0.2) +
+  annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
+  annotate("text", x = 2, y = yl+dyl, label = "** 0.52", size = 3, vjust = -0.2) +
+  labs(y = "Mean posterior\ncone angle (deg)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
 
-p3 <- ggplot(vertdata0, aes(x = Habitat, y = dBW_quad, color = Habitat)) +
-  geom_quasirandom(width=0.3) +
-  geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
-  stat_summary(aes(group = 1), fun = "median", geom = "line")
+alphaPos_mn_panel
+```
 
-p1 + p2 + p3 + plot_layout(guides = 'collect')  
+
+```{r}
+dyl = 0
+yl = max(vertdata$CBL_mn) + dyl
+
+CBL_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = CBL_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = CBL_mn_mn, group = 1), color = "black") +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = CBL_mn_mn, 
+                      ymin = CBL_mn_mn - CBL_mn_se, ymax = CBL_mn_mn + CBL_mn_se), size = 0.8) +
+  #annotate("line", x = c(1,2), y = c(yl, yl), color = "black") +
+  #annotate("text", x = 1.5, y = yl, label = "*** 0.34", size = 3, vjust = -0.2) +
+  #annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
+  #annotate("text", x = 2, y = yl+dyl, label = "** 0.52", size = 3, vjust = -0.2) +
+  labs(y = "Centrum body\nlength (BL)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+CBL_mn_panel
+```
+
+```{r}
+alphaPos_mn_panel / d_mn_panel / CBL_mn_panel / vertshape_panel + 
+  plot_annotation(tag_levels = 'A') +
+  plot_layout(guides = 'collect') &
+  theme(legend.position = "bottom",
+        panel.border = element_blank(), axis.line = element_line())
+```
+
+```{r}
+ggsave(here('Figures/mean_d_alphaPos_CBL.pdf'), width = 3, units = "in")
+```
+
+# Distribution along the body
+
+## Posterior cone angle
+
+```{r}
+alphaPosvPosPanel <-
+  vertdata_all %>%
+  filter(Pos >= 0.4) %>%
+  ggplot(aes(x = Pos, y = alphaPos, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
+    stat_summary(fun = "mean", geom="line") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  scale_fill_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  labs(x = "Position (BL)", y = "Posterior cone\nangle (deg)") +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+alphaPosvPosPanel
+```
+
+## Centrum body length
+
+```{r}
+modeltests %>%
+  filter(str_detect(var, "CBL")) %>%
+  arrange(var)
+```
+
+
+```{r}
+CBLvPosPanel <-
+  vertdata_all %>%
+  filter(Pos >= 0.4) %>%
+  ggplot(aes(x = Pos, y = CBL, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
+    stat_summary(fun = "mean", geom="line") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  scale_fill_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  labs(x = "Position (BL)", y = "Centrum body\nlength (BL)") +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+CBLvPosPanel
+```
+```{r}
+dyl = 1
+yl = max(vertdata$CBL_vtx) + dyl
+
+CBLvtxPanel <- ggplot(vertdata, aes(x = Habitat, y = CBL_vtx, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = CBL_vtx_mn, group = 1), color = "black") +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = CBL_vtx_mn, 
+                      ymin = CBL_vtx_mn - CBL_vtx_se, ymax = CBL_vtx_mn + CBL_vtx_se), size = 0.8) +
+  #annotate("line", x = c(1,2), y = c(yl, yl), color = "black") +
+  #annotate("text", x = 1.5, y = yl, label = "*** 0.34", size = 3, vjust = -0.2) +
+  annotate("line", x = c(2,3), y = c(yl + dyl, yl + dyl), color = "black") +
+  annotate("text", x = 2.5, y = yl+dyl, label = "* 0.36", size = 3, vjust = -0.2) +
+  labs(y = "Fit location of\nlongest vertebra (BL)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+CBLvtxPanel
+```
+
+```{r}
+dyl = 0.01
+yl = max(vertdata$CBL_quad) + dyl
+
+CBLquadPanel <- ggplot(vertdata, aes(x = Habitat, y = CBL_quad, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = CBL_quad_mn, group = 1), color = "black") +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = CBL_quad_mn, 
+                      ymin = CBL_quad_mn - CBL_quad_se, ymax = CBL_quad_mn + CBL_quad_se), size = 0.8) +
+  annotate("line", x = c(2,3), y = c(yl, yl), color = "black") +
+  annotate("text", x = 2.5, y = yl, label = "** -0.48", size = 3, vjust = -0.2) +
+  annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
+  annotate("text", x = 2, y = yl+dyl, label = "* -0.40", size = 3, vjust = -0.2) +
+  labs(y = "Centrum body length\nquad. coeff. (BL^2)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+CBLquadPanel
+```
+
+# Foramen diameter
+
+```{r}
+dvPosPanel <-
+  vertdata_all %>%
+  filter(Pos >= 0.4) %>%
+  ggplot(aes(x = Pos, y = d, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = "mean_se", geom="ribbon", alpha=0.5) +
+    stat_summary(fun = "mean", geom="line") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  scale_fill_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  labs(x = "Position (BL)", y = "Foramen\ndiameter (BL)") +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+dvPosPanel
+```
+
+```{r}
+modeltests %>%
+  filter(str_detect(var, "d_")) %>%
+  arrange(var)
+```
+
+```{r}
+dyl = 1
+yl = max(vertdata$d_vtx) + dyl
+
+dvtxPanel <- ggplot(vertdata, aes(x = Habitat, y = d_vtx, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = d_vtx_mn, group = 1), color = "black") +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = d_vtx_mn, 
+                      ymin = d_vtx_mn - d_vtx_se, ymax = d_vtx_mn + d_vtx_se), size = 0.8) +
+  annotate("line", x = c(1,2), y = c(yl, yl), color = "black") +
+  annotate("text", x = 1.5, y = yl, label = "*** -0.40", size = 3, vjust = -0.2) +
+  annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
+  annotate("text", x = 2, y = yl+dyl, label = "* -0.40", size = 3, vjust = -0.2) +
+  labs(y = "Fit location of\nlargest foramen (BL)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+dvtxPanel
+```
+
+```{r}
+dyl = 0.01
+yl = max(vertdata$d_quad) + dyl
+
+dQuadPanel <- ggplot(vertdata, aes(x = Habitat, y = d_quad, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = d_quad_mn, group = 1), color = "black") +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = d_quad_mn, 
+                      ymin = d_quad_mn - d_quad_se, ymax = d_quad_mn + d_quad_se), size = 0.8) +
+  #annotate("line", x = c(2,3), y = c(yl, yl), color = "black") +
+  #annotate("text", x = 2.5, y = yl, label = "** -0.48", size = 3, vjust = -0.2) +
+  #annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
+  #annotate("text", x = 2, y = yl+dyl, label = "* -0.40", size = 3, vjust = -0.2) +
+  labs(y = "Foramen diameter\nquad. coeff. (BL^2)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+dQuadPanel
+```
+
+## Combined figure
+
+```{r}
+alphaPosvPosPanel / dvPosPanel / CBLvPosPanel + plot_annotation(tag_levels = 'A') +
+  plot_layout(guides = 'collect') &
+  theme(legend.position = "bottom",
+        panel.border = element_blank(), axis.line = element_line())
+```
+```{r}
+ggsave(here('Figures/BodyDistribution.pdf'), width = 3, units = "in")
+```
+
+```{r}
+
 ```
 

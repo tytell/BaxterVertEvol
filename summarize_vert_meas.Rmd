@@ -59,6 +59,9 @@ The values are similar but not identical.
 ```{r}
 vertdata <-
   vertdata %>%
+  mutate(d_normD = d / ((DAnt + DPos)/2),
+         d_normCBL = d / CBL,
+         Iratio = 1 - d^4/((DAnt + DPos)/2)^4) %>%
   mutate(Pos = Pos/100,
          Pos = factor(Pos))
 ```
@@ -68,7 +71,8 @@ Calculate the mean of each variable at each body position.
 vertdata_bypos <-
   vertdata %>%
   group_by(Pos) %>%
-  summarize(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DPosBW, DAntBW), 
+  dplyr::summarize(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DPosBW, DAntBW, 
+                            d_normCBL, d_normD, Iratio), 
                    list(mn = ~ mean(.x, na.rm = TRUE),
                         med = ~ median(.x, na.rm = TRUE),
                         iqr = ~ IQR(.x, na.rm = TRUE),
@@ -91,14 +95,15 @@ vertdata_bypos %>%
 vertdata <-
   vertdata %>%
   group_by(Pos) %>%
-  mutate(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DAntBW, DPosBW), 
-                   list(ctr = ~.x - median(.x, na.rm = TRUE))))
+  mutate(across(c(d, CBL, alphaAnt, alphaPos, DAnt, DPos, dBW, DAntBW, DPosBW, d_normD, d_normCBL, Iratio), 
+                   list(ctr = ~.x - median(.x, na.rm = TRUE)))) %>%
+  ungroup()
 ```
 
 ```{r}
 vertdata %>%
   ggplot(aes(x = Pos, y = d_ctr, color=Habitat)) +
-  geom_boxplot() +
+  geom_boxplot(aes(group = Pos)) +
   geom_beeswarm() +
   geom_line(data = filter(vertdata, d > 0.006 & Habitat == "pelagic"),
             aes(group=Species, linetype=Species)) +
@@ -112,7 +117,7 @@ vertdata %>%
 ```{r}
 vertdata %>%
   ggplot(aes(x = Pos, y = dBW_ctr, color=Habitat)) +
-  geom_boxplot() +
+  geom_boxplot(aes(group = Pos)) +
   geom_beeswarm() +
   geom_line(data = filter(vertdata, dBW_ctr > 0.05 & Habitat == "pelagic"),
              aes(group=Species, linetype=Species)) +
@@ -129,6 +134,11 @@ vertdata2 <-
   vertdata %>%
   filter((Species != "Elops_saurus") &
            Species != "Mirorictus_taningi")
+```
+
+```{r}
+vertdata2 %>%
+  filter(is.na(d_normCBL))
 ```
 
 ```{r}
@@ -194,9 +204,9 @@ This gives us the mean, median, and max values for each of the measurements.
 vertdata_summary <-
   vertdata2 %>%
   filter(Pos != 0.2 & Pos != 0.3) %>%
-  group_by(Species, Indiv, Habitat, Water_Type, MatchSpecies, MatchGenus) %>%
-  summarize(across(c(CBL, d, alphaAnt, alphaPos, DAnt, DPos, 
-                     dBW, DAntBW, DPosBW),
+  group_by(Species, Indiv, Habitat, Water_Type, MatchSpecies, MatchGenus, fineness) %>%
+  dplyr::summarize(across(c(CBL, d, alphaAnt, alphaPos, DAnt, DPos, 
+                     dBW, DAntBW, DPosBW, d_normCBL, d_normD, Iratio),
                    list(med = ~ median(.x, na.rm = TRUE),
                         max = ~ max(.x, na.rm = TRUE),
                         mn = ~ mean(.x, na.rm = TRUE)))) %>%

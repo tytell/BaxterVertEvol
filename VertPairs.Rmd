@@ -41,26 +41,39 @@ pairs <-
          diffhab = any(Habitat != first(Habitat)),
          compare = str_c(str_sub(Habitat, start=1, end=1), collapse="-")) %>%
   ungroup() %>%
-  filter(nsib == 2 & diffhab) %>%
-  select(-nsib, -diffhab) %>%
+  filter(nsib == 2) %>% # & branch.length <= 100) %>%
+  select(-nsib) %>%
   arrange(parent, Habitat)
 ```
 
 Then look at a few specific variables and see whether they increase or decrease across the habitats.
 ```{r}
-pairs <-
+pairslong <-
   pairs %>%
-  pivot_longer(c(d_max, dBW_mid, alphaPos_mid), 
+  select(Habitat, parent, branch.length, d_mn, alphaPos_mn, diffhab, compare) %>%
+  pivot_longer(c(d_mn, alphaPos_mn), 
                names_to="var", values_to="value") %>%
   group_by(var, parent) %>%
   arrange(Habitat) %>%
-  mutate(change = if_else(lead(value) > value, "increase", "decrease")) %>%
+  mutate(change = case_when(abs(lead(value) - value)/value < 0.05   ~   'same',
+                            lead(value) > value   ~   'increase',
+                            lead(value) < value   ~   'decrease')) %>%
   fill(change) %>%
   mutate(change = factor(change),
          parent = factor(parent)) %>%
   ungroup() %>%
   arrange(var, parent, Habitat)
+
+pairslong
 ```
+
+```{r}
+pairslong %>%
+  filter(var == 'd_mn' & diffhab) %>%
+  ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent), linetype = change, color=diffhab)) +
+  geom_line()
+```
+
 
 Construct a transformation for point size that is the inverse of branch lengths, so that long branches would have small points.
 ```{r}
@@ -72,24 +85,47 @@ branch_len_trans <- function()
 ```
 
 Plot the pairs
+
+```{r}
+paircolors <- c('#1b9e77','#d95f02','#7570b3')
+```
+
+```{r}
+pairslong %>%
+  filter(diffhab, var == "d_mn")
+```
+
 ```{r}
 pairplot <- function(df, varname) {
   df %>%
+    filter(diffhab) %>%
     filter(str_detect(var, varname)) %>%
     ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent),
-               color=compare, size = branch.length,
+               color=change, # shape = branch.length,
                linetype=change)) +
-    geom_line(size = 1, position = position_dodge(width = 0.2)) + 
-    geom_point(alpha = 0.7, position = position_dodge(width = 0.2)) +
+    geom_line(size = 1) + #, position = position_dodge(width = 0.2)) + 
+    geom_point() + #alpha = 0.7) + # , position = position_dodge(width = 0.2)) +
     scale_size(trans = "branch_len", range = c(1, 12)) +
-    labs(y = varname)
+    scale_shape_binned() +
+    scale_color_manual(values = paircolors) +
+    labs(y = varname) +
+    theme_bw() 
 }
 
 #p1 <- pairplot(pairs, "d_max")
-p2 <- pairplot(pairs, "alphaPos")
-p1 <- pairplot(pairs, "dBW")
-p1 + p2 + plot_layout(guides = 'collect')  
+p2 <- pairplot(pairslong, "alphaPos") +
+  labs(y = 'Mean posterior\ncone angle (deg)') +
+  theme(aspect.ratio = 0.7)
+p1 <- pairplot(pairslong, "d_mn") +
+  labs(y = 'Mean foramen\ndiameter (BL)') +
+  theme(aspect.ratio = 0.7)
+p1 / p2 + plot_layout(guides = 'collect') & theme(legend.position = "bottom")
 ```
+```{r}
+ggsave(here('Figures/pair_plot.pdf'), width=3, units="in")
+```
+
+
 ```{r}
 write_csv(pairs, here('Processed Data/vertdata_pairs.csv'))
 ```

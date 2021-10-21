@@ -138,6 +138,17 @@ verttree_data <-
                      ends_with("80"), ends_with("max"), ends_with("med"), ends_with("slope"), ends_with("quad")))
 ```
 
+```{r}
+vertdata_sp <-
+  vertdata_sp %>%
+  mutate(CBL_vtx = -CBL_slope / CBL_quad,
+         alphaPos_vtx = -alphaPos_slope / alphaPos_quad,
+         alphaAnt_vtx = -alphaAnt_slope / alphaAnt_quad,
+         d_vtx = -d_slope / d_quad,
+         DAnt_vtx = -DAnt_slope / DAnt_quad,
+         DPos_vtx = -DPos_slope / DPos_quad)
+```
+
 Save out the tree data. There is something subtly different about saving the data out as a csv file and saving it as an RDS file. The base class of the tree is tbl_tree, but when we load it back in from a csv, despite having exactly the same data, it won't work with the tidytree functions. So we save it in an RDS file, which preserves the class.
 ```{r}
 write_csv(vertdata_sp, here('Processed Data/vertdata_summary_lm_species.csv'))
@@ -155,14 +166,13 @@ vertdata_sp0 <-
 
 ```{r}
 var <- c(#'CBL_80', 'd_80', 'alphaAnt_80', 'alphaPos_80', 'DAnt_80', 'DPos_80', 
-         'CBL_max', 'd_max', 'alphaAnt_max', 'alphaPos_max', 'DAnt_max', 'DPos_max',
+         #'CBL_max', 'd_max', 'alphaAnt_max', 'alphaPos_max', 'DAnt_max', 'DPos_max',
          'CBL_mn', 'd_mn', 'alphaAnt_mn', 'alphaPos_mn', 'DAnt_mn', 'DPos_mn',
-         'CBL_med', 'd_med', 'alphaAnt_med', 'alphaPos_med', 'DAnt_med', 'DPos_med',
-         'dBW_mn', 'DAntBW_mn', 'DPosBW_mn')
-         #'dBW_slope', 'DAntBW_slope', 'DPosBW_slope',
-         #'dBW_quad', 'DAntBW_quad', 'DPosBW_quad',
+         #'CBL_med', 'd_med', 'alphaAnt_med', 'alphaPos_med', 'DAnt_med', 'DPos_med',
+         'fineness', 
          #'CBL_slope', 'd_slope', 'alphaAnt_slope', 'alphaPos_slope', 'DAnt_slope', 'DPos_slope', 
-         #'CBL_quad', 'd_quad', 'alphaAnt_quad', 'alphaPos_quad', 'DAnt_quad', 'DPos_quad')
+         'CBL_vtx', 'd_vtx', 'alphaAnt_vtx', 'alphaPos_vtx', 'DAnt_vtx', 'DPos_vtx',
+         'CBL_quad', 'd_quad', 'alphaAnt_quad', 'alphaPos_quad', 'DAnt_quad', 'DPos_quad')
          #'CBL_order', 'd_order', 'alphaAnt_order', 'alphaPos_order', 'DAnt_order', 'DPos_order')
 
 modeltests <- tibble()
@@ -181,8 +191,8 @@ for (i in seq_along(var)) {
 
 modeltests %>%
   dplyr::select(var, statistic, p.value, everything()) %>%
-  filter(p.value < 0.05) %>%
-  arrange(p.value)
+  filter(p.value < 0.05 | str_detect(var, "dBW")) %>%
+  arrange(var)
 ```
 ```{r}
 compare_habitats <- function(model) {
@@ -217,27 +227,23 @@ habitat_means <- function(model) {
 modeltests <-
   modeltests %>%
   dplyr::select(var, statistic, p.value, everything()) %>%
-  filter(p.value < 0.05) %>%
+  # filter(p.value < 0.05) %>%
   mutate(mc = purrr::map(model, compare_habitats)) %>%
   unnest(mc) %>%
   mutate(total_eff = abs(benthic_demersal_eff) + abs(benthic_pelagic_eff) + abs(demersal_pelagic_eff)) %>%
   mutate(hm = purrr::map(model, habitat_means)) %>%
   unnest(hm) %>%
   # filter(total_eff > 0.5) %>%
-  relocate(total_eff, .after = p.value) %>%
+  relocate(p.value, total_eff, ends_with("_p"), .after = var) %>%
   arrange(desc(total_eff))
 ```
 
 ```{r}
-modeltests
+modeltests %>%
+  filter(abs(benthic_demersal_eff) >= 0.2 | abs(benthic_pelagic_eff) >= 0.2 | abs(demersal_pelagic_eff) >= 0.2)
 ```
 ```{r}
-emmeans(modeltests$model[[5]], ~Habitat)
-```
-
-```{r}
-ggplot(vertdata_sp0, aes(x = Habitat, y = d_mn)) +
-  geom_point()
+emmeans(modeltests$model[[2]], ~Habitat)
 ```
 
 ```{r}
@@ -258,7 +264,7 @@ vertdata_long <-
   pivot_longer(cols = !Habitat & !Species, names_to = "var", values_to = "value") %>%
   left_join(
     modeltests %>%
-      select(var, total_eff), 
+      select(var, total_eff, p.value), 
     by = "var") %>%
   mutate(var = as.factor(var),
          var = fct_reorder(var, total_eff, .desc = TRUE))
@@ -268,7 +274,7 @@ vertdata_long <-
 Plot all the effects
 ```{r}
 vertdata_long %>%
-  filter(!is.na(var)) %>%
+  filter(!is.na(var) & p.value < 0.05) %>%
   ggplot(aes(x = Habitat, y = value, color = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
   stat_summary(fun.data = mean_sdl) +
