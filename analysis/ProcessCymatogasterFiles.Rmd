@@ -1,5 +1,5 @@
 ---
-title: "Process FCSV files"
+title: "Process FCSV files from Cymatogaster"
 output:
   html_document:
     df_print: paged
@@ -10,17 +10,13 @@ library(tidyverse)
 library(here)
 ```
 
-```{r}
-here(i_am('Code/ProcessFCSVfiles.Rmd'))
-```
-
 # Process Cymatogaster data
 
 Dana processed the Cymatogaster aggregata scans separately, so we need to add them to the MasterVert_Measuremenst file.
 
 They're in one file per vertebra:
 ```{r}
-datadir <- 'Scans/Cymatogaster'
+datadir <- 'data/Cymatogaster'
 vertfiles <- c('Cymatogaster_aggregata_30.fcsv',
            'Cymatogaster_aggregata_40.fcsv',
            'Cymatogaster_aggregata_50.fcsv',
