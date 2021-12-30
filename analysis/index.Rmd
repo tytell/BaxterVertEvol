@@ -17,15 +17,80 @@ Dana processed the data from Cymatogaster aggregata a bit later, so we have to m
 Input: `data/MasterVert_Measurements_old.csv`
 Output: `data/MasterVert_Measurements.csv`
 
-Here is the process to merge the Cymatogaster data: [](01-ProcessCymatogasterFiles.html).
+Here is the process to merge the Cymatogaster data: [01-ProcessCymatogasterFiles](01-ProcessCymatogasterFiles.html).
 
 
 # Matching species
 
 Species are distributed somewhat randomly throughout the bony fishes. We use the phylogeny from Betancur-R et al 2017. Not every species we digitized is in their tree. For most of them, we can use another species in the same genus, since we don't have many species in our data set that are in one genus.
 
-Input: `Raw Data/MasterVert_Measurements.csv`
-Output: `Processed Data/MasterVert_Measurements_Matched.csv`
+Input: `data/MasterVert_Measurements.csv`
+Output: `output/MasterVert_Measurements_Matched.csv`
    This contains all of the measurements for all of the vertebrae, but with a new set of columns for "MatchSpecies" and "MatchGenus", which are the matching species in the Betancur-R tree.
 
-This notebook checks the match between our species and the one in the tree: [](02-CheckSpeciesMatch.Rmd).
+This notebook checks the match between our species and the one in the tree: [02-CheckSpeciesMatch](02-CheckSpeciesMatch.html).
+
+# Summary data sets
+
+## Centering and taking maxes and medians
+
+Here, we take the data for each vertebra and produce summary values for each species. We first center the data set by finding the median value of any measurement for each vertebra across all of the species, then subtracting the actual value from that median.
+
+Input: `output/MasterVert_Measurements_Matched.csv`
+Output: 
+
+* `output/vertdata_centered.csv`: This contains the centered measurements
+* `output/vertdata_summary.csv`: This contains the summary maximum values and medians for each species
+
+[Notebook](03-summarize_vert_meas.html)
+
+
+## Fitting the data with linear models
+
+To represent the variation of the measurements along the vertebrae, we fit linear models to each measurement as a function of position along the body. Based on AIC, we use just an overall mean, a slope and a midpoint, or a quadratic fit.
+
+We use midpoint rather than intercept. Midpoint is the value at 80% of the way down the body. If we use intercept, we sometimes end up with negative values, which is weird.
+
+Input: `output/vertdata_centered.csv`,
+   `output/vertdata_summary.csv`
+Output: 
+
+* `output/vertdata_summary_lm.csv`: Contains the midpoint, slope, and quadratic coefficients as appropriate for each model.
+* `output/vertdata_summary_lm_models.Rds`: Same data, but storing the actual models in an Rds file.
+
+[Notebook](10-VertLM.html)
+
+# Statistics
+
+Here, we run the phylogenetic generalized least squares models to determine which variables differ among species.
+
+Input: `output/vertdata_centered.csv`,
+   `output/vertdata_summary.csv`
+Output: 
+
+* `output/vertdata_summary_lm_species.csv`: Contains the summary data with the matched tip and label from the phylogenetic tree
+* `output/vert_tree.rds`: The phylogeny containing just our species in RData format. The CSV export wasn't working properly for tree data
+
+[Notebook](11-VertPGLS.html)
+
+# Figures
+
+## Figure 1: Shows the phylogeny and several example vertabrae.
+
+This produces the phylogeny.
+
+[Notebook](20-plot_phylogeny.html)
+
+## Figure 2, 3
+
+Figures showing the overall mean for foramen diameter, posterior cone angle, and centrum body length, along with the distribution of the parameters along the body.
+
+Also generates the stats table.
+
+[Notebook](21-plot_fits_and_summary.html)
+
+## Figure 4
+
+Plots the relationship among pairs of species that differ in habitat.
+
+[Notebook](22-VertPairs.html)
