@@ -1,0 +1,10 @@
+# Markups fiducial file version = 4.10
+# CoordinateSystem = 0
+# columns = id,x,y,z,ow,ox,oy,oz,vis,sel,lock,label,desc,associatedNodeID
+vtkMRMLMarkupsFiducialNode_29,-75.244,-230.760,813.167,0.000,0.000,0.000,1.000,1,1,0,Cymatogaster_aggregata_60-2,,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_30,-94.689,-230.760,814.735,0.000,0.000,0.000,1.000,1,1,0,Cymatogaster_aggregata_60-3,,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_31,-76.969,-230.760,788.547,0.000,0.000,0.000,1.000,1,1,0,Cymatogaster_aggregata_60-4,,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_32,-96.100,-230.760,788.704,0.000,0.000,0.000,1.000,1,1,0,Cymatogaster_aggregata_60-5,,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_33,-85.907,-230.760,801.092,0.000,0.000,0.000,1.000,1,1,0,Cymatogaster_aggregata_60-6,,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_34,-88.887,-230.760,801.406,0.000,0.000,0.000,1.000,1,1,0,Cymatogaster_aggregata_60-7,,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_35,-83.242,-230.760,801.092,0.000,0.000,0.000,1.000,1,1,0,Cymatogaster_aggregata_60-8,,vtkMRMLScalarVolumeNode1
