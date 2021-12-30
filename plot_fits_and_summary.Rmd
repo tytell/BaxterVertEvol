@@ -8,6 +8,7 @@ library(tidyverse)
 library(ggbeeswarm)
 library(patchwork)
 library(emmeans)
+library(gt)
 library(here)
 ```
 
@@ -17,7 +18,7 @@ here(i_am("Code/plot_fits_and_summary.Rmd"))
 
 ```{r}
 vertdata <- read_csv(here("Processed Data/vertdata_summary_lm_species.csv"))
-models <- readRDS(here('Processed Data/vertdata_summary_lm_models.Rds'))
+PGLSmodels <- readRDS(here('Processed Data/PGLSmodels.Rds'))
 vertdata_all <- read_csv(here("Processed Data/vertdata_centered.csv"))
 modeltests <- read_csv(here("Processed Data/modeltests.csv"))
 ```
@@ -399,6 +400,84 @@ ggsave(here('Figures/BodyDistribution.pdf'), width = 3, units = "in")
 ```
 
 ```{r}
+PGLSmodels
+```
 
+
+```{r}
+tab <-
+  PGLSmodels %>%
+  select(var, statistic, p.value, ends_with("eff"), -total_eff) %>%
+  separate(var, into = c("var", "posstat")) %>%
+  mutate(posstat = if_else(var == "fineness", "mn", posstat)) %>%
+  # group_by(var) %>%
+  # group_modify(~ add_row(.x,.before=0)) %>%
+  # mutate(posstat = if_else(is.na(posstat), "x", posstat)) %>%
+  mutate(posstat = factor(posstat, levels = c("x", "mn", "vtx", "quad")),
+         posstat = fct_recode(posstat, x = "x", mean = "mn", vertex = "vtx", "quad. coef." = "quad")) %>%
+  ungroup() %>%
+  mutate(var = case_when(
+    var == "alphaAnt"   ~   "Anterior cone angle",
+    var == "alphaPos"   ~   "Posterior cone angle",
+    var == "CBL"   ~   "Centrum body length",
+    var == "DAnt"   ~   "Anterior cone diameter",
+    var == "DPos"   ~   "Posterior cone diameter",
+    var == "d"   ~   "Foramen diameter",
+    var == "fineness"   ~   "Fineness"
+  )) %>%
+  arrange(var, posstat) %>%
+  gt(
+    groupname_col = "var",
+    rowname_col = "posstat"
+  ) %>%
+  fmt_number(
+    columns = "statistic",
+    suffixing = FALSE,
+    n_sigfig = 2
+  ) %>%
+  fmt_number(
+    columns = "p.value",
+    decimals = 3
+  ) %>%
+  fmt_number(
+    columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff"),
+    decimals = 2,
+    force_sign = TRUE
+  ) %>%
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = p.value < 0.05)
+  ) %>%
+  cols_label(
+    var = md("Measurement"),
+    posstat = "",
+    statistic = md("F2,74"),
+    p.value = md("p"),
+    benthic_demersal_eff = md("b - d"),
+    benthic_pelagic_eff = md("b - p"),
+    demersal_pelagic_eff = md("d - p")
+  ) %>%
+  tab_style(
+    locations = cells_column_labels(columns = c("var", "posstat", "statistic", "p.value")),
+    style = cell_text(v_align = "middle",
+                      align = "center")
+  ) %>%
+  tab_stubhead("Measurement") %>%
+  tab_style(
+    locations = cells_stubhead(),
+    style = cell_text(v_align = "middle")
+  ) %>%
+  tab_spanner(
+    label = "Effect sizes",
+    columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff")
+  ) %>%
+  fmt_missing(columns = 1:7,
+              missing_text = "")
+
+tab
+```
+
+```{r}
+gtsave(tab, here("Figures/stats_table.rtf"))
 ```
 

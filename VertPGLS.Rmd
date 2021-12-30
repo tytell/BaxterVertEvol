@@ -9,9 +9,6 @@ output:
 library(tidyverse)
 library(ggbeeswarm)
 library(phytools)
-library(FactoMineR)
-library(factoextra)
-library(GGally)
 library(patchwork)
 library(here)
 library(nlme)
@@ -21,6 +18,25 @@ library(ggtree)
 library(emmeans)
 library(car)
 library(Hmisc)
+```
+
+```{r}
+citation()
+print(getRversion())
+```
+
+```{r}
+citation("nlme")
+packageVersion("nlme")
+```
+```{r}
+citation("ape")
+packageVersion("ape")
+```
+
+```{r}
+citation("geiger")
+packageVersion("geiger")
 ```
 
 # Load data
@@ -178,6 +194,7 @@ var <- c(#'CBL_80', 'd_80', 'alphaAnt_80', 'alphaPos_80', 'DAnt_80', 'DPos_80',
 modeltests <- tibble()
 
 for (i in seq_along(var)) {
+  print(var[i])
   fmla <- as.formula(paste(var[i], "Habitat", sep = " ~ "))
   mod <- gls(fmla, correlation = corBrownian(1, phy = verttree, form = ~FullName),
                       data = vertdata_sp0, method = "ML")
@@ -194,6 +211,7 @@ modeltests %>%
   filter(p.value < 0.05 | str_detect(var, "dBW")) %>%
   arrange(var)
 ```
+
 ```{r}
 compare_habitats <- function(model) {
   emm <- emmeans(model, ~Habitat)
@@ -252,6 +270,7 @@ sigvars <- pull(modeltests, var)
 
 ```{r}
 write_csv(modeltests, here("Processed Data/modeltests.csv"))
+saveRDS(modeltests, here("Processed Data/PGLSmodels.Rds"))
 ```
 
 ## Mean plots with stats

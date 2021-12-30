@@ -122,6 +122,41 @@ p1 <- pairplot(pairslong, "d_mn") +
 p1 / p2 + plot_layout(guides = 'collect') & theme(legend.position = "bottom")
 ```
 ```{r}
+pairslong %>%
+  filter(var == "d_mn") %>%
+  filter(diffhab) %>%
+  group_by(change, parent) %>%
+  summarize(change = first(change)) %>%
+  summarize(n = n(), pct = n()/13 * 100)
+```
+```{r}
+pairslong %>%
+  filter(var == "d_mn") %>%
+  filter(!diffhab) %>%
+  group_by(change, parent) %>%
+  summarize(change = first(change)) %>%
+  summarize(n = n(), pct = n()/13 * 100)
+```
+
+```{r}
+pairslong %>%
+  filter(var == "alphaPos_mn") %>%
+  filter(diffhab) %>%
+  group_by(change, parent) %>%
+  summarize(change = first(change)) %>%
+  summarize(n = n(), pct = n()/13 * 100)
+```
+```{r}
+pairslong %>%
+  filter(var == "alphaPos_mn") %>%
+  filter(!diffhab) %>%
+  group_by(change, parent) %>%
+  summarize(change = first(change)) %>%
+  summarize(n = n(), pct = n()/13 * 100)
+```
+
+
+```{r}
 ggsave(here('Figures/pair_plot.pdf'), width=3, units="in")
 ```
 
