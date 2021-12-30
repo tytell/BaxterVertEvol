@@ -179,7 +179,7 @@ coordswide <-
 # Merge with other data file
 
 ```{r}
-vertmeasdata <- read_csv(here('Raw Data/MasterVert_Measurements_old.csv'))
+vertmeasdata <- read_csv(here('data/MasterVert_Measurements_old.csv'))
 head(vertmeasdata)
 ```
 
@@ -226,6 +226,6 @@ vertmeasdata <-
 ```
 
 ```{r}
-write_csv(vertmeasdata, here('Raw Data/MasterVert_Measurements.csv'))
+write_csv(vertmeasdata, here('output/MasterVert_Measurements.csv'))
 ```
 

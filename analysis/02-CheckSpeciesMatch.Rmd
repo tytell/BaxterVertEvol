@@ -12,14 +12,10 @@ library(here)
 
 # Load data
 
-```{r}
-here(i_am("Code/CheckSpeciesMatch.Rmd"))
-```
-
 ## Vertebral measurements
 
 ```{r}
-fullvertmeas <- read_csv(here('Raw Data', "MasterVert_Measurements.csv")) %>%
+fullvertmeas <- read_csv(here('data', "MasterVert_Measurements.csv")) %>%
   separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_")
 fullvertmeas
 ```
@@ -33,7 +29,7 @@ fullvertmeas %>%
 
 This is the whole Betancur-R tree.
 ```{r}
-tree <- read.tree(here('Raw Data', '12862_2017_958_MOESM2_ESM.tre'))
+tree <- read.tree(here('data', '12862_2017_958_MOESM2_ESM.tre'))
 ```
 
 Get the names of species from the tree.
@@ -168,7 +164,7 @@ fullvertmeas_matched <-
 
 And write it out!
 ```{r}
-write_csv(fullvertmeas_matched, here('Processed Data', "MasterVert_Measurements_Matched.csv"))
+write_csv(fullvertmeas_matched, here('output', "MasterVert_Measurements_Matched.csv"))
 ```
 
 
@@ -176,7 +172,7 @@ write_csv(fullvertmeas_matched, here('Processed Data', "MasterVert_Measurements_
 
 Load in the matched data set.
 ```{r}
-fullvertmeas <- read_csv(here('Processed Data', "MasterVert_Measurements_Matched.csv")) %>%
+fullvertmeas <- read_csv(here('output', "MasterVert_Measurements_Matched.csv")) %>%
   separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
   relocate(MatchGenus, MatchSpecies, .after=Species)
 fullvertmeas
