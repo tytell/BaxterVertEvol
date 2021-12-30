@@ -5,6 +5,7 @@ output: html_notebook
 
 ```{r setup}
 library(tidyverse)
+library(emmeans)
 library(ggbeeswarm)
 library(patchwork)
 library(here)
@@ -13,11 +14,7 @@ library(here)
 # Load data
 
 ```{r}
-here(i_am('Code/VertLM.Rmd'))
-```
-
-```{r}
-vertdata <- read_csv(here("Processed Data/vertdata_centered.csv"))
+vertdata <- read_csv(here("output/vertdata_centered.csv"))
 
 head(vertdata)
 ```
@@ -99,7 +96,7 @@ models <-
 ```
 
 ```{r}
-saveRDS(models, here('Processed Data/vertdata_summary_lm_models.Rds'))
+saveRDS(models, here('output/vertdata_summary_lm_models.Rds'))
 ```
 
 Now pivot the frame back wider so that each variable with its mean, slope, and quadratic term, are stored in columns.
@@ -119,7 +116,7 @@ head(vertdata_lm)
 # Join with the summary data
 
 ```{r}
-vertdata_summary <- read_csv(here("Processed Data/vertdata_summary.csv"))
+vertdata_summary <- read_csv(here("output/vertdata_summary.csv"))
 ```
 For any species with multiple individuals, just take the first one.
 ```{r}
@@ -137,7 +134,7 @@ vertdata_summary_lm <-
 
 
 ```{r}
-write_csv(vertdata_summary_lm, here("Processed Data/vertdata_summary_lm.csv"))
+write_csv(vertdata_summary_lm, here("output/vertdata_summary_lm.csv"))
 ```
 
 # Plot the fits

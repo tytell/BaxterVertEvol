@@ -42,18 +42,14 @@ packageVersion("geiger")
 # Load data
 
 ```{r}
-here(i_am('Code/VertPGLS.Rmd'))
-```
-
-```{r}
-vertdata_sum <- read_csv(here("Processed Data/vertdata_summary_lm.csv"))
+vertdata_sum <- read_csv(here("output/vertdata_summary_lm.csv"))
 ```
 
 ## Phylogeny
 
 This is the whole Betancur-R tree.
 ```{r}
-tree <- read.tree(here('Raw Data/12862_2017_958_MOESM2_ESM.tre'))
+tree <- read.tree(here('data/12862_2017_958_MOESM2_ESM.tre'))
 ```
 
 Get the names of species from the tree.
@@ -167,8 +163,8 @@ vertdata_sp <-
 
 Save out the tree data. There is something subtly different about saving the data out as a csv file and saving it as an RDS file. The base class of the tree is tbl_tree, but when we load it back in from a csv, despite having exactly the same data, it won't work with the tidytree functions. So we save it in an RDS file, which preserves the class.
 ```{r}
-write_csv(vertdata_sp, here('Processed Data/vertdata_summary_lm_species.csv'))
-saveRDS(verttree, here('Processed Data/vert_tree.rds'))
+write_csv(vertdata_sp, here('output/vertdata_summary_lm_species.csv'))
+saveRDS(verttree, here('output/vert_tree.rds'))
 ```
 
 ## PGLS Analysis for means, maxes, medians, and 80%
@@ -269,8 +265,8 @@ sigvars <- pull(modeltests, var)
 ```
 
 ```{r}
-write_csv(modeltests, here("Processed Data/modeltests.csv"))
-saveRDS(modeltests, here("Processed Data/PGLSmodels.Rds"))
+write_csv(modeltests, here("output/modeltests.csv"))
+saveRDS(modeltests, here("output/PGLSmodels.Rds"))
 ```
 
 ## Mean plots with stats

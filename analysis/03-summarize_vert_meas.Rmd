@@ -15,14 +15,10 @@ library(here)
 
 # Load data
 
-```{r}
-here(i_am("Code/summarize_vert_meas.Rmd"))
-```
-
 ## Vertebral measurements
 
 ```{r}
-vertdata <- read_csv(here('Processed Data', "MasterVert_Measurements_Matched.csv")) %>%
+vertdata <- read_csv(here('output', "MasterVert_Measurements_Matched.csv")) %>%
   separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
   relocate(MatchGenus, MatchSpecies, .after=Species) %>%
   rename(alphaPos = alpha_Pos,
@@ -142,7 +138,7 @@ vertdata2 %>%
 ```
 
 ```{r}
-write_csv(vertdata2, here('Processed Data', "vertdata_centered.csv"))
+write_csv(vertdata2, here('output', "vertdata_centered.csv"))
 ```
 
 
@@ -230,5 +226,5 @@ vertdata_summary %>%
 ```
 
 ```{r}
-write_csv(vertdata_summary, here("Processed Data", "vertdata_summary.csv"))
+write_csv(vertdata_summary, here("output", "vertdata_summary.csv"))
 ```

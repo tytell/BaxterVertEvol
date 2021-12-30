@@ -1,5 +1,5 @@
 ---
-title: "Home"
+title: "Baxter 2022 vertebrae analysis"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -8,4 +8,24 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+# Raw data
+
+The initial measurements were made by Dana Baxter by clicking points on vertebrae from CT scans. The measurements are in `MasterVert_Measurements_old.csv`.
+
+Dana processed the data from Cymatogaster aggregata a bit later, so we have to merge it into the main data set.
+
+Input: `data/MasterVert_Measurements_old.csv`
+Output: `data/MasterVert_Measurements.csv`
+
+Here is the process to merge the Cymatogaster data: [](01-ProcessCymatogasterFiles.html).
+
+
+# Matching species
+
+Species are distributed somewhat randomly throughout the bony fishes. We use the phylogeny from Betancur-R et al 2017. Not every species we digitized is in their tree. For most of them, we can use another species in the same genus, since we don't have many species in our data set that are in one genus.
+
+Input: `Raw Data/MasterVert_Measurements.csv`
+Output: `Processed Data/MasterVert_Measurements_Matched.csv`
+   This contains all of the measurements for all of the vertebrae, but with a new set of columns for "MatchSpecies" and "MatchGenus", which are the matching species in the Betancur-R tree.
+
+This notebook checks the match between our species and the one in the tree: [](02-CheckSpeciesMatch.Rmd).

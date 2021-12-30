@@ -13,14 +13,10 @@ library(here)
 ```
 
 ```{r}
-here(i_am("Code/plot_fits_and_summary.Rmd"))
-```
-
-```{r}
-vertdata <- read_csv(here("Processed Data/vertdata_summary_lm_species.csv"))
-PGLSmodels <- readRDS(here('Processed Data/PGLSmodels.Rds'))
-vertdata_all <- read_csv(here("Processed Data/vertdata_centered.csv"))
-modeltests <- read_csv(here("Processed Data/modeltests.csv"))
+vertdata <- read_csv(here("output/vertdata_summary_lm_species.csv"))
+PGLSmodels <- readRDS(here('output/PGLSmodels.Rds'))
+vertdata_all <- read_csv(here("output/vertdata_centered.csv"))
+modeltests <- read_csv(here("output/modeltests.csv"))
 ```
 
 ```{r}
@@ -224,7 +220,7 @@ alphaPos_mn_panel / d_mn_panel / CBL_mn_panel / vertshape_panel +
 ```
 
 ```{r}
-ggsave(here('Figures/mean_d_alphaPos_CBL.pdf'), width = 3, units = "in")
+ggsave(here('output/mean_d_alphaPos_CBL.pdf'), width = 3, units = "in")
 ```
 
 # Distribution along the body
@@ -396,7 +392,7 @@ alphaPosvPosPanel / dvPosPanel / CBLvPosPanel + plot_annotation(tag_levels = 'A'
         panel.border = element_blank(), axis.line = element_line())
 ```
 ```{r}
-ggsave(here('Figures/BodyDistribution.pdf'), width = 3, units = "in")
+ggsave(here('output/BodyDistribution.pdf'), width = 3, units = "in")
 ```
 
 ```{r}
@@ -478,6 +474,6 @@ tab
 ```
 
 ```{r}
-gtsave(tab, here("Figures/stats_table.rtf"))
+gtsave(tab, here("output/stats_table.rtf"))
 ```
 

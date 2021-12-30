@@ -13,17 +13,13 @@ library(ggtree)
 library(plotly)
 ```
 
-```{r}
-here(i_am('Code/plot_phylogeny.Rmd'))
-```
-
 ## Figure 1
 
 For this figure, we need to identify three species from the three habitat classes that have clearly different vertebrae.
 
 ```{r}
-vertdata <- read_csv(here('Processed Data/vertdata_summary_lm_species.csv'))
-pairs <- read_csv(here('Processed Data/vertdata_pairs.csv'))
+vertdata <- read_csv(here('output/vertdata_summary_lm_species.csv'))
+pairs <- read_csv(here('output/vertdata_pairs.csv'))
 ```
 
 ```{r}
@@ -57,7 +53,7 @@ examplespecies <- list("Myoxocephalus_polyacanthocephalus",
 ```
 
 ```{r}
-verttree <- readRDS(here('Processed Data/vert_tree.rds'))
+verttree <- readRDS(here('output/vert_tree.rds'))
 ```
 
 ```{r}
@@ -95,7 +91,7 @@ left_join(as_tibble(verttree), vertdata, by = c("label" = "FullName")) %>%
   #geom_label2(aes(label='P', subset = ispair))
 ```
 ```{r}
-ggsave(here('Figures/plot_example_data_figure.pdf'), width=3.5, height=6, units="in")
+ggsave(here('output/plot_example_data_figure.pdf'), width=3.5, height=6, units="in")
 ```
 
 

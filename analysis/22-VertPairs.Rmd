@@ -5,20 +5,17 @@ output:
     df_print: paged
 ---
 
-```{r}
+```{r setup}
 library(tidyverse)
 library(patchwork)
+library(ggtree)
 library(here)
 ```
 
-```{r}
-here(i_am('Code/VertPairs.Rmd'))
-```
-
 
 ```{r}
-verttree <- readRDS(here('Processed Data/vert_tree.rds'))
-verttree_data <- read_csv(here('Processed Data/vertdata_summary_lm_species.csv'))
+verttree <- readRDS(here('output/vert_tree.rds'))
+verttree_data <- read_csv(here('output/vertdata_summary_lm_species.csv'))
 ```
 ```{r}
 verttree_data <-
@@ -157,11 +154,11 @@ pairslong %>%
 
 
 ```{r}
-ggsave(here('Figures/pair_plot.pdf'), width=3, units="in")
+ggsave(here('output/pair_plot.pdf'), width=3, units="in")
 ```
 
 
 ```{r}
-write_csv(pairs, here('Processed Data/vertdata_pairs.csv'))
+write_csv(pairs, here('output/vertdata_pairs.csv'))
 ```
 
