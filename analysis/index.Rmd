@@ -1,5 +1,5 @@
 ---
-title: "Baxter 2022 vertebrae analysis"
+title: "Baxter et al 2022 vertebrae analysis"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -7,6 +7,18 @@ output:
 editor_options:
   chunk_output_type: console
 ---
+
+# Internal vertebral morphology of bony fishes matches the mechanical demands of different environments
+
+Dana Baxter$^1$   |    Karly E. Cohen$^3$   |   Cassandra M. Donatelli$^2$   |    Eric D. Tytell$^1$
+
+$^1$Tufts University, Department of Biology
+$^2$University of Ottawa, Department of Biology
+$^3$University of Washington, Friday Harbor Labs
+
+Submitted to _Ecology and Evolution_ April 12, 2022.
+
+[Abstract](about.html)
 
 # Raw data
 
