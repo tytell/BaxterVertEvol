@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>R Notebook</title>
+
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Code</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/tytell/BaxterVertEvol">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">R Notebook</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-04-11
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>Code/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20211230code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20211230)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20211230code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20211230)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Flexibility Comparisons.nb.html
+    Ignored:    Main.nb.html
+    Ignored:    PGLS.FullData.nb.html
+    Ignored:    PGLSforeachMeasFeature.nb.html
+    Ignored:    PGLSwithPCA_Dims.nb.html
+    Ignored:    PreppedVertMeas.nb.html
+    Ignored:    ProcessCymatogasterFiles.nb.html
+    Ignored:    ProcessFCSVfiles.nb.html
+    Ignored:    TestingHabitatwithFriedmanData.nb.html
+    Ignored:    Trilok_tree.nb.html
+    Ignored:    VertLM.nb.html
+    Ignored:    VertMeasLDA_Attempt.nb.html
+    Ignored:    VertPGLS.nb.html
+    Ignored:    VertPairs.nb.html
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/10-VertLM.nb.html
+    Ignored:    analysis/20-plot_phylogeny.nb.html
+    Ignored:    analysis/21-plot_fits_and_summary.nb.html
+    Ignored:    analysis/CheckSpeciesMatch.nb.html
+    Ignored:    caper_test.nb.html
+    Ignored:    data/.DS_Store
+    Ignored:    ggtree_attempt.nb.html
+    Ignored:    plot_example_data.nb.html
+    Ignored:    plot_fits_and_summary.nb.html
+    Ignored:    plot_phylogeny.nb.html
+    Ignored:    renv/library/
+    Ignored:    renv/staging/
+    Ignored:    summarize_vert_meas.nb.html
+    Ignored:    test_phylogeny.nb.html
+    Ignored:    test_vertebraspace.nb.html
+    Ignored:    vert_evol.Rproj
+
+Untracked files:
+    Untracked:  Main.html
+    Untracked:  ProcessFCSVfiles.Rmd
+    Untracked:  VertPGLS.html
+    Untracked:  gg_saver.R
+    Untracked:  output/BodyDistribution.pdf
+    Untracked:  output/MasterVert_Measurements.csv
+    Untracked:  output/mean_d_alphaPos_CBL.pdf
+    Untracked:  output/pair_plot.pdf
+    Untracked:  output/plot_example_data_figure.pdf
+    Untracked:  output/stats_table.rtf
+    Untracked:  plot_fits_and_summary.Rmd
+    Untracked:  summarize_vert_meas.html
+    Untracked:  testtree.csv
+    Untracked:  vert_tree.csv
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/10-VertLM.Rmd</code>) and HTML (<code>docs/10-VertLM.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/23908bd4e6e24d389ba137373d7d60c262968ccf/analysis/10-VertLM.Rmd" target="_blank">23908bd</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Test site build again
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/edeae3c58db615477cae99bae2ff1e4b01b09b5d/analysis/10-VertLM.Rmd" target="_blank">edeae3c</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Rename notebooks to indicate order
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+✓ tibble  3.1.4     ✓ dplyr   1.0.7
+✓ tidyr   1.1.3     ✓ stringr 1.4.0
+✓ readr   2.0.1     ✓ forcats 0.5.1</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(emmeans)
+library(ggbeeswarm)
+library(patchwork)
+library(here)</code></pre>
+<pre><code>here() starts at /Users/etytel01/Documents/Vertebrae/Code</code></pre>
+<div id="load-data" class="section level1">
+<h1>Load data</h1>
+<pre class="r"><code>vertdata &lt;- read_csv(here(&quot;output/vertdata_centered.csv&quot;))</code></pre>
+<pre><code>Rows: 571 Columns: 71</code></pre>
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (17): Species, MatchGenus, MatchSpecies, Family, BodyShape, Habitat_Init...
+dbl (54): Indiv, Pos, SL, CBL_old_raw, alpha_Pos_raw, d_raw, D_Pos_raw, alph...</code></pre>
+<pre><code>
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>head(vertdata)</code></pre>
+<pre><code># A tibble: 6 × 71
+  Species          MatchGenus MatchSpecies Family Indiv   Pos    SL CBL_old_raw
+  &lt;chr&gt;            &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;
+1 Alectis_ciliaris Alectis    ciliaris     &lt;NA&gt;       1   0.4   799        24.9
+2 Alectis_ciliaris Alectis    ciliaris     &lt;NA&gt;       1   0.5   799        34.4
+3 Alectis_ciliaris Alectis    ciliaris     &lt;NA&gt;       1   0.6   799        35.8
+4 Alectis_ciliaris Alectis    ciliaris     &lt;NA&gt;       1   0.7   799        36.6
+5 Alectis_ciliaris Alectis    ciliaris     &lt;NA&gt;       1   0.8   799        35.2
+6 Alectis_ciliaris Alectis    ciliaris     &lt;NA&gt;       1   0.9   799        32.8
+# … with 63 more variables: alpha_Pos_raw &lt;dbl&gt;, d_raw &lt;dbl&gt;, D_Pos_raw &lt;dbl&gt;,
+#   alpha_Ant_raw &lt;dbl&gt;, D_Ant_raw &lt;dbl&gt;, CBL_old &lt;dbl&gt;, alphaPos &lt;dbl&gt;,
+#   d &lt;dbl&gt;, DPos &lt;dbl&gt;, alphaAnt &lt;dbl&gt;, DAnt &lt;dbl&gt;, Pt1x &lt;dbl&gt;, Pt1y &lt;dbl&gt;,
+#   Pt2x &lt;dbl&gt;, Pt2y &lt;dbl&gt;, Pt3x &lt;dbl&gt;, Pt3y &lt;dbl&gt;, Pt4x &lt;dbl&gt;, Pt4y &lt;dbl&gt;,
+#   Pt5x &lt;dbl&gt;, Pt5y &lt;dbl&gt;, Pt6x &lt;dbl&gt;, Pt6y &lt;dbl&gt;, Pt7x &lt;dbl&gt;, Pt7y &lt;dbl&gt;,
+#   BodyShape &lt;chr&gt;, Habitat_Initial &lt;chr&gt;, Habitat_Friedman &lt;chr&gt;,
+#   Habitat_FishBase &lt;chr&gt;, Habitat &lt;chr&gt;, Water_Type &lt;chr&gt;, Max_BW_mm &lt;dbl&gt;, …</code></pre>
+</div>
+<div id="fit-quadratic-curves-to-everything" class="section level1">
+<h1>Fit quadratic curves to everything</h1>
+<p>Function to get the coefficients from an <code>lm</code> type model and rename them appropriately.</p>
+<pre class="r"><code>get_coefs &lt;- function(model) {
+  c &lt;- data.frame(coef(model)) %&gt;%
+    rownames_to_column(&quot;term&quot;) %&gt;%
+    mutate(term = case_when(term == &quot;(Intercept)&quot;  ~  &quot;int&quot;,
+                            term == &quot;Pos&quot;  ~  &quot;slope&quot;,
+                            term == &quot;I(Pos^2)&quot;  ~  &quot;quad&quot;)) %&gt;%
+    rename(coef = coef.model.) %&gt;%
+    pivot_wider(names_from = term, values_from = coef)
+  if (model$rank &gt; 1) {
+    emm &lt;- as.data.frame(emmeans(model, specs = ~Pos, at = list(Pos = 0.8)))
+  } else {
+    emm &lt;- as.data.frame(emmeans(model, specs = ~1))
+  }
+  c$`80` = emm$emmean
+  c
+}</code></pre>
+<p>First, pivot the data frame so that each of the variables are stacked in one column, so that we can fit the pattern for each variable in one go.</p>
+<pre class="r"><code>vertdata_lm &lt;-
+  vertdata %&gt;%
+  select(Species, Indiv, Pos,
+         d, CBL, alphaPos, alphaAnt, DPos, DAnt,
+         dBW, DAntBW, DPosBW, d_normCBL, d_normD, Iratio) %&gt;%
+  mutate(Pos = as.numeric(as.character(Pos))) %&gt;%
+  pivot_longer(c(d, CBL, alphaPos, alphaAnt, DPos, DAnt, dBW, DAntBW, DPosBW, d_normCBL, d_normD, Iratio), 
+               names_to = &quot;var&quot;, values_to = &quot;value&quot;)</code></pre>
+<p>Next, for each species and variable, fit models with just an intercept, a slope, or a quadratic term.</p>
+<pre class="r"><code>vertdata_lm &lt;-
+  vertdata_lm %&gt;%
+  group_by(Species, var) %&gt;%
+  nest() %&gt;%
+  mutate(model0 = purrr::map(data, ~lm(value ~ 1, data = .x)),
+         model1 = purrr::map(data, ~lm(value ~ Pos, data = .x)),
+         model2 = purrr::map(data, ~lm(value ~ Pos + I(Pos^2), data = .x)))</code></pre>
+<p>Now pivot the frame even longer so that the models are stacked and are identified by order. Then run through all the models and extract the AIC.</p>
+<pre class="r"><code>vertdata_lm &lt;- 
+  vertdata_lm %&gt;%
+  select(-data) %&gt;%
+  pivot_longer(contains(&quot;model&quot;), names_to = &quot;order&quot;, values_to = &quot;model&quot;) %&gt;%
+  mutate(order = str_extract(order, &#39;[0-9]&#39;)) %&gt;%
+  group_by(Species, var) %&gt;%
+  mutate(fit = purrr::map(model, broom::glance)) %&gt;%
+  unnest(fit) %&gt;%
+  select(Species:model, AIC)
+
+head(vertdata_lm)</code></pre>
+<pre><code># A tibble: 6 × 5
+# Groups:   Species, var [2]
+  Species          var   order model    AIC
+  &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt; &lt;list&gt; &lt;dbl&gt;
+1 Alectis_ciliaris d     0     &lt;lm&gt;   -56.5
+2 Alectis_ciliaris d     1     &lt;lm&gt;   -69.0
+3 Alectis_ciliaris d     2     &lt;lm&gt;   -71.0
+4 Alectis_ciliaris CBL   0     &lt;lm&gt;   -43.3
+5 Alectis_ciliaris CBL   1     &lt;lm&gt;   -43.7
+6 Alectis_ciliaris CBL   2     &lt;lm&gt;   -49.6</code></pre>
+<p>Then, group by each species and variable, extract the model with the lowest AIC, and pull out the coefficients of that model. This may give us just a midpoint, a midpoint and a slope, or a midpoint, slope, and quadratic term. By “midpoint”, I mean the estimated marginal value at 80% of the length of the body, which we use instead of an intercept or an overall mean. The intercept can be hard to interpret, particularly for the quadratic models, and the overall mean is sometimes a bit weird if we have more points for some fish than others.</p>
+<pre class="r"><code>vertdata_lm &lt;-
+  vertdata_lm %&gt;%
+  group_by(Species, var) %&gt;%
+  filter(order == 2) %&gt;% # AIC == min(AIC)) %&gt;%
+  mutate(coefs = purrr::map(model, get_coefs)) %&gt;%
+  unnest(coefs)</code></pre>
+<pre class="r"><code>models &lt;-
+  distinct(vertdata_lm, Species, var, .keep_all = TRUE)</code></pre>
+<pre class="r"><code>saveRDS(models, here(&#39;output/vertdata_summary_lm_models.Rds&#39;))</code></pre>
+<p>Now pivot the frame back wider so that each variable with its mean, slope, and quadratic term, are stored in columns.</p>
+<pre class="r"><code>vertdata_lm &lt;-
+  models %&gt;%
+  select(Species, var, order, `80`, slope, quad) %&gt;%
+  pivot_wider(names_from = &quot;var&quot;, names_glue = &quot;{var}_{.value}&quot;,
+              values_from = c(`80`, slope, quad, order))</code></pre>
+<pre class="r"><code>head(vertdata_lm)</code></pre>
+<pre><code># A tibble: 6 × 49
+# Groups:   Species [6]
+  Species           d_80  CBL_80 alphaPos_80 alphaAnt_80 DPos_80 DAnt_80  dBW_80
+  &lt;chr&gt;            &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+1 Alectis_cilia… 7.81e-4 0.0359         74.7        73.9  0.0273  0.0275 0.00697
+2 Amia_calva     6.38e-3 0.00754       131.        133.   0.0158  0.0165 0.0430 
+3 Anoplogaster_… 8.07e-4 0.0272         61.3        68.6  0.0172  0.0182 0.00412
+4 Aphareus_furca 9.94e-4 0.0324         62.5        65.4  0.0216  0.0219 0.00501
+5 Catostomus_ca… 2.57e-3 0.0168         88.8        87.4  0.0162  0.0165 0.0145 
+6 Cephalopholis… 2.54e-3 0.0322         56.8        60.4  0.0172  0.0194 0.0164 
+# … with 41 more variables: DAntBW_80 &lt;dbl&gt;, DPosBW_80 &lt;dbl&gt;,
+#   d_normCBL_80 &lt;dbl&gt;, d_normD_80 &lt;dbl&gt;, Iratio_80 &lt;dbl&gt;, d_slope &lt;dbl&gt;,
+#   CBL_slope &lt;dbl&gt;, alphaPos_slope &lt;dbl&gt;, alphaAnt_slope &lt;dbl&gt;,
+#   DPos_slope &lt;dbl&gt;, DAnt_slope &lt;dbl&gt;, dBW_slope &lt;dbl&gt;, DAntBW_slope &lt;dbl&gt;,
+#   DPosBW_slope &lt;dbl&gt;, d_normCBL_slope &lt;dbl&gt;, d_normD_slope &lt;dbl&gt;,
+#   Iratio_slope &lt;dbl&gt;, d_quad &lt;dbl&gt;, CBL_quad &lt;dbl&gt;, alphaPos_quad &lt;dbl&gt;,
+#   alphaAnt_quad &lt;dbl&gt;, DPos_quad &lt;dbl&gt;, DAnt_quad &lt;dbl&gt;, dBW_quad &lt;dbl&gt;, …</code></pre>
+</div>
+<div id="join-with-the-summary-data" class="section level1">
+<h1>Join with the summary data</h1>
+<pre class="r"><code>vertdata_summary &lt;- read_csv(here(&quot;output/vertdata_summary.csv&quot;))</code></pre>
+<pre><code>Rows: 83 Columns: 43</code></pre>
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (5): Species, Habitat, Water_Type, MatchSpecies, MatchGenus
+dbl (38): Indiv, fineness, CBL_med, CBL_max, CBL_mn, d_med, d_max, d_mn, alp...</code></pre>
+<pre><code>
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>For any species with multiple individuals, just take the first one.</p>
+<pre class="r"><code>vertdata_summary &lt;-
+  vertdata_summary %&gt;%
+  filter(Indiv == 1) %&gt;%
+  select(-Indiv)</code></pre>
+<p>And finally, join this data frame with the earlier one that has the maxima and medians.</p>
+<pre class="r"><code>vertdata_summary_lm &lt;-
+  left_join(vertdata_summary, vertdata_lm, by=c(&quot;Species&quot;))</code></pre>
+<pre class="r"><code>write_csv(vertdata_summary_lm, here(&quot;output/vertdata_summary_lm.csv&quot;))</code></pre>
+</div>
+<div id="plot-the-fits" class="section level1">
+<h1>Plot the fits</h1>
+<pre class="r"><code>get_model_vals &lt;- function(model, df) {
+  val &lt;- predict(model, newdata=df)
+  df$value &lt;- val
+  df
+}</code></pre>
+<pre class="r"><code>posvals &lt;- tibble(Pos = seq(0.3, 0.9, by=0.1))
+
+modelfits &lt;-
+  models %&gt;%
+  select(Species, var, model) %&gt;%
+  filter(var %in% c(&#39;dBW&#39;, &#39;CBL&#39;, &#39;alphaAnt&#39;, &#39;alphaPos&#39;, &#39;DAntBW&#39;, &#39;DPosBW&#39;)) %&gt;%
+  mutate(pred = purrr::map(model, ~ get_model_vals(.x, posvals))) %&gt;%
+  unnest(pred) %&gt;%
+  select(-model) %&gt;%
+  pivot_wider(id_cols = c(Species, Pos), names_from = var, values_from = value) %&gt;%
+  rename_with(~ str_c(.x, &#39;_fit&#39;), .cols = c(dBW, CBL, alphaAnt, alphaPos, DAntBW, DPosBW)) # %&gt;%
+
+#  left_join(vertdata_summary, by = c(&quot;Species&quot;))</code></pre>
+<pre class="r"><code>modelfits &lt;-
+  vertdata %&gt;%
+  filter(Indiv == 1) %&gt;%
+  select(Species, Pos, Habitat, dBW, CBL, alphaAnt, alphaPos, DAntBW, DPosBW) %&gt;%
+  inner_join(modelfits, by = c(&quot;Species&quot;, &quot;Pos&quot;))</code></pre>
+<pre class="r"><code>poshabitat = expand_grid(Pos = seq(0.4, 0.9, by=0.1), Habitat = c(&quot;benthic&quot;, &quot;demersal&quot;, &quot;pelagic&quot;))
+
+meanparams &lt;-
+  vertdata_summary_lm %&gt;%
+  group_by(Habitat) %&gt;%
+  dplyr::summarize(across(c(dBW_80, dBW_slope, dBW_quad), mean)) %&gt;%
+  mutate(dBW_int = dBW_80 - 0.8^2 * dBW_quad - 0.8 * dBW_slope) %&gt;%
+  right_join(poshabitat) %&gt;%
+  mutate(dBW = dBW_quad * Pos^2 + dBW_slope * Pos + dBW_int)</code></pre>
+<pre><code>Joining, by = &quot;Habitat&quot;</code></pre>
+<pre class="r"><code>modelfits %&gt;%
+  # filter(str_starts(Species, &quot;Alectis&quot;) | str_starts(Species, &quot;Sphyraena&quot;) | 
+  #          str_starts(Species, &#39;Cymatogaster&#39;) | str_starts(Species, &#39;Amia&#39;) |
+  #          str_starts(Species, &#39;Opsanus&#39;)) %&gt;%
+  ggplot(aes(x = Pos, y = dBW, color = Habitat, fill = Habitat)) +
+  stat_summary(fun.data = &quot;mean_se&quot;, geom=&quot;ribbon&quot;, alpha=0.5) +
+  stat_summary(fun = &quot;mean&quot;, geom=&quot;line&quot;) +
+  stat_summary(aes(y = dBW_fit), fun = mean, geom=&quot;line&quot;, linetype=&quot;dashed&quot;) +
+  geom_line(data = meanparams, aes(x = Pos, y = dBW, color=Habitat), linetype=&quot;dotted&quot;) +
+#  geom_point() +
+  #geom_path(aes(y = dBW_fit, group=Species)) +
+  facet_grid(. ~ Habitat)</code></pre>
+<p><img src="figure/10-VertLM.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.2 (2021-11-01)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices datasets  utils     methods   base     
+
+other attached packages:
+ [1] here_1.0.1       patchwork_1.1.1  ggbeeswarm_0.6.0 emmeans_1.6.3   
+ [5] forcats_0.5.1    stringr_1.4.0    dplyr_1.0.7      purrr_0.3.4     
+ [9] readr_2.0.1      tidyr_1.1.3      tibble_3.1.4     ggplot2_3.3.5   
+[13] tidyverse_1.3.1 
+
+loaded via a namespace (and not attached):
+ [1] httr_1.4.2       bit64_4.0.5      vroom_1.5.4      jsonlite_1.7.2  
+ [5] modelr_0.1.8     assertthat_0.2.1 highr_0.9        renv_0.14.0     
+ [9] vipor_0.4.5      cellranger_1.1.0 yaml_2.2.1       pillar_1.6.2    
+[13] backports_1.2.1  lattice_0.20-45  glue_1.4.2       digest_0.6.27   
+[17] promises_1.2.0.1 rvest_1.0.1      colorspace_2.0-2 plyr_1.8.6      
+[21] htmltools_0.5.2  httpuv_1.6.4     pkgconfig_2.0.3  broom_0.7.9     
+[25] haven_2.4.3      xtable_1.8-4     mvtnorm_1.1-2    scales_1.1.1    
+[29] whisker_0.4      later_1.3.0      tzdb_0.1.2       git2r_0.29.0    
+[33] farver_2.1.0     generics_0.1.0   ellipsis_0.3.2   withr_2.4.2     
+[37] cli_3.0.1        magrittr_2.0.1   crayon_1.4.1     readxl_1.3.1    
+[41] estimability_1.3 evaluate_0.14    fs_1.5.0         fansi_0.5.0     
+[45] xml2_1.3.2       beeswarm_0.4.0   tools_4.1.2      hms_1.1.0       
+[49] lifecycle_1.0.0  munsell_0.5.0    reprex_2.0.1     compiler_4.1.2  
+[53] rlang_0.4.11     grid_4.1.2       rstudioapi_0.13  labeling_0.4.2  
+[57] rmarkdown_2.10   gtable_0.3.0     DBI_1.1.1        R6_2.5.1        
+[61] lubridate_1.7.10 knitr_1.34       bit_4.0.4        fastmap_1.1.0   
+[65] utf8_1.2.2       workflowr_1.7.0  rprojroot_2.0.2  stringi_1.7.4   
+[69] parallel_4.1.2   Rcpp_1.0.7       vctrs_0.3.8      dbplyr_2.1.1    
+[73] tidyselect_1.1.1 xfun_0.25        coda_0.19-4     </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

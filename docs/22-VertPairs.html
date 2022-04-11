@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Vert Pairs</title>
+
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Code</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/tytell/BaxterVertEvol">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Vert Pairs</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-04-11
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>Code/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20211230code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20211230)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20211230code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20211230)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Flexibility Comparisons.nb.html
+    Ignored:    Main.nb.html
+    Ignored:    PGLS.FullData.nb.html
+    Ignored:    PGLSforeachMeasFeature.nb.html
+    Ignored:    PGLSwithPCA_Dims.nb.html
+    Ignored:    PreppedVertMeas.nb.html
+    Ignored:    ProcessCymatogasterFiles.nb.html
+    Ignored:    ProcessFCSVfiles.nb.html
+    Ignored:    TestingHabitatwithFriedmanData.nb.html
+    Ignored:    Trilok_tree.nb.html
+    Ignored:    VertLM.nb.html
+    Ignored:    VertMeasLDA_Attempt.nb.html
+    Ignored:    VertPGLS.nb.html
+    Ignored:    VertPairs.nb.html
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/10-VertLM.nb.html
+    Ignored:    analysis/20-plot_phylogeny.nb.html
+    Ignored:    analysis/21-plot_fits_and_summary.nb.html
+    Ignored:    analysis/CheckSpeciesMatch.nb.html
+    Ignored:    caper_test.nb.html
+    Ignored:    data/.DS_Store
+    Ignored:    ggtree_attempt.nb.html
+    Ignored:    plot_example_data.nb.html
+    Ignored:    plot_fits_and_summary.nb.html
+    Ignored:    plot_phylogeny.nb.html
+    Ignored:    renv/library/
+    Ignored:    renv/staging/
+    Ignored:    summarize_vert_meas.nb.html
+    Ignored:    test_phylogeny.nb.html
+    Ignored:    test_vertebraspace.nb.html
+    Ignored:    vert_evol.Rproj
+
+Untracked files:
+    Untracked:  Main.html
+    Untracked:  ProcessFCSVfiles.Rmd
+    Untracked:  VertPGLS.html
+    Untracked:  gg_saver.R
+    Untracked:  output/BodyDistribution.pdf
+    Untracked:  output/MasterVert_Measurements.csv
+    Untracked:  output/mean_d_alphaPos_CBL.pdf
+    Untracked:  output/pair_plot.pdf
+    Untracked:  output/plot_example_data_figure.pdf
+    Untracked:  output/stats_table.rtf
+    Untracked:  plot_fits_and_summary.Rmd
+    Untracked:  summarize_vert_meas.html
+    Untracked:  testtree.csv
+    Untracked:  vert_tree.csv
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/22-VertPairs.Rmd</code>) and HTML (<code>docs/22-VertPairs.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/23908bd4e6e24d389ba137373d7d60c262968ccf/analysis/22-VertPairs.Rmd" target="_blank">23908bd</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Test site build again
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/edeae3c58db615477cae99bae2ff1e4b01b09b5d/analysis/22-VertPairs.Rmd" target="_blank">edeae3c</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Rename notebooks to indicate order
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+✓ tibble  3.1.4     ✓ dplyr   1.0.7
+✓ tidyr   1.1.3     ✓ stringr 1.4.0
+✓ readr   2.0.1     ✓ forcats 0.5.1</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(patchwork)
+library(ggtree)</code></pre>
+<pre><code>ggtree v3.0.2  For help: https://yulab-smu.top/treedata-book/
+
+If you use ggtree in published research, please cite the most appropriate paper(s):
+
+1. Guangchuang Yu. Using ggtree to visualize data on tree-like structures. Current Protocols in Bioinformatics, 2020, 69:e96. doi:10.1002/cpbi.96
+2. Guangchuang Yu, Tommy Tsan-Yuk Lam, Huachen Zhu, Yi Guan. Two methods for mapping and visualizing associated data on phylogeny using ggtree. Molecular Biology and Evolution 2018, 35(12):3041-3043. doi:10.1093/molbev/msy194
+3. Guangchuang Yu, David Smith, Huachen Zhu, Yi Guan, Tommy Tsan-Yuk Lam. ggtree: an R package for visualization and annotation of phylogenetic trees with their covariates and other associated data. Methods in Ecology and Evolution 2017, 8(1):28-36. doi:10.1111/2041-210X.12628</code></pre>
+<pre><code>
+Attaching package: &#39;ggtree&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    expand</code></pre>
+<pre class="r"><code>library(here)</code></pre>
+<pre><code>here() starts at /Users/etytel01/Documents/Vertebrae/Code</code></pre>
+<pre class="r"><code>verttree &lt;- readRDS(here(&#39;output/vert_tree.rds&#39;))
+verttree_data &lt;- read_csv(here(&#39;output/vertdata_summary_lm_species.csv&#39;))</code></pre>
+<pre><code>Rows: 77 Columns: 99</code></pre>
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (7): Species, Habitat, Water_Type, MatchSpecies, MatchGenus, FullName, ...
+dbl (92): fineness, CBL_med, CBL_max, CBL_mn, d_med, d_max, d_mn, alphaAnt_m...</code></pre>
+<pre><code>
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>verttree_data &lt;-
+  as_tibble(verttree) %&gt;%
+  left_join(verttree_data %&gt;%
+              rename(label = FullName))</code></pre>
+<pre><code>Joining, by = &quot;label&quot;</code></pre>
+<div id="pairs-of-species" class="section level1">
+<h1>Pairs of species</h1>
+<p>Look for pairs of species that have the same parent node but differ in habitats.</p>
+<pre class="r"><code>pairs &lt;-
+  verttree_data %&gt;%
+  filter(!is.na(Habitat)) %&gt;%
+  group_by(parent) %&gt;%
+  arrange(Habitat) %&gt;%
+  mutate(nsib = n(),
+         diffhab = any(Habitat != first(Habitat)),
+         compare = str_c(str_sub(Habitat, start=1, end=1), collapse=&quot;-&quot;)) %&gt;%
+  ungroup() %&gt;%
+  filter(nsib == 2) %&gt;% # &amp; branch.length &lt;= 100) %&gt;%
+  select(-nsib) %&gt;%
+  arrange(parent, Habitat)</code></pre>
+<p>Then look at a few specific variables and see whether they increase or decrease across the habitats.</p>
+<pre class="r"><code>pairslong &lt;-
+  pairs %&gt;%
+  select(Habitat, parent, branch.length, d_mn, alphaPos_mn, diffhab, compare) %&gt;%
+  pivot_longer(c(d_mn, alphaPos_mn), 
+               names_to=&quot;var&quot;, values_to=&quot;value&quot;) %&gt;%
+  group_by(var, parent) %&gt;%
+  arrange(Habitat) %&gt;%
+  mutate(change = case_when(abs(lead(value) - value)/value &lt; 0.05   ~   &#39;same&#39;,
+                            lead(value) &gt; value   ~   &#39;increase&#39;,
+                            lead(value) &lt; value   ~   &#39;decrease&#39;)) %&gt;%
+  fill(change) %&gt;%
+  mutate(change = factor(change),
+         parent = factor(parent)) %&gt;%
+  ungroup() %&gt;%
+  arrange(var, parent, Habitat)
+
+pairslong</code></pre>
+<pre><code># A tibble: 92 × 8
+   Habitat  parent branch.length diffhab compare var         value change  
+   &lt;chr&gt;    &lt;fct&gt;          &lt;dbl&gt; &lt;lgl&gt;   &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;fct&gt;   
+ 1 pelagic  84              54.2 FALSE   p-p     alphaPos_mn  91.5 decrease
+ 2 pelagic  84              54.2 FALSE   p-p     alphaPos_mn  85.5 decrease
+ 3 benthic  90              47.5 TRUE    b-d     alphaPos_mn  67.8 decrease
+ 4 demersal 90              47.5 TRUE    b-d     alphaPos_mn  52.2 decrease
+ 5 demersal 94              82.5 FALSE   d-d     alphaPos_mn  67.2 increase
+ 6 demersal 94              82.5 FALSE   d-d     alphaPos_mn  72.8 increase
+ 7 demersal 96             126.  FALSE   d-d     alphaPos_mn  73.8 increase
+ 8 demersal 96             126.  FALSE   d-d     alphaPos_mn  88.1 increase
+ 9 demersal 99             104.  FALSE   d-d     alphaPos_mn  68.2 increase
+10 demersal 99             104.  FALSE   d-d     alphaPos_mn 112.  increase
+# … with 82 more rows</code></pre>
+<pre class="r"><code>pairslong %&gt;%
+  filter(var == &#39;d_mn&#39; &amp; diffhab) %&gt;%
+  ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent), linetype = change, color=diffhab)) +
+  geom_line()</code></pre>
+<p><img src="figure/22-VertPairs.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Construct a transformation for point size that is the inverse of branch lengths, so that long branches would have small points.</p>
+<pre class="r"><code>branch_len_trans &lt;- function() 
+  scales::trans_new(&#39;branch_len&#39;,
+                    function(x) 400/x,
+                    function(x) 400/x,
+                    domain = c(0, Inf))</code></pre>
+<p>Plot the pairs</p>
+<pre class="r"><code>paircolors &lt;- c(&#39;#1b9e77&#39;,&#39;#d95f02&#39;,&#39;#7570b3&#39;)</code></pre>
+<pre class="r"><code>pairslong %&gt;%
+  filter(diffhab, var == &quot;d_mn&quot;)</code></pre>
+<pre><code># A tibble: 26 × 8
+   Habitat  parent branch.length diffhab compare var      value change  
+   &lt;chr&gt;    &lt;fct&gt;          &lt;dbl&gt; &lt;lgl&gt;   &lt;chr&gt;   &lt;chr&gt;    &lt;dbl&gt; &lt;fct&gt;   
+ 1 benthic  90              47.5 TRUE    b-d     d_mn  0.00117  same    
+ 2 demersal 90              47.5 TRUE    b-d     d_mn  0.0012   same    
+ 3 demersal 101            129.  TRUE    d-p     d_mn  0.00473  decrease
+ 4 pelagic  101            129.  TRUE    d-p     d_mn  0.00292  decrease
+ 5 benthic  105             41.5 TRUE    b-d     d_mn  0.00187  same    
+ 6 demersal 105             41.5 TRUE    b-d     d_mn  0.00182  same    
+ 7 benthic  127             59.2 TRUE    b-p     d_mn  0.00278  decrease
+ 8 pelagic  127             59.2 TRUE    b-p     d_mn  0.000317 decrease
+ 9 demersal 128             29.1 TRUE    d-p     d_mn  0.00218  decrease
+10 pelagic  128             29.1 TRUE    d-p     d_mn  0.00075  decrease
+# … with 16 more rows</code></pre>
+<pre class="r"><code>pairplot &lt;- function(df, varname) {
+  df %&gt;%
+    filter(diffhab) %&gt;%
+    filter(str_detect(var, varname)) %&gt;%
+    ggplot(aes(x = Habitat, y = value, group=fct_cross(var, parent),
+               color=change, # shape = branch.length,
+               linetype=change)) +
+    geom_line(size = 1) + #, position = position_dodge(width = 0.2)) + 
+    geom_point() + #alpha = 0.7) + # , position = position_dodge(width = 0.2)) +
+    scale_size(trans = &quot;branch_len&quot;, range = c(1, 12)) +
+    scale_shape_binned() +
+    scale_color_manual(values = paircolors) +
+    labs(y = varname) +
+    theme_bw() 
+}
+
+#p1 &lt;- pairplot(pairs, &quot;d_max&quot;)
+p2 &lt;- pairplot(pairslong, &quot;alphaPos&quot;) +
+  labs(y = &#39;Mean posterior\ncone angle (deg)&#39;) +
+  theme(aspect.ratio = 0.7)
+p1 &lt;- pairplot(pairslong, &quot;d_mn&quot;) +
+  labs(y = &#39;Mean foramen\ndiameter (BL)&#39;) +
+  theme(aspect.ratio = 0.7)
+p1 / p2 + plot_layout(guides = &#39;collect&#39;) &amp; theme(legend.position = &quot;bottom&quot;)</code></pre>
+<p><img src="figure/22-VertPairs.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pairslong %&gt;%
+  filter(var == &quot;d_mn&quot;) %&gt;%
+  filter(diffhab) %&gt;%
+  group_by(change, parent) %&gt;%
+  summarize(change = first(change)) %&gt;%
+  summarize(n = n(), pct = n()/13 * 100)</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;change&#39;. You can override using the `.groups` argument.</code></pre>
+<pre><code># A tibble: 3 × 3
+  change       n   pct
+  &lt;fct&gt;    &lt;int&gt; &lt;dbl&gt;
+1 decrease     8  61.5
+2 increase     2  15.4
+3 same         3  23.1</code></pre>
+<pre class="r"><code>pairslong %&gt;%
+  filter(var == &quot;d_mn&quot;) %&gt;%
+  filter(!diffhab) %&gt;%
+  group_by(change, parent) %&gt;%
+  summarize(change = first(change)) %&gt;%
+  summarize(n = n(), pct = n()/13 * 100)</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;change&#39;. You can override using the `.groups` argument.</code></pre>
+<pre><code># A tibble: 2 × 3
+  change       n   pct
+  &lt;fct&gt;    &lt;int&gt; &lt;dbl&gt;
+1 decrease     6  46.2
+2 increase     4  30.8</code></pre>
+<pre class="r"><code>pairslong %&gt;%
+  filter(var == &quot;alphaPos_mn&quot;) %&gt;%
+  filter(diffhab) %&gt;%
+  group_by(change, parent) %&gt;%
+  summarize(change = first(change)) %&gt;%
+  summarize(n = n(), pct = n()/13 * 100)</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;change&#39;. You can override using the `.groups` argument.</code></pre>
+<pre><code># A tibble: 3 × 3
+  change       n   pct
+  &lt;fct&gt;    &lt;int&gt; &lt;dbl&gt;
+1 decrease     6 46.2 
+2 increase     6 46.2 
+3 same         1  7.69</code></pre>
+<pre class="r"><code>pairslong %&gt;%
+  filter(var == &quot;alphaPos_mn&quot;) %&gt;%
+  filter(!diffhab) %&gt;%
+  group_by(change, parent) %&gt;%
+  summarize(change = first(change)) %&gt;%
+  summarize(n = n(), pct = n()/13 * 100)</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;change&#39;. You can override using the `.groups` argument.</code></pre>
+<pre><code># A tibble: 3 × 3
+  change       n   pct
+  &lt;fct&gt;    &lt;int&gt; &lt;dbl&gt;
+1 decrease     4  30.8
+2 increase     4  30.8
+3 same         2  15.4</code></pre>
+<pre class="r"><code>ggsave(here(&#39;output/pair_plot.pdf&#39;), width=3, units=&quot;in&quot;)</code></pre>
+<pre><code>Saving 3 x 5 in image</code></pre>
+<pre class="r"><code>write_csv(pairs, here(&#39;output/vertdata_pairs.csv&#39;))</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.2 (2021-11-01)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices datasets  utils     methods   base     
+
+other attached packages:
+ [1] here_1.0.1      ggtree_3.0.2    patchwork_1.1.1 forcats_0.5.1  
+ [5] stringr_1.4.0   dplyr_1.0.7     purrr_0.3.4     readr_2.0.1    
+ [9] tidyr_1.1.3     tibble_3.1.4    ggplot2_3.3.5   tidyverse_1.3.1
+
+loaded via a namespace (and not attached):
+ [1] nlme_3.1-153        fs_1.5.0            lubridate_1.7.10   
+ [4] bit64_4.0.5         httr_1.4.2          rprojroot_2.0.2    
+ [7] tools_4.1.2         backports_1.2.1     utf8_1.2.2         
+[10] R6_2.5.1            DBI_1.1.1           lazyeval_0.2.2     
+[13] colorspace_2.0-2    withr_2.4.2         tidyselect_1.1.1   
+[16] bit_4.0.4           compiler_4.1.2      git2r_0.29.0       
+[19] cli_3.0.1           rvest_1.0.1         xml2_1.3.2         
+[22] labeling_0.4.2      scales_1.1.1        digest_0.6.27      
+[25] yulab.utils_0.0.2   rmarkdown_2.10      pkgconfig_2.0.3    
+[28] htmltools_0.5.2     highr_0.9           dbplyr_2.1.1       
+[31] fastmap_1.1.0       rlang_0.4.11        readxl_1.3.1       
+[34] rstudioapi_0.13     farver_2.1.0        gridGraphics_0.5-1 
+[37] generics_0.1.0      jsonlite_1.7.2      vroom_1.5.4        
+[40] magrittr_2.0.1      ggplotify_0.1.0     Rcpp_1.0.7         
+[43] munsell_0.5.0       fansi_0.5.0         ape_5.5            
+[46] lifecycle_1.0.0     stringi_1.7.4       whisker_0.4        
+[49] yaml_2.2.1          grid_4.1.2          parallel_4.1.2     
+[52] promises_1.2.0.1    crayon_1.4.1        lattice_0.20-45    
+[55] haven_2.4.3         hms_1.1.0           knitr_1.34         
+[58] pillar_1.6.2        reprex_2.0.1        glue_1.4.2         
+[61] evaluate_0.14       renv_0.14.0         BiocManager_1.30.16
+[64] modelr_0.1.8        vctrs_0.3.8         treeio_1.16.1      
+[67] tzdb_0.1.2          httpuv_1.6.4        cellranger_1.1.0   
+[70] gtable_0.3.0        assertthat_0.2.1    xfun_0.25          
+[73] broom_0.7.9         tidytree_0.3.5      later_1.3.0        
+[76] aplot_0.1.0         rvcheck_0.1.8       workflowr_1.7.0    
+[79] ellipsis_0.3.2     </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

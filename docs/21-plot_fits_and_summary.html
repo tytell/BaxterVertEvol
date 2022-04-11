@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>R Notebook</title>
+
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Code</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/tytell/BaxterVertEvol">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">R Notebook</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-04-11
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>Code/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20211230code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20211230)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20211230code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20211230)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Flexibility Comparisons.nb.html
+    Ignored:    Main.nb.html
+    Ignored:    PGLS.FullData.nb.html
+    Ignored:    PGLSforeachMeasFeature.nb.html
+    Ignored:    PGLSwithPCA_Dims.nb.html
+    Ignored:    PreppedVertMeas.nb.html
+    Ignored:    ProcessCymatogasterFiles.nb.html
+    Ignored:    ProcessFCSVfiles.nb.html
+    Ignored:    TestingHabitatwithFriedmanData.nb.html
+    Ignored:    Trilok_tree.nb.html
+    Ignored:    VertLM.nb.html
+    Ignored:    VertMeasLDA_Attempt.nb.html
+    Ignored:    VertPGLS.nb.html
+    Ignored:    VertPairs.nb.html
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/10-VertLM.nb.html
+    Ignored:    analysis/20-plot_phylogeny.nb.html
+    Ignored:    analysis/21-plot_fits_and_summary.nb.html
+    Ignored:    analysis/CheckSpeciesMatch.nb.html
+    Ignored:    caper_test.nb.html
+    Ignored:    data/.DS_Store
+    Ignored:    ggtree_attempt.nb.html
+    Ignored:    plot_example_data.nb.html
+    Ignored:    plot_fits_and_summary.nb.html
+    Ignored:    plot_phylogeny.nb.html
+    Ignored:    renv/library/
+    Ignored:    renv/staging/
+    Ignored:    summarize_vert_meas.nb.html
+    Ignored:    test_phylogeny.nb.html
+    Ignored:    test_vertebraspace.nb.html
+    Ignored:    vert_evol.Rproj
+
+Untracked files:
+    Untracked:  Main.html
+    Untracked:  ProcessFCSVfiles.Rmd
+    Untracked:  VertPGLS.html
+    Untracked:  gg_saver.R
+    Untracked:  output/BodyDistribution.pdf
+    Untracked:  output/MasterVert_Measurements.csv
+    Untracked:  output/mean_d_alphaPos_CBL.pdf
+    Untracked:  output/pair_plot.pdf
+    Untracked:  output/plot_example_data_figure.pdf
+    Untracked:  output/stats_table.rtf
+    Untracked:  plot_fits_and_summary.Rmd
+    Untracked:  summarize_vert_meas.html
+    Untracked:  testtree.csv
+    Untracked:  vert_tree.csv
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/21-plot_fits_and_summary.Rmd</code>) and HTML (<code>docs/21-plot_fits_and_summary.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/23908bd4e6e24d389ba137373d7d60c262968ccf/analysis/21-plot_fits_and_summary.Rmd" target="_blank">23908bd</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Test site build again
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/edeae3c58db615477cae99bae2ff1e4b01b09b5d/analysis/21-plot_fits_and_summary.Rmd" target="_blank">edeae3c</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Rename notebooks to indicate order
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+✓ tibble  3.1.4     ✓ dplyr   1.0.7
+✓ tidyr   1.1.3     ✓ stringr 1.4.0
+✓ readr   2.0.1     ✓ forcats 0.5.1</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggbeeswarm)
+library(patchwork)
+library(emmeans)
+library(gt)
+library(here)</code></pre>
+<pre><code>here() starts at /Users/etytel01/Documents/Vertebrae/Code</code></pre>
+<pre class="r"><code>vertdata &lt;- read_csv(here(&quot;output/vertdata_summary_lm_species.csv&quot;))</code></pre>
+<pre><code>Rows: 77 Columns: 99</code></pre>
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (7): Species, Habitat, Water_Type, MatchSpecies, MatchGenus, FullName, ...
+dbl (92): fineness, CBL_med, CBL_max, CBL_mn, d_med, d_max, d_mn, alphaAnt_m...</code></pre>
+<pre><code>
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>PGLSmodels &lt;- readRDS(here(&#39;output/PGLSmodels.Rds&#39;))
+vertdata_all &lt;- read_csv(here(&quot;output/vertdata_centered.csv&quot;))</code></pre>
+<pre><code>Rows: 571 Columns: 71</code></pre>
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (17): Species, MatchGenus, MatchSpecies, Family, BodyShape, Habitat_Init...
+dbl (54): Indiv, Pos, SL, CBL_old_raw, alpha_Pos_raw, d_raw, D_Pos_raw, alph...</code></pre>
+<pre><code>
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>modeltests &lt;- read_csv(here(&quot;output/modeltests.csv&quot;))</code></pre>
+<pre><code>Rows: 19 Columns: 19</code></pre>
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (2): var, term
+dbl (16): p.value, total_eff, benthic_demersal_p, benthic_pelagic_p, demersa...
+lgl  (1): model</code></pre>
+<pre><code>
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>overallmeans &lt;-
+  vertdata %&gt;%
+  group_by(Habitat) %&gt;%
+  dplyr::summarize(across(c(alphaPos_mn, alphaAnt_mn, CBL_mn, d_mn, DAnt_mn, DPos_mn,
+                     alphaPos_80, alphaAnt_80, CBL_80, d_80, DAnt_80, DPos_80,
+                     alphaPos_vtx, alphaAnt_vtx, CBL_vtx, d_vtx, DAnt_vtx, DPos_vtx,
+                     alphaPos_quad, alphaAnt_quad, CBL_quad, d_quad, DAnt_quad, DPos_quad), 
+                   list(mn = mean, se = ~ sd(.x) / sqrt(length(.x)))))
+
+overallmeans</code></pre>
+<pre><code># A tibble: 3 × 49
+  Habitat  alphaPos_mn_mn alphaPos_mn_se alphaAnt_mn_mn alphaAnt_mn_se CBL_mn_mn
+  &lt;chr&gt;             &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;
+1 benthic            67.5           2.39           71.5           2.54    0.0219
+2 demersal           70.6           2.87           74.9           2.70    0.0229
+3 pelagic            63.9           3.03           66.8           2.95    0.0249
+# … with 43 more variables: CBL_mn_se &lt;dbl&gt;, d_mn_mn &lt;dbl&gt;, d_mn_se &lt;dbl&gt;,
+#   DAnt_mn_mn &lt;dbl&gt;, DAnt_mn_se &lt;dbl&gt;, DPos_mn_mn &lt;dbl&gt;, DPos_mn_se &lt;dbl&gt;,
+#   alphaPos_80_mn &lt;dbl&gt;, alphaPos_80_se &lt;dbl&gt;, alphaAnt_80_mn &lt;dbl&gt;,
+#   alphaAnt_80_se &lt;dbl&gt;, CBL_80_mn &lt;dbl&gt;, CBL_80_se &lt;dbl&gt;, d_80_mn &lt;dbl&gt;,
+#   d_80_se &lt;dbl&gt;, DAnt_80_mn &lt;dbl&gt;, DAnt_80_se &lt;dbl&gt;, DPos_80_mn &lt;dbl&gt;,
+#   DPos_80_se &lt;dbl&gt;, alphaPos_vtx_mn &lt;dbl&gt;, alphaPos_vtx_se &lt;dbl&gt;,
+#   alphaAnt_vtx_mn &lt;dbl&gt;, alphaAnt_vtx_se &lt;dbl&gt;, CBL_vtx_mn &lt;dbl&gt;, …</code></pre>
+<pre class="r"><code>modelmeans &lt;-
+  modeltests %&gt;%
+  select(var, ends_with(&quot;mn&quot;), ends_with(&quot;se&quot;)) %&gt;%
+  pivot_longer(ends_with(&quot;mn&quot;) | ends_with(&quot;se&quot;), names_to = &quot;HabitatEff&quot;, values_to = &quot;value&quot;) %&gt;%
+  separate(HabitatEff, sep = &quot;_&quot;, into = c(&quot;Habitat&quot;, &quot;Eff&quot;)) %&gt;%
+  unite(var, c(var, Eff)) %&gt;%
+  pivot_wider(names_from = var, values_from = value)
+
+modelmeans</code></pre>
+<pre><code># A tibble: 3 × 39
+  Habitat  alphaPos_mn_mn alphaPos_mn_se CBL_quad_mn CBL_quad_se d_mn_mn d_mn_se
+  &lt;chr&gt;             &lt;dbl&gt;          &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+1 benthic            97.4           13.5    -0.0228       0.0386 0.00313 9.70e-4
+2 demersal           88.7           13.3    -0.0288       0.0381 0.00303 9.58e-4
+3 pelagic            84.0           13.7     0.00649      0.0392 0.00234 9.84e-4
+# … with 32 more variables: d_vtx_mn &lt;dbl&gt;, d_vtx_se &lt;dbl&gt;, CBL_vtx_mn &lt;dbl&gt;,
+#   CBL_vtx_se &lt;dbl&gt;, alphaAnt_mn_mn &lt;dbl&gt;, alphaAnt_mn_se &lt;dbl&gt;,
+#   DAnt_quad_mn &lt;dbl&gt;, DAnt_quad_se &lt;dbl&gt;, alphaAnt_quad_mn &lt;dbl&gt;,
+#   alphaAnt_quad_se &lt;dbl&gt;, DPos_quad_mn &lt;dbl&gt;, DPos_quad_se &lt;dbl&gt;,
+#   fineness_mn &lt;dbl&gt;, fineness_se &lt;dbl&gt;, alphaPos_quad_mn &lt;dbl&gt;,
+#   alphaPos_quad_se &lt;dbl&gt;, DPos_mn_mn &lt;dbl&gt;, DPos_mn_se &lt;dbl&gt;,
+#   DAnt_mn_mn &lt;dbl&gt;, DAnt_mn_se &lt;dbl&gt;, alphaPos_vtx_mn &lt;dbl&gt;, …</code></pre>
+<pre class="r"><code>reversemeasurements &lt;- function(df) {
+  df %&gt;%
+    mutate(Pt1x = DPos / 2 / tan(alphaPos/2 * pi/180),
+           Pt2x = DPos / 2 / tan(alphaPos/2 * pi/180),
+           Pt3x = -DAnt / 2 / tan(alphaAnt/2 * pi/180),
+           Pt4x = -DAnt / 2 / tan(alphaAnt/2 * pi/180),
+           Pt5x = 0,
+           Pt6x = 0,
+           Pt7x = 0,
+           Pt8x = d/2 * tan(alphaPos/2 * pi/180),
+           Pt9x = d/2 * tan(alphaPos/2 * pi/180),
+           Pt10x = -d/2 * tan(alphaAnt/2 * pi/180),
+           Pt11x = -d/2 * tan(alphaAnt/2 * pi/180),
+           Pt1y = DPos / 2,
+           Pt2y = -DPos / 2,
+           Pt3y = DAnt / 2,
+           Pt4y = -DAnt / 2,
+           Pt5y = 0,
+           Pt6y = d / 2,
+           Pt7y = -d / 2,
+           Pt8y = d / 2,
+           Pt9y = -d / 2,
+           Pt10y = d / 2,
+           Pt11y = -d / 2)
+}</code></pre>
+<pre class="r"><code>vertshape &lt;-
+  modelmeans %&gt;%
+  rename_with(~ str_replace(.x, &quot;_mn_mn&quot;, &quot;&quot;)) %&gt;%
+  reversemeasurements()</code></pre>
+<pre class="r"><code>vertshape &lt;-
+  vertshape %&gt;%
+  mutate(Shape1x = Pt1x,
+         Shape2x = Pt2x,
+         Shape3x = Pt9x,
+         Shape4x = Pt11x,
+         Shape5x = Pt4x,
+         Shape6x = Pt3x,
+         Shape7x = Pt10x,
+         Shape8x = Pt8x,
+         Shape9x = Pt1x,
+         Shape1y = Pt1y,
+         Shape2y = Pt2y,
+         Shape3y = Pt9y,
+         Shape4y = Pt11y,
+         Shape5y = Pt4y,
+         Shape6y = Pt3y,
+         Shape7y = Pt10y,
+         Shape8y = Pt8y,
+         Shape9y = Pt1y)</code></pre>
+<pre class="r"><code>vertshape &lt;-
+  vertshape %&gt;%
+  select(!starts_with(&quot;Pt&quot;)) %&gt;%
+  pivot_longer(starts_with(&quot;Shape&quot;), names_to = &quot;Pt&quot;, values_to = &quot;value&quot;) %&gt;%
+  extract(Pt, into = c(&quot;Num&quot;, &quot;XY&quot;), regex = &quot;Shape(\\d+)(x|y)&quot;) %&gt;%
+  pivot_wider(names_from = XY, values_from = value)</code></pre>
+<pre class="r"><code>vertshape_panel &lt;-
+  vertshape %&gt;%
+  ggplot(aes(x = x, y = y, color = Habitat, fill = Habitat)) +
+  geom_path() +
+  geom_polygon(alpha = 0.2) +
+  coord_fixed() +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;),
+                     guide = &quot;none&quot;) +
+  scale_fill_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;),
+                     guide = &quot;none&quot;) +
+  annotate(&quot;line&quot;, x = c(0.01, 0.01), y = c(-0.003, -0.007), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 0.01, y = -0.005, label = &quot;0.004 BL&quot;, angle=90, size=4, vjust = 1.3) +
+  theme_minimal() +
+  theme(line = element_blank(),
+        text = element_blank(),
+        title = element_blank())
+
+vertshape_panel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>modeltests %&gt;%
+  filter(str_detect(var, &quot;alphaPos_mn&quot;) | str_detect(var, &quot;d_mn&quot;)) %&gt;%
+  arrange(var)</code></pre>
+<pre><code># A tibble: 2 × 19
+  var           p.value total_eff benthic_demersa… benthic_pelagic… demersal_pelagi…
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+1 alphaPos_mn 0.0000437     1.05          0.000899          0.00191           0.413 
+2 d_mn        0.0135        0.860         0.805             0.0132            0.0310
+# … with 13 more variables: statistic &lt;dbl&gt;, term &lt;chr&gt;, df &lt;dbl&gt;, model &lt;lgl&gt;,
+#   benthic_demersal_eff &lt;dbl&gt;, benthic_pelagic_eff &lt;dbl&gt;,
+#   demersal_pelagic_eff &lt;dbl&gt;, benthic_mn &lt;dbl&gt;, demersal_mn &lt;dbl&gt;,
+#   pelagic_mn &lt;dbl&gt;, benthic_se &lt;dbl&gt;, demersal_se &lt;dbl&gt;, pelagic_se &lt;dbl&gt;</code></pre>
+<pre class="r"><code>dyl = 0.0005
+yl = max(vertdata$d_mn) + dyl
+
+d_mn_panel &lt;- ggplot(vertdata, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = d_mn_mn, group = 1), color = &quot;black&quot;) +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = d_mn_mn, 
+                      ymin = d_mn_mn - d_mn_se, ymax = d_mn_mn + d_mn_se), size = 0.8) +
+  annotate(&quot;line&quot;, x = c(2,3), y = c(yl, yl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 2.5, y = yl, label = &quot;* 0.37&quot;, size = 3, vjust = -0.2) +
+  annotate(&quot;line&quot;, x = c(1,3), y = c(yl + dyl, yl + dyl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 2, y = yl+dyl, label = &quot;* 0.43&quot;, size = 3, vjust = -0.2) +
+  labs(y = &quot;Mean foramen\ndiameter (BL)&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+d_mn_panel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dyl = 5
+yl = max(vertdata$alphaPos_mn) + dyl
+
+alphaPos_mn_panel &lt;- ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = alphaPos_mn_mn, group = 1), color = &quot;black&quot;) +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = alphaPos_mn_mn, 
+                      ymin = alphaPos_mn_mn - alphaPos_mn_se, ymax = alphaPos_mn_mn + alphaPos_mn_se), size = 0.8) +
+  annotate(&quot;line&quot;, x = c(1,2), y = c(yl, yl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 1.5, y = yl, label = &quot;*** 0.34&quot;, size = 3, vjust = -0.2) +
+  annotate(&quot;line&quot;, x = c(1,3), y = c(yl + dyl, yl + dyl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 2, y = yl+dyl, label = &quot;** 0.52&quot;, size = 3, vjust = -0.2) +
+  labs(y = &quot;Mean posterior\ncone angle (deg)&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+alphaPos_mn_panel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dyl = 0
+yl = max(vertdata$CBL_mn) + dyl
+
+CBL_mn_panel &lt;- ggplot(vertdata, aes(x = Habitat, y = CBL_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = CBL_mn_mn, group = 1), color = &quot;black&quot;) +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = CBL_mn_mn, 
+                      ymin = CBL_mn_mn - CBL_mn_se, ymax = CBL_mn_mn + CBL_mn_se), size = 0.8) +
+  #annotate(&quot;line&quot;, x = c(1,2), y = c(yl, yl), color = &quot;black&quot;) +
+  #annotate(&quot;text&quot;, x = 1.5, y = yl, label = &quot;*** 0.34&quot;, size = 3, vjust = -0.2) +
+  #annotate(&quot;line&quot;, x = c(1,3), y = c(yl + dyl, yl + dyl), color = &quot;black&quot;) +
+  #annotate(&quot;text&quot;, x = 2, y = yl+dyl, label = &quot;** 0.52&quot;, size = 3, vjust = -0.2) +
+  labs(y = &quot;Centrum body\nlength (BL)&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+CBL_mn_panel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>alphaPos_mn_panel / d_mn_panel / CBL_mn_panel / vertshape_panel + 
+  plot_annotation(tag_levels = &#39;A&#39;) +
+  plot_layout(guides = &#39;collect&#39;) &amp;
+  theme(legend.position = &quot;bottom&quot;,
+        panel.border = element_blank(), axis.line = element_line())</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggsave(here(&#39;output/mean_d_alphaPos_CBL.pdf&#39;), width = 3, units = &quot;in&quot;)</code></pre>
+<pre><code>Saving 3 x 5 in image</code></pre>
+<div id="distribution-along-the-body" class="section level1">
+<h1>Distribution along the body</h1>
+<div id="posterior-cone-angle" class="section level2">
+<h2>Posterior cone angle</h2>
+<pre class="r"><code>alphaPosvPosPanel &lt;-
+  vertdata_all %&gt;%
+  filter(Pos &gt;= 0.4) %&gt;%
+  ggplot(aes(x = Pos, y = alphaPos, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = &quot;mean_se&quot;, geom=&quot;ribbon&quot;, alpha=0.5) +
+    stat_summary(fun = &quot;mean&quot;, geom=&quot;line&quot;) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  scale_fill_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  labs(x = &quot;Position (BL)&quot;, y = &quot;Posterior cone\nangle (deg)&quot;) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+alphaPosvPosPanel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="centrum-body-length" class="section level2">
+<h2>Centrum body length</h2>
+<pre class="r"><code>modeltests %&gt;%
+  filter(str_detect(var, &quot;CBL&quot;)) %&gt;%
+  arrange(var)</code></pre>
+<pre><code># A tibble: 3 × 19
+  var      p.value total_eff benthic_demersal… benthic_pelagic… demersal_pelagi…
+  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+1 CBL_mn   0.316       0.281             0.327           0.610           0.997  
+2 CBL_quad 0.00385     0.963             0.635           0.0231          0.00378
+3 CBL_vtx  0.0404      0.730             0.670           0.133           0.0359 
+# … with 13 more variables: statistic &lt;dbl&gt;, term &lt;chr&gt;, df &lt;dbl&gt;, model &lt;lgl&gt;,
+#   benthic_demersal_eff &lt;dbl&gt;, benthic_pelagic_eff &lt;dbl&gt;,
+#   demersal_pelagic_eff &lt;dbl&gt;, benthic_mn &lt;dbl&gt;, demersal_mn &lt;dbl&gt;,
+#   pelagic_mn &lt;dbl&gt;, benthic_se &lt;dbl&gt;, demersal_se &lt;dbl&gt;, pelagic_se &lt;dbl&gt;</code></pre>
+<pre class="r"><code>CBLvPosPanel &lt;-
+  vertdata_all %&gt;%
+  filter(Pos &gt;= 0.4) %&gt;%
+  ggplot(aes(x = Pos, y = CBL, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = &quot;mean_se&quot;, geom=&quot;ribbon&quot;, alpha=0.5) +
+    stat_summary(fun = &quot;mean&quot;, geom=&quot;line&quot;) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  scale_fill_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  labs(x = &quot;Position (BL)&quot;, y = &quot;Centrum body\nlength (BL)&quot;) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+CBLvPosPanel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dyl = 1
+yl = max(vertdata$CBL_vtx) + dyl
+
+CBLvtxPanel &lt;- ggplot(vertdata, aes(x = Habitat, y = CBL_vtx, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = CBL_vtx_mn, group = 1), color = &quot;black&quot;) +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = CBL_vtx_mn, 
+                      ymin = CBL_vtx_mn - CBL_vtx_se, ymax = CBL_vtx_mn + CBL_vtx_se), size = 0.8) +
+  #annotate(&quot;line&quot;, x = c(1,2), y = c(yl, yl), color = &quot;black&quot;) +
+  #annotate(&quot;text&quot;, x = 1.5, y = yl, label = &quot;*** 0.34&quot;, size = 3, vjust = -0.2) +
+  annotate(&quot;line&quot;, x = c(2,3), y = c(yl + dyl, yl + dyl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 2.5, y = yl+dyl, label = &quot;* 0.36&quot;, size = 3, vjust = -0.2) +
+  labs(y = &quot;Fit location of\nlongest vertebra (BL)&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+CBLvtxPanel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dyl = 0.01
+yl = max(vertdata$CBL_quad) + dyl
+
+CBLquadPanel &lt;- ggplot(vertdata, aes(x = Habitat, y = CBL_quad, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = CBL_quad_mn, group = 1), color = &quot;black&quot;) +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = CBL_quad_mn, 
+                      ymin = CBL_quad_mn - CBL_quad_se, ymax = CBL_quad_mn + CBL_quad_se), size = 0.8) +
+  annotate(&quot;line&quot;, x = c(2,3), y = c(yl, yl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 2.5, y = yl, label = &quot;** -0.48&quot;, size = 3, vjust = -0.2) +
+  annotate(&quot;line&quot;, x = c(1,3), y = c(yl + dyl, yl + dyl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 2, y = yl+dyl, label = &quot;* -0.40&quot;, size = 3, vjust = -0.2) +
+  labs(y = &quot;Centrum body length\nquad. coeff. (BL^2)&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+CBLquadPanel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="foramen-diameter" class="section level1">
+<h1>Foramen diameter</h1>
+<pre class="r"><code>dvPosPanel &lt;-
+  vertdata_all %&gt;%
+  filter(Pos &gt;= 0.4) %&gt;%
+  ggplot(aes(x = Pos, y = d, color=Habitat, fill=Habitat, group=Habitat)) +
+    stat_summary(fun.data = &quot;mean_se&quot;, geom=&quot;ribbon&quot;, alpha=0.5) +
+    stat_summary(fun = &quot;mean&quot;, geom=&quot;line&quot;) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  scale_fill_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  labs(x = &quot;Position (BL)&quot;, y = &quot;Foramen\ndiameter (BL)&quot;) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+dvPosPanel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>modeltests %&gt;%
+  filter(str_detect(var, &quot;d_&quot;)) %&gt;%
+  arrange(var)</code></pre>
+<pre><code># A tibble: 3 × 19
+  var      p.value total_eff benthic_demersal… benthic_pelagic… demersal_pelagi…
+  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+1 d_mn   0.0135        0.860         0.805               0.0132           0.0310
+2 d_quad 0.436         0.220         0.446               1.00             0.745 
+3 d_vtx  0.0000251     0.799         0.0000937           0.0239           1.00  
+# … with 13 more variables: statistic &lt;dbl&gt;, term &lt;chr&gt;, df &lt;dbl&gt;, model &lt;lgl&gt;,
+#   benthic_demersal_eff &lt;dbl&gt;, benthic_pelagic_eff &lt;dbl&gt;,
+#   demersal_pelagic_eff &lt;dbl&gt;, benthic_mn &lt;dbl&gt;, demersal_mn &lt;dbl&gt;,
+#   pelagic_mn &lt;dbl&gt;, benthic_se &lt;dbl&gt;, demersal_se &lt;dbl&gt;, pelagic_se &lt;dbl&gt;</code></pre>
+<pre class="r"><code>dyl = 1
+yl = max(vertdata$d_vtx) + dyl
+
+dvtxPanel &lt;- ggplot(vertdata, aes(x = Habitat, y = d_vtx, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = d_vtx_mn, group = 1), color = &quot;black&quot;) +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = d_vtx_mn, 
+                      ymin = d_vtx_mn - d_vtx_se, ymax = d_vtx_mn + d_vtx_se), size = 0.8) +
+  annotate(&quot;line&quot;, x = c(1,2), y = c(yl, yl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 1.5, y = yl, label = &quot;*** -0.40&quot;, size = 3, vjust = -0.2) +
+  annotate(&quot;line&quot;, x = c(1,3), y = c(yl + dyl, yl + dyl), color = &quot;black&quot;) +
+  annotate(&quot;text&quot;, x = 2, y = yl+dyl, label = &quot;* -0.40&quot;, size = 3, vjust = -0.2) +
+  labs(y = &quot;Fit location of\nlargest foramen (BL)&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+dvtxPanel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-22-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dyl = 0.01
+yl = max(vertdata$d_quad) + dyl
+
+dQuadPanel &lt;- ggplot(vertdata, aes(x = Habitat, y = d_quad, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  geom_line(data = modelmeans, aes(x = Habitat, y = d_quad_mn, group = 1), color = &quot;black&quot;) +
+  geom_pointrange(data = modelmeans, 
+                  aes(x = Habitat, y = d_quad_mn, 
+                      ymin = d_quad_mn - d_quad_se, ymax = d_quad_mn + d_quad_se), size = 0.8) +
+  #annotate(&quot;line&quot;, x = c(2,3), y = c(yl, yl), color = &quot;black&quot;) +
+  #annotate(&quot;text&quot;, x = 2.5, y = yl, label = &quot;** -0.48&quot;, size = 3, vjust = -0.2) +
+  #annotate(&quot;line&quot;, x = c(1,3), y = c(yl + dyl, yl + dyl), color = &quot;black&quot;) +
+  #annotate(&quot;text&quot;, x = 2, y = yl+dyl, label = &quot;* -0.40&quot;, size = 3, vjust = -0.2) +
+  labs(y = &quot;Foramen diameter\nquad. coeff. (BL^2)&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() # + theme(aspect.ratio = 0.7)
+
+dQuadPanel</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="combined-figure" class="section level2">
+<h2>Combined figure</h2>
+<pre class="r"><code>alphaPosvPosPanel / dvPosPanel / CBLvPosPanel + plot_annotation(tag_levels = &#39;A&#39;) +
+  plot_layout(guides = &#39;collect&#39;) &amp;
+  theme(legend.position = &quot;bottom&quot;,
+        panel.border = element_blank(), axis.line = element_line())</code></pre>
+<p><img src="figure/21-plot_fits_and_summary.Rmd/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggsave(here(&#39;output/BodyDistribution.pdf&#39;), width = 3, units = &quot;in&quot;)</code></pre>
+<pre><code>Saving 3 x 5 in image</code></pre>
+<pre class="r"><code>PGLSmodels</code></pre>
+<pre><code># A tibble: 19 × 19
+   var             p.value total_eff benthic_demersa… benthic_pelagic… demersal_pelagi…
+   &lt;chr&gt;             &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+ 1 alphaPos_mn   0.0000437     1.05         0.000899           0.00191          0.413  
+ 2 CBL_quad      0.00385       0.963        0.635              0.0231           0.00378
+ 3 d_mn          0.0135        0.860        0.805              0.0132           0.0310 
+ 4 d_vtx         0.0000251     0.799        0.0000937          0.0239           1.00   
+ 5 CBL_vtx       0.0404        0.730        0.670              0.133            0.0359 
+ 6 alphaAnt_mn   0.0948        0.626        0.884              0.168            0.0836 
+ 7 DAnt_quad     0.208         0.524        0.855              0.186            0.306  
+ 8 alphaAnt_quad 0.167         0.521        0.556              0.499            0.175  
+ 9 DPos_quad     0.271         0.472        0.947              0.253            0.326  
+10 fineness      0.279         0.456        0.788              0.492            0.260  
+11 alphaPos_quad 0.216         0.448        0.452              0.718            0.274  
+12 DPos_mn       0.340         0.410        0.735              0.623            0.336  
+13 DAnt_mn       0.413         0.384        0.918              0.544            0.384  
+14 alphaPos_vtx  0.495         0.327        0.713              0.514            0.798  
+15 CBL_mn        0.316         0.281        0.327              0.610            0.997  
+16 DPos_vtx      0.516         0.237        0.549              0.703            0.985  
+17 d_quad        0.436         0.220        0.446              1.00             0.745  
+18 alphaAnt_vtx  0.691         0.178        0.738              0.988            0.812  
+19 DAnt_vtx      0.923         0.115        0.987              0.954            0.917  
+# … with 13 more variables: statistic &lt;dbl&gt;, term &lt;chr&gt;, df &lt;dbl&gt;,
+#   model &lt;list&gt;, benthic_demersal_eff &lt;dbl&gt;, benthic_pelagic_eff &lt;dbl&gt;,
+#   demersal_pelagic_eff &lt;dbl&gt;, benthic_mn &lt;dbl&gt;, demersal_mn &lt;dbl&gt;,
+#   pelagic_mn &lt;dbl&gt;, benthic_se &lt;dbl&gt;, demersal_se &lt;dbl&gt;, pelagic_se &lt;dbl&gt;</code></pre>
+<pre class="r"><code>tab &lt;-
+  PGLSmodels %&gt;%
+  select(var, statistic, p.value, ends_with(&quot;eff&quot;), -total_eff) %&gt;%
+  separate(var, into = c(&quot;var&quot;, &quot;posstat&quot;)) %&gt;%
+  mutate(posstat = if_else(var == &quot;fineness&quot;, &quot;mn&quot;, posstat)) %&gt;%
+  # group_by(var) %&gt;%
+  # group_modify(~ add_row(.x,.before=0)) %&gt;%
+  # mutate(posstat = if_else(is.na(posstat), &quot;x&quot;, posstat)) %&gt;%
+  mutate(posstat = factor(posstat, levels = c(&quot;x&quot;, &quot;mn&quot;, &quot;vtx&quot;, &quot;quad&quot;)),
+         posstat = fct_recode(posstat, x = &quot;x&quot;, mean = &quot;mn&quot;, vertex = &quot;vtx&quot;, &quot;quad. coef.&quot; = &quot;quad&quot;)) %&gt;%
+  ungroup() %&gt;%
+  mutate(var = case_when(
+    var == &quot;alphaAnt&quot;   ~   &quot;Anterior cone angle&quot;,
+    var == &quot;alphaPos&quot;   ~   &quot;Posterior cone angle&quot;,
+    var == &quot;CBL&quot;   ~   &quot;Centrum body length&quot;,
+    var == &quot;DAnt&quot;   ~   &quot;Anterior cone diameter&quot;,
+    var == &quot;DPos&quot;   ~   &quot;Posterior cone diameter&quot;,
+    var == &quot;d&quot;   ~   &quot;Foramen diameter&quot;,
+    var == &quot;fineness&quot;   ~   &quot;Fineness&quot;
+  )) %&gt;%
+  arrange(var, posstat) %&gt;%
+  gt(
+    groupname_col = &quot;var&quot;,
+    rowname_col = &quot;posstat&quot;
+  ) %&gt;%
+  fmt_number(
+    columns = &quot;statistic&quot;,
+    suffixing = FALSE,
+    n_sigfig = 2
+  ) %&gt;%
+  fmt_number(
+    columns = &quot;p.value&quot;,
+    decimals = 3
+  ) %&gt;%
+  fmt_number(
+    columns = c(&quot;benthic_demersal_eff&quot;, &quot;benthic_pelagic_eff&quot;, &quot;demersal_pelagic_eff&quot;),
+    decimals = 2,
+    force_sign = TRUE
+  ) %&gt;%
+  tab_style(
+    style = cell_text(weight = &quot;bold&quot;),
+    locations = cells_body(rows = p.value &lt; 0.05)
+  ) %&gt;%
+  cols_label(
+    var = md(&quot;Measurement&quot;),
+    posstat = &quot;&quot;,
+    statistic = md(&quot;F2,74&quot;),
+    p.value = md(&quot;p&quot;),
+    benthic_demersal_eff = md(&quot;b - d&quot;),
+    benthic_pelagic_eff = md(&quot;b - p&quot;),
+    demersal_pelagic_eff = md(&quot;d - p&quot;)
+  ) %&gt;%
+  tab_style(
+    locations = cells_column_labels(columns = c(&quot;var&quot;, &quot;posstat&quot;, &quot;statistic&quot;, &quot;p.value&quot;)),
+    style = cell_text(v_align = &quot;middle&quot;,
+                      align = &quot;center&quot;)
+  ) %&gt;%
+  tab_stubhead(&quot;Measurement&quot;) %&gt;%
+  tab_style(
+    locations = cells_stubhead(),
+    style = cell_text(v_align = &quot;middle&quot;)
+  ) %&gt;%
+  tab_spanner(
+    label = &quot;Effect sizes&quot;,
+    columns = c(&quot;benthic_demersal_eff&quot;, &quot;benthic_pelagic_eff&quot;, &quot;demersal_pelagic_eff&quot;)
+  ) %&gt;%
+  fmt_missing(columns = 1:7,
+              missing_text = &quot;&quot;)</code></pre>
+<pre><code>Warning: Expected 2 pieces. Missing pieces filled with `NA` in 1 rows [10].</code></pre>
+<pre class="r"><code>tab</code></pre>
+<div id="vpheljfgsp" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#vpheljfgsp .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#vpheljfgsp .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#vpheljfgsp .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#vpheljfgsp .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#vpheljfgsp .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#vpheljfgsp .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#vpheljfgsp .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#vpheljfgsp .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#vpheljfgsp .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#vpheljfgsp .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#vpheljfgsp .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#vpheljfgsp .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#vpheljfgsp .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#vpheljfgsp .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vpheljfgsp .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vpheljfgsp .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#vpheljfgsp .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#vpheljfgsp .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vpheljfgsp .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#vpheljfgsp .gt_left {
+  text-align: left;
+}
+
+#vpheljfgsp .gt_center {
+  text-align: center;
+}
+
+#vpheljfgsp .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#vpheljfgsp .gt_font_normal {
+  font-weight: normal;
+}
+
+#vpheljfgsp .gt_font_bold {
+  font-weight: bold;
+}
+
+#vpheljfgsp .gt_font_italic {
+  font-style: italic;
+}
+
+#vpheljfgsp .gt_super {
+  font-size: 65%;
+}
+
+#vpheljfgsp .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" style="vertical-align: middle;">Measurement</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" style="text-align: center; vertical-align: middle;">F2,74</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" style="text-align: center; vertical-align: middle;">p</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3">
+        <span class="gt_column_spanner">Effect sizes</span>
+      </th>
+    </tr>
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">b - d</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">b - p</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">d - p</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <td colspan="6" class="gt_group_heading">Anterior cone angle</td>
+    </tr>
+    <tr><td class="gt_row gt_left gt_stub">mean</td>
+<td class="gt_row gt_right">4.7</td>
+<td class="gt_row gt_right">0.095</td>
+<td class="gt_row gt_right">&minus;0.04</td>
+<td class="gt_row gt_right">+0.27</td>
+<td class="gt_row gt_right">+0.31</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">vertex</td>
+<td class="gt_row gt_right">0.74</td>
+<td class="gt_row gt_right">0.691</td>
+<td class="gt_row gt_right">&minus;0.07</td>
+<td class="gt_row gt_right">+0.02</td>
+<td class="gt_row gt_right">+0.09</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">quad. coef.</td>
+<td class="gt_row gt_right">3.6</td>
+<td class="gt_row gt_right">0.167</td>
+<td class="gt_row gt_right">&minus;0.09</td>
+<td class="gt_row gt_right">+0.17</td>
+<td class="gt_row gt_right">+0.26</td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="6" class="gt_group_heading">Anterior cone diameter</td>
+    </tr>
+    <tr><td class="gt_row gt_left gt_stub">mean</td>
+<td class="gt_row gt_right">1.8</td>
+<td class="gt_row gt_right">0.413</td>
+<td class="gt_row gt_right">&minus;0.04</td>
+<td class="gt_row gt_right">+0.16</td>
+<td class="gt_row gt_right">+0.19</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">vertex</td>
+<td class="gt_row gt_right">0.16</td>
+<td class="gt_row gt_right">0.923</td>
+<td class="gt_row gt_right">+0.01</td>
+<td class="gt_row gt_right">&minus;0.04</td>
+<td class="gt_row gt_right">&minus;0.06</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">quad. coef.</td>
+<td class="gt_row gt_right">3.1</td>
+<td class="gt_row gt_right">0.208</td>
+<td class="gt_row gt_right">&minus;0.05</td>
+<td class="gt_row gt_right">&minus;0.26</td>
+<td class="gt_row gt_right">&minus;0.21</td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="6" class="gt_group_heading">Centrum body length</td>
+    </tr>
+    <tr><td class="gt_row gt_left gt_stub">mean</td>
+<td class="gt_row gt_right">2.3</td>
+<td class="gt_row gt_right">0.316</td>
+<td class="gt_row gt_right">&minus;0.13</td>
+<td class="gt_row gt_right">&minus;0.14</td>
+<td class="gt_row gt_right">&minus;0.01</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">vertex</td>
+<td class="gt_row gt_right" style="font-weight: bold;">6.4</td>
+<td class="gt_row gt_right" style="font-weight: bold;">0.040</td>
+<td class="gt_row gt_right" style="font-weight: bold;">&minus;0.08</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.29</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.36</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">quad. coef.</td>
+<td class="gt_row gt_right" style="font-weight: bold;">11</td>
+<td class="gt_row gt_right" style="font-weight: bold;">0.004</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.08</td>
+<td class="gt_row gt_right" style="font-weight: bold;">&minus;0.40</td>
+<td class="gt_row gt_right" style="font-weight: bold;">&minus;0.48</td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="6" class="gt_group_heading">Fineness</td>
+    </tr>
+    <tr><td class="gt_row gt_left gt_stub">mean</td>
+<td class="gt_row gt_right">2.6</td>
+<td class="gt_row gt_right">0.279</td>
+<td class="gt_row gt_right">+0.06</td>
+<td class="gt_row gt_right">&minus;0.17</td>
+<td class="gt_row gt_right">&minus;0.23</td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="6" class="gt_group_heading">Foramen diameter</td>
+    </tr>
+    <tr><td class="gt_row gt_left gt_stub">mean</td>
+<td class="gt_row gt_right" style="font-weight: bold;">8.6</td>
+<td class="gt_row gt_right" style="font-weight: bold;">0.014</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.06</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.43</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.37</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">vertex</td>
+<td class="gt_row gt_right" style="font-weight: bold;">21</td>
+<td class="gt_row gt_right" style="font-weight: bold;">0.000</td>
+<td class="gt_row gt_right" style="font-weight: bold;">&minus;0.40</td>
+<td class="gt_row gt_right" style="font-weight: bold;">&minus;0.40</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.00</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">quad. coef.</td>
+<td class="gt_row gt_right">1.7</td>
+<td class="gt_row gt_right">0.436</td>
+<td class="gt_row gt_right">+0.11</td>
+<td class="gt_row gt_right">+0.00</td>
+<td class="gt_row gt_right">&minus;0.11</td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="6" class="gt_group_heading">Posterior cone angle</td>
+    </tr>
+    <tr><td class="gt_row gt_left gt_stub">mean</td>
+<td class="gt_row gt_right" style="font-weight: bold;">20</td>
+<td class="gt_row gt_right" style="font-weight: bold;">0.000</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.34</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.53</td>
+<td class="gt_row gt_right" style="font-weight: bold;">+0.18</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">vertex</td>
+<td class="gt_row gt_right">1.4</td>
+<td class="gt_row gt_right">0.495</td>
+<td class="gt_row gt_right">+0.07</td>
+<td class="gt_row gt_right">+0.16</td>
+<td class="gt_row gt_right">+0.09</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">quad. coef.</td>
+<td class="gt_row gt_right">3.1</td>
+<td class="gt_row gt_right">0.216</td>
+<td class="gt_row gt_right">&minus;0.11</td>
+<td class="gt_row gt_right">+0.12</td>
+<td class="gt_row gt_right">+0.22</td></tr>
+    <tr class="gt_group_heading_row">
+      <td colspan="6" class="gt_group_heading">Posterior cone diameter</td>
+    </tr>
+    <tr><td class="gt_row gt_left gt_stub">mean</td>
+<td class="gt_row gt_right">2.2</td>
+<td class="gt_row gt_right">0.340</td>
+<td class="gt_row gt_right">&minus;0.07</td>
+<td class="gt_row gt_right">+0.14</td>
+<td class="gt_row gt_right">+0.21</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">vertex</td>
+<td class="gt_row gt_right">1.3</td>
+<td class="gt_row gt_right">0.516</td>
+<td class="gt_row gt_right">+0.09</td>
+<td class="gt_row gt_right">+0.12</td>
+<td class="gt_row gt_right">+0.02</td></tr>
+    <tr><td class="gt_row gt_left gt_stub">quad. coef.</td>
+<td class="gt_row gt_right">2.6</td>
+<td class="gt_row gt_right">0.271</td>
+<td class="gt_row gt_right">&minus;0.03</td>
+<td class="gt_row gt_right">&minus;0.24</td>
+<td class="gt_row gt_right">&minus;0.21</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+<pre class="r"><code>gtsave(tab, here(&quot;output/stats_table.rtf&quot;))</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.2 (2021-11-01)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices datasets  utils     methods   base     
+
+other attached packages:
+ [1] here_1.0.1       gt_0.3.1         emmeans_1.6.3    patchwork_1.1.1 
+ [5] ggbeeswarm_0.6.0 forcats_0.5.1    stringr_1.4.0    dplyr_1.0.7     
+ [9] purrr_0.3.4      readr_2.0.1      tidyr_1.1.3      tibble_3.1.4    
+[13] ggplot2_3.3.5    tidyverse_1.3.1 
+
+loaded via a namespace (and not attached):
+ [1] fs_1.5.0         lubridate_1.7.10 bit64_4.0.5      httr_1.4.2      
+ [5] rprojroot_2.0.2  tools_4.1.2      backports_1.2.1  utf8_1.2.2      
+ [9] R6_2.5.1         vipor_0.4.5      DBI_1.1.1        colorspace_2.0-2
+[13] withr_2.4.2      tidyselect_1.1.1 bit_4.0.4        compiler_4.1.2  
+[17] git2r_0.29.0     cli_3.0.1        rvest_1.0.1      xml2_1.3.2      
+[21] sass_0.4.0       labeling_0.4.2   scales_1.1.1     checkmate_2.0.0 
+[25] mvtnorm_1.1-2    commonmark_1.7   digest_0.6.27    rmarkdown_2.10  
+[29] pkgconfig_2.0.3  htmltools_0.5.2  dbplyr_2.1.1     fastmap_1.1.0   
+[33] highr_0.9        rlang_0.4.11     readxl_1.3.1     rstudioapi_0.13 
+[37] generics_0.1.0   farver_2.1.0     jsonlite_1.7.2   vroom_1.5.4     
+[41] magrittr_2.0.1   Rcpp_1.0.7       munsell_0.5.0    fansi_0.5.0     
+[45] lifecycle_1.0.0  stringi_1.7.4    whisker_0.4      yaml_2.2.1      
+[49] grid_4.1.2       parallel_4.1.2   promises_1.2.0.1 crayon_1.4.1    
+[53] lattice_0.20-45  haven_2.4.3      hms_1.1.0        knitr_1.34      
+[57] pillar_1.6.2     estimability_1.3 reprex_2.0.1     glue_1.4.2      
+[61] evaluate_0.14    renv_0.14.0      modelr_0.1.8     vctrs_0.3.8     
+[65] tzdb_0.1.2       httpuv_1.6.4     cellranger_1.1.0 gtable_0.3.0    
+[69] assertthat_0.2.1 xfun_0.25        xtable_1.8-4     broom_0.7.9     
+[73] coda_0.19-4      later_1.3.0      beeswarm_0.4.0   workflowr_1.7.0 
+[77] ellipsis_0.3.2  </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

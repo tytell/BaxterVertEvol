@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>R Notebook</title>
+
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Code</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/tytell/BaxterVertEvol">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">R Notebook</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-04-11
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>Code/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20211230code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20211230)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20211230code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20211230)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Flexibility Comparisons.nb.html
+    Ignored:    Main.nb.html
+    Ignored:    PGLS.FullData.nb.html
+    Ignored:    PGLSforeachMeasFeature.nb.html
+    Ignored:    PGLSwithPCA_Dims.nb.html
+    Ignored:    PreppedVertMeas.nb.html
+    Ignored:    ProcessCymatogasterFiles.nb.html
+    Ignored:    ProcessFCSVfiles.nb.html
+    Ignored:    TestingHabitatwithFriedmanData.nb.html
+    Ignored:    Trilok_tree.nb.html
+    Ignored:    VertLM.nb.html
+    Ignored:    VertMeasLDA_Attempt.nb.html
+    Ignored:    VertPGLS.nb.html
+    Ignored:    VertPairs.nb.html
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/10-VertLM.nb.html
+    Ignored:    analysis/20-plot_phylogeny.nb.html
+    Ignored:    analysis/21-plot_fits_and_summary.nb.html
+    Ignored:    analysis/CheckSpeciesMatch.nb.html
+    Ignored:    caper_test.nb.html
+    Ignored:    data/.DS_Store
+    Ignored:    ggtree_attempt.nb.html
+    Ignored:    plot_example_data.nb.html
+    Ignored:    plot_fits_and_summary.nb.html
+    Ignored:    plot_phylogeny.nb.html
+    Ignored:    renv/library/
+    Ignored:    renv/staging/
+    Ignored:    summarize_vert_meas.nb.html
+    Ignored:    test_phylogeny.nb.html
+    Ignored:    test_vertebraspace.nb.html
+    Ignored:    vert_evol.Rproj
+
+Untracked files:
+    Untracked:  Main.html
+    Untracked:  ProcessFCSVfiles.Rmd
+    Untracked:  VertPGLS.html
+    Untracked:  gg_saver.R
+    Untracked:  output/BodyDistribution.pdf
+    Untracked:  output/MasterVert_Measurements.csv
+    Untracked:  output/mean_d_alphaPos_CBL.pdf
+    Untracked:  output/pair_plot.pdf
+    Untracked:  output/plot_example_data_figure.pdf
+    Untracked:  output/stats_table.rtf
+    Untracked:  plot_fits_and_summary.Rmd
+    Untracked:  summarize_vert_meas.html
+    Untracked:  testtree.csv
+    Untracked:  vert_tree.csv
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/11-VertPGLS.Rmd</code>) and HTML (<code>docs/11-VertPGLS.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/23908bd4e6e24d389ba137373d7d60c262968ccf/analysis/11-VertPGLS.Rmd" target="_blank">23908bd</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Test site build again
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/edeae3c58db615477cae99bae2ff1e4b01b09b5d/analysis/11-VertPGLS.Rmd" target="_blank">edeae3c</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2021-12-30
+</td>
+<td>
+Rename notebooks to indicate order
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+✓ tibble  3.1.4     ✓ dplyr   1.0.7
+✓ tidyr   1.1.3     ✓ stringr 1.4.0
+✓ readr   2.0.1     ✓ forcats 0.5.1</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggbeeswarm)
+library(phytools)</code></pre>
+<pre><code>Loading required package: ape</code></pre>
+<pre><code>Loading required package: maps</code></pre>
+<pre><code>
+Attaching package: &#39;maps&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:purrr&#39;:
+
+    map</code></pre>
+<pre class="r"><code>library(patchwork)
+library(here)</code></pre>
+<pre><code>here() starts at /Users/etytel01/Documents/Vertebrae/Code</code></pre>
+<pre class="r"><code>library(nlme)</code></pre>
+<pre><code>
+Attaching package: &#39;nlme&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:dplyr&#39;:
+
+    collapse</code></pre>
+<pre class="r"><code>library(ape)
+library(geiger)
+library(ggtree)</code></pre>
+<pre><code>ggtree v3.0.2  For help: https://yulab-smu.top/treedata-book/
+
+If you use ggtree in published research, please cite the most appropriate paper(s):
+
+1. Guangchuang Yu. Using ggtree to visualize data on tree-like structures. Current Protocols in Bioinformatics, 2020, 69:e96. doi:10.1002/cpbi.96
+2. Guangchuang Yu, Tommy Tsan-Yuk Lam, Huachen Zhu, Yi Guan. Two methods for mapping and visualizing associated data on phylogeny using ggtree. Molecular Biology and Evolution 2018, 35(12):3041-3043. doi:10.1093/molbev/msy194
+3. Guangchuang Yu, David Smith, Huachen Zhu, Yi Guan, Tommy Tsan-Yuk Lam. ggtree: an R package for visualization and annotation of phylogenetic trees with their covariates and other associated data. Methods in Ecology and Evolution 2017, 8(1):28-36. doi:10.1111/2041-210X.12628</code></pre>
+<pre><code>
+Attaching package: &#39;ggtree&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:nlme&#39;:
+
+    collapse</code></pre>
+<pre><code>The following object is masked from &#39;package:ape&#39;:
+
+    rotate</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    expand</code></pre>
+<pre class="r"><code>library(emmeans)
+library(car)</code></pre>
+<pre><code>Loading required package: carData</code></pre>
+<pre><code>
+Attaching package: &#39;car&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:dplyr&#39;:
+
+    recode</code></pre>
+<pre><code>The following object is masked from &#39;package:purrr&#39;:
+
+    some</code></pre>
+<pre class="r"><code>library(Hmisc)</code></pre>
+<pre><code>Loading required package: lattice</code></pre>
+<pre><code>Loading required package: survival</code></pre>
+<pre><code>Loading required package: Formula</code></pre>
+<pre><code>
+Attaching package: &#39;Hmisc&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:ape&#39;:
+
+    zoom</code></pre>
+<pre><code>The following objects are masked from &#39;package:dplyr&#39;:
+
+    src, summarize</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    format.pval, units</code></pre>
+<pre class="r"><code>citation()</code></pre>
+<pre><code>
+To cite R in publications use:
+
+  R Core Team (2021). R: A language and environment for statistical
+  computing. R Foundation for Statistical Computing, Vienna, Austria.
+  URL https://www.R-project.org/.
+
+A BibTeX entry for LaTeX users is
+
+  @Manual{,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2021},
+    url = {https://www.R-project.org/},
+  }
+
+We have invested a lot of time and effort in creating R, please cite it
+when using it for data analysis. See also &#39;citation(&quot;pkgname&quot;)&#39; for
+citing R packages.</code></pre>
+<pre class="r"><code>print(getRversion())</code></pre>
+<pre><code>[1] &#39;4.1.2&#39;</code></pre>
+<pre class="r"><code>citation(&quot;nlme&quot;)</code></pre>
+<pre><code>
+Pinheiro J, Bates D, DebRoy S, Sarkar D, R Core Team (2021). _nlme:
+Linear and Nonlinear Mixed Effects Models_. R package version 3.1-153,
+&lt;URL: https://CRAN.R-project.org/package=nlme&gt;.
+
+A BibTeX entry for LaTeX users is
+
+  @Manual{,
+    title = {{nlme}: Linear and Nonlinear Mixed Effects Models},
+    author = {Jose Pinheiro and Douglas Bates and Saikat DebRoy and Deepayan Sarkar and {R Core Team}},
+    year = {2021},
+    note = {R package version 3.1-153},
+    url = {https://CRAN.R-project.org/package=nlme},
+  }</code></pre>
+<pre class="r"><code>packageVersion(&quot;nlme&quot;)</code></pre>
+<pre><code>[1] &#39;3.1.153&#39;</code></pre>
+<pre class="r"><code>citation(&quot;ape&quot;)</code></pre>
+<pre><code>
+To cite ape in a publication please use:
+
+  Paradis E. &amp; Schliep K. 2019. ape 5.0: an environment for modern
+  phylogenetics and evolutionary analyses in R. Bioinformatics 35:
+  526-528.
+
+A BibTeX entry for LaTeX users is
+
+  @Article{,
+    title = {ape 5.0: an environment for modern phylogenetics and evolutionary analyses in {R}},
+    author = {E. Paradis and K. Schliep},
+    journal = {Bioinformatics},
+    year = {2019},
+    volume = {35},
+    pages = {526-528},
+  }
+
+As ape is evolving quickly, you may want to cite also its version
+number (found with &#39;library(help = ape)&#39; or &#39;packageVersion(&quot;ape&quot;)&#39;).</code></pre>
+<pre class="r"><code>packageVersion(&quot;ape&quot;)</code></pre>
+<pre><code>[1] &#39;5.5&#39;</code></pre>
+<pre class="r"><code>citation(&quot;geiger&quot;)</code></pre>
+<pre><code>
+To cite medusa, auteur, or geiger in a publication use:
+
+medusa
+
+  Alfaro Michael E, Francesco Santini, Chad Brock, Hugo Alamillo, Alex
+  Dornburg, Daniel L Rabosky, Giorgio Carnevale, and Luke J Harmon.
+  2009. Nine exceptional radiations plus high turnover explain species
+  diversity in jawed vertebrates. PNAS 106:13410-13414.
+
+auteur
+
+  Eastman Jonathan M, Michael E Alfaro, Paul Joyce, Andrew L Hipp, and
+  Luke J Harmon. 2011. A novel comparative method for identifying
+  shifts in the rate of character evolution on trees. Evolution
+  65:3578-3589.
+
+MECCA
+
+  Slater Graham J, Luke J Harmon, Daniel Wegmann, Paul Joyce, Liam J
+  Revell, and Michael E Alfaro. 2012. Fitting models of continuous
+  trait evolution to incompletely sampled comparative data using
+  approximate Bayesian computation. Evolution 66:752-762.
+
+geiger-orig
+
+  Harmon Luke J, Jason T Weir, Chad D Brock, Richard E Glor, and
+  Wendell Challenger. 2008. GEIGER: investigating evolutionary
+  radiations. Bioinformatics 24:129-131.
+
+geiger
+
+  Pennell Matthew W, Jonathan M Eastman, Graham J Slater, Joseph W
+  Brown, Josef C Uyeda, Richard G FitzJohn, Michael E Alfaro, and Luke
+  J Harmon. 2014. geiger v2.0: an expanded suite of methods for fitting
+  macroevolutionary models to phylogenetic trees. Bioinformatics
+  30:2216-2218.
+
+To see these entries in BibTeX format, use &#39;print(&lt;citation&gt;,
+bibtex=TRUE)&#39;, &#39;toBibtex(.)&#39;, or set
+&#39;options(citation.bibtex.max=999)&#39;.</code></pre>
+<pre class="r"><code>packageVersion(&quot;geiger&quot;)</code></pre>
+<pre><code>[1] &#39;2.0.7&#39;</code></pre>
+<div id="load-data" class="section level1">
+<h1>Load data</h1>
+<pre class="r"><code>vertdata_sum &lt;- read_csv(here(&quot;output/vertdata_summary_lm.csv&quot;))</code></pre>
+<pre><code>Rows: 83 Columns: 90</code></pre>
+<pre><code>── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (5): Species, Habitat, Water_Type, MatchSpecies, MatchGenus
+dbl (85): fineness, CBL_med, CBL_max, CBL_mn, d_med, d_max, d_mn, alphaAnt_m...</code></pre>
+<pre><code>
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div id="phylogeny" class="section level2">
+<h2>Phylogeny</h2>
+<p>This is the whole Betancur-R tree.</p>
+<pre class="r"><code>tree &lt;- read.tree(here(&#39;data/12862_2017_958_MOESM2_ESM.tre&#39;))</code></pre>
+<p>Get the names of species from the tree.</p>
+<pre class="r"><code>allspecies &lt;- tibble(tree$tip.label)
+colnames(allspecies) &lt;- c(&#39;FullName&#39;)
+head(allspecies)</code></pre>
+<pre><code># A tibble: 6 × 1
+  FullName                                              
+  &lt;chr&gt;                                                 
+1 Rajidae_Leucoraja_erinacea_G01356                     
+2 Callorhinchidae_Callorhinchus_milii_G01235            
+3 Latimeriidae_Latimeria_chalumnae_G01347               
+4 Neoceratodontidae_Neoceratodus_forsteri_G01534        
+5 Protopteridae_Protopterus_aethiopicus_annectens_G01451
+6 Lepidosirenidae_Lepidosiren_paradoxa_G01352           </code></pre>
+<p>And split the names into family, genus, and species.</p>
+<pre class="r"><code>allspecies &lt;- 
+  allspecies %&gt;% separate(FullName, sep=&#39;_&#39;, into=c(&#39;Family&#39;, &#39;Genus&#39;, &#39;Species&#39;), 
+                          extra=&#39;drop&#39;, remove=FALSE)</code></pre>
+<p>Set up the tip number (just the row)</p>
+<pre class="r"><code>allspecies$Tip &lt;- seq_len(nrow(allspecies))</code></pre>
+<pre class="r"><code>vertdata &lt;- left_join(vertdata_sum, allspecies, 
+                                  by=c(&quot;MatchGenus&quot;=&quot;Genus&quot;, &quot;MatchSpecies&quot;=&quot;Species&quot;)) %&gt;%
+  select(-(ends_with(&quot;.x&quot;) | ends_with(&quot;.y&quot;)))
+vertdata</code></pre>
+<pre><code># A tibble: 83 × 93
+   Species   Habitat Water_Type MatchSpecies MatchGenus fineness CBL_med CBL_max
+   &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;         &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1 Abramis_… pelagic freshwater alburnus     Alburnus       8.95 0.0166   0.0177
+ 2 Alectis_… demers… marine     ciliaris     Alectis        8.75 0.0346   0.0357
+ 3 Alosa_ps… pelagic anadromous pseudoharen… Alosa          7.39 0.0165   0.0173
+ 4 Amia_cal… demers… freshwater calva        Amia           6.72 0.00983  0.0113
+ 5 Ammodyte… benthic marine     dubius       Ammodytes     16.9  0.0132   0.0141
+ 6 Anodonto… pelagic freshwater cepedianum   Dorosoma       4.66 0.0228   0.0238
+ 7 Anoplarc… benthic marine     &lt;NA&gt;         &lt;NA&gt;           8.62 0.0195   0.0212
+ 8 Anoplarc… benthic marine     &lt;NA&gt;         &lt;NA&gt;           9.51 0.0156   0.0176
+ 9 Anoploga… pelagic marine     cornuta      Anoplogas…     5.04 0.0287   0.0329
+10 Aphareus… pelagic marine     furca        Aphareus       5.01 0.0312   0.0334
+# … with 73 more rows, and 85 more variables: CBL_mn &lt;dbl&gt;, d_med &lt;dbl&gt;,
+#   d_max &lt;dbl&gt;, d_mn &lt;dbl&gt;, alphaAnt_med &lt;dbl&gt;, alphaAnt_max &lt;dbl&gt;,
+#   alphaAnt_mn &lt;dbl&gt;, alphaPos_med &lt;dbl&gt;, alphaPos_max &lt;dbl&gt;,
+#   alphaPos_mn &lt;dbl&gt;, DAnt_med &lt;dbl&gt;, DAnt_max &lt;dbl&gt;, DAnt_mn &lt;dbl&gt;,
+#   DPos_med &lt;dbl&gt;, DPos_max &lt;dbl&gt;, DPos_mn &lt;dbl&gt;, dBW_med &lt;dbl&gt;,
+#   dBW_max &lt;dbl&gt;, dBW_mn &lt;dbl&gt;, DAntBW_med &lt;dbl&gt;, DAntBW_max &lt;dbl&gt;,
+#   DAntBW_mn &lt;dbl&gt;, DPosBW_med &lt;dbl&gt;, DPosBW_max &lt;dbl&gt;, DPosBW_mn &lt;dbl&gt;, …</code></pre>
+<p>Drop species without a match</p>
+<pre class="r"><code>vertdata %&gt;%
+  filter(is.na(Tip)) %&gt;%
+  distinct(Species, .keep_all=TRUE) %&gt;%
+  select(Species, MatchGenus, MatchSpecies, Tip, Habitat)</code></pre>
+<pre><code># A tibble: 4 × 5
+  Species                  MatchGenus MatchSpecies   Tip Habitat
+  &lt;chr&gt;                    &lt;chr&gt;      &lt;chr&gt;        &lt;int&gt; &lt;chr&gt;  
+1 Anoplarchus_insignis     &lt;NA&gt;       &lt;NA&gt;            NA benthic
+2 Anoplarchus_purpurescens &lt;NA&gt;       &lt;NA&gt;            NA benthic
+3 Xiphister_atropurpureus  &lt;NA&gt;       &lt;NA&gt;            NA benthic
+4 Xiphister_mucosus        &lt;NA&gt;       &lt;NA&gt;            NA benthic</code></pre>
+<pre class="r"><code>vertdata &lt;-
+  vertdata %&gt;%
+  filter(!is.na(Tip))</code></pre>
+<pre class="r"><code>ourspecies &lt;-
+  vertdata %&gt;%
+  distinct(Species, .keep_all=TRUE)</code></pre>
+<pre class="r"><code>verttree &lt;- keep.tip(tree, tip=as.vector(ourspecies$Tip))</code></pre>
+<pre class="r"><code>plotTree(verttree)</code></pre>
+<p><img src="figure/11-VertPGLS.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>vertdata_sp &lt;- 
+  vertdata %&gt;%
+  distinct(FullName, .keep_all = TRUE) %&gt;%
+  mutate(rowname = FullName) %&gt;%
+  column_to_rownames(var = &quot;rowname&quot;)</code></pre>
+<pre class="r"><code>verttree &lt;- keep.tip(tree, tip=as.vector(vertdata_sp$Tip))</code></pre>
+<pre class="r"><code>left_join(as_tibble(verttree),
+          vertdata_sp %&gt;%
+            rownames_to_column(&quot;label&quot;) %&gt;%
+            select(label, Habitat)) %&gt;%
+  tidytree::as.treedata() %&gt;%
+  ggtree(layout = &#39;circular&#39;) + # geom_tiplab() +
+  geom_tippoint(aes(color = Habitat))</code></pre>
+<pre><code>Joining, by = &quot;label&quot;</code></pre>
+<p><img src="figure/11-VertPGLS.Rmd/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /> Check if tree and data match</p>
+<pre class="r"><code>length(verttree$tip.label)</code></pre>
+<pre><code>[1] 77</code></pre>
+<pre class="r"><code>nrow(vertdata_sp)</code></pre>
+<pre><code>[1] 77</code></pre>
+<pre class="r"><code>name.check(verttree, vertdata_sp)</code></pre>
+<pre><code>[1] &quot;OK&quot;</code></pre>
+<p>Merge the measurements and the tree</p>
+<pre class="r"><code>verttree_data &lt;-
+  as_tibble(verttree) %&gt;%
+  left_join(vertdata_sp %&gt;%
+              rownames_to_column(&quot;label&quot;) %&gt;%
+              select(label, Habitat, Family,
+                     ends_with(&quot;80&quot;), ends_with(&quot;max&quot;), ends_with(&quot;med&quot;), ends_with(&quot;slope&quot;), ends_with(&quot;quad&quot;)))</code></pre>
+<pre><code>Joining, by = &quot;label&quot;</code></pre>
+<pre class="r"><code>vertdata_sp &lt;-
+  vertdata_sp %&gt;%
+  mutate(CBL_vtx = -CBL_slope / CBL_quad,
+         alphaPos_vtx = -alphaPos_slope / alphaPos_quad,
+         alphaAnt_vtx = -alphaAnt_slope / alphaAnt_quad,
+         d_vtx = -d_slope / d_quad,
+         DAnt_vtx = -DAnt_slope / DAnt_quad,
+         DPos_vtx = -DPos_slope / DPos_quad)</code></pre>
+<p>Save out the tree data. There is something subtly different about saving the data out as a csv file and saving it as an RDS file. The base class of the tree is tbl_tree, but when we load it back in from a csv, despite having exactly the same data, it won’t work with the tidytree functions. So we save it in an RDS file, which preserves the class.</p>
+<pre class="r"><code>write_csv(vertdata_sp, here(&#39;output/vertdata_summary_lm_species.csv&#39;))
+saveRDS(verttree, here(&#39;output/vert_tree.rds&#39;))</code></pre>
+</div>
+<div id="pgls-analysis-for-means-maxes-medians-and-80" class="section level2">
+<h2>PGLS Analysis for means, maxes, medians, and 80%</h2>
+<pre class="r"><code>vertdata_sp0 &lt;-
+  vertdata_sp %&gt;%
+  mutate(across(contains(&#39;slope&#39;) | contains(&#39;quad&#39;), 
+                ~ replace_na(., 0)))</code></pre>
+<pre class="r"><code>var &lt;- c(#&#39;CBL_80&#39;, &#39;d_80&#39;, &#39;alphaAnt_80&#39;, &#39;alphaPos_80&#39;, &#39;DAnt_80&#39;, &#39;DPos_80&#39;, 
+         #&#39;CBL_max&#39;, &#39;d_max&#39;, &#39;alphaAnt_max&#39;, &#39;alphaPos_max&#39;, &#39;DAnt_max&#39;, &#39;DPos_max&#39;,
+         &#39;CBL_mn&#39;, &#39;d_mn&#39;, &#39;alphaAnt_mn&#39;, &#39;alphaPos_mn&#39;, &#39;DAnt_mn&#39;, &#39;DPos_mn&#39;,
+         #&#39;CBL_med&#39;, &#39;d_med&#39;, &#39;alphaAnt_med&#39;, &#39;alphaPos_med&#39;, &#39;DAnt_med&#39;, &#39;DPos_med&#39;,
+         &#39;fineness&#39;, 
+         #&#39;CBL_slope&#39;, &#39;d_slope&#39;, &#39;alphaAnt_slope&#39;, &#39;alphaPos_slope&#39;, &#39;DAnt_slope&#39;, &#39;DPos_slope&#39;, 
+         &#39;CBL_vtx&#39;, &#39;d_vtx&#39;, &#39;alphaAnt_vtx&#39;, &#39;alphaPos_vtx&#39;, &#39;DAnt_vtx&#39;, &#39;DPos_vtx&#39;,
+         &#39;CBL_quad&#39;, &#39;d_quad&#39;, &#39;alphaAnt_quad&#39;, &#39;alphaPos_quad&#39;, &#39;DAnt_quad&#39;, &#39;DPos_quad&#39;)
+         #&#39;CBL_order&#39;, &#39;d_order&#39;, &#39;alphaAnt_order&#39;, &#39;alphaPos_order&#39;, &#39;DAnt_order&#39;, &#39;DPos_order&#39;)
+
+modeltests &lt;- tibble()
+
+for (i in seq_along(var)) {
+  print(var[i])
+  fmla &lt;- as.formula(paste(var[i], &quot;Habitat&quot;, sep = &quot; ~ &quot;))
+  mod &lt;- gls(fmla, correlation = corBrownian(1, phy = verttree, form = ~FullName),
+                      data = vertdata_sp0, method = &quot;ML&quot;)
+  
+  ava &lt;- broom::tidy(Anova(mod))
+  ava$var = var[i]
+  ava$model = list(mod)
+  
+  modeltests &lt;- bind_rows(modeltests, ava)
+}</code></pre>
+<pre><code>[1] &quot;CBL_mn&quot;
+[1] &quot;d_mn&quot;
+[1] &quot;alphaAnt_mn&quot;
+[1] &quot;alphaPos_mn&quot;
+[1] &quot;DAnt_mn&quot;
+[1] &quot;DPos_mn&quot;
+[1] &quot;fineness&quot;
+[1] &quot;CBL_vtx&quot;
+[1] &quot;d_vtx&quot;
+[1] &quot;alphaAnt_vtx&quot;
+[1] &quot;alphaPos_vtx&quot;
+[1] &quot;DAnt_vtx&quot;
+[1] &quot;DPos_vtx&quot;
+[1] &quot;CBL_quad&quot;
+[1] &quot;d_quad&quot;
+[1] &quot;alphaAnt_quad&quot;
+[1] &quot;alphaPos_quad&quot;
+[1] &quot;DAnt_quad&quot;
+[1] &quot;DPos_quad&quot;</code></pre>
+<pre class="r"><code>modeltests %&gt;%
+  dplyr::select(var, statistic, p.value, everything()) %&gt;%
+  filter(p.value &lt; 0.05 | str_detect(var, &quot;dBW&quot;)) %&gt;%
+  arrange(var)</code></pre>
+<pre><code># A tibble: 5 × 6
+  var         statistic   p.value term       df model 
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;list&gt;
+1 alphaPos_mn     20.1  0.0000437 Habitat     2 &lt;gls&gt; 
+2 CBL_quad        11.1  0.00385   Habitat     2 &lt;gls&gt; 
+3 CBL_vtx          6.42 0.0404    Habitat     2 &lt;gls&gt; 
+4 d_mn             8.61 0.0135    Habitat     2 &lt;gls&gt; 
+5 d_vtx           21.2  0.0000251 Habitat     2 &lt;gls&gt; </code></pre>
+<pre class="r"><code>compare_habitats &lt;- function(model) {
+  emm &lt;- emmeans(model, ~Habitat)
+  p &lt;- as.data.frame(pairs(emm))
+  es &lt;- as.data.frame(eff_size(emm, sigma = sigma(model), edf = model$dims$N - model$dims$p))
+  p$effect.size &lt;- es$effect.size
+  
+  p %&gt;%
+    mutate(contrast = str_replace(contrast, &quot;(\\w+) - (\\w+)&quot;, &quot;\\1_\\2&quot;)) %&gt;%
+    select(contrast, p.value, effect.size) %&gt;%
+    rename(p = p.value, eff = effect.size) %&gt;%
+    pivot_wider(names_from = contrast, values_from = c(p, eff),
+                names_glue = &quot;{contrast}_{.value}&quot;)
+}</code></pre>
+<pre class="r"><code>habitat_means &lt;- function(model) {
+  emm &lt;- emmeans(model, ~Habitat)
+  as.data.frame(emm) %&gt;%
+    select(Habitat, emmean, SE) %&gt;%
+    rename(mn = emmean,
+           se = SE) %&gt;%
+    pivot_wider(names_from = Habitat, values_from = c(mn, se),
+                names_glue = &quot;{Habitat}_{.value}&quot;)
+    
+}</code></pre>
+<pre class="r"><code>modeltests &lt;-
+  modeltests %&gt;%
+  dplyr::select(var, statistic, p.value, everything()) %&gt;%
+  # filter(p.value &lt; 0.05) %&gt;%
+  mutate(mc = purrr::map(model, compare_habitats)) %&gt;%
+  unnest(mc) %&gt;%
+  mutate(total_eff = abs(benthic_demersal_eff) + abs(benthic_pelagic_eff) + abs(demersal_pelagic_eff)) %&gt;%
+  mutate(hm = purrr::map(model, habitat_means)) %&gt;%
+  unnest(hm) %&gt;%
+  # filter(total_eff &gt; 0.5) %&gt;%
+  relocate(p.value, total_eff, ends_with(&quot;_p&quot;), .after = var) %&gt;%
+  arrange(desc(total_eff))</code></pre>
+<pre class="r"><code>modeltests %&gt;%
+  filter(abs(benthic_demersal_eff) &gt;= 0.2 | abs(benthic_pelagic_eff) &gt;= 0.2 | abs(demersal_pelagic_eff) &gt;= 0.2)</code></pre>
+<pre><code># A tibble: 12 × 19
+   var             p.value total_eff benthic_demersa… benthic_pelagic… demersal_pelagi…
+   &lt;chr&gt;             &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+ 1 alphaPos_mn   0.0000437     1.05         0.000899           0.00191          0.413  
+ 2 CBL_quad      0.00385       0.963        0.635              0.0231           0.00378
+ 3 d_mn          0.0135        0.860        0.805              0.0132           0.0310 
+ 4 d_vtx         0.0000251     0.799        0.0000937          0.0239           1.00   
+ 5 CBL_vtx       0.0404        0.730        0.670              0.133            0.0359 
+ 6 alphaAnt_mn   0.0948        0.626        0.884              0.168            0.0836 
+ 7 DAnt_quad     0.208         0.524        0.855              0.186            0.306  
+ 8 alphaAnt_quad 0.167         0.521        0.556              0.499            0.175  
+ 9 DPos_quad     0.271         0.472        0.947              0.253            0.326  
+10 fineness      0.279         0.456        0.788              0.492            0.260  
+11 alphaPos_quad 0.216         0.448        0.452              0.718            0.274  
+12 DPos_mn       0.340         0.410        0.735              0.623            0.336  
+# … with 13 more variables: statistic &lt;dbl&gt;, term &lt;chr&gt;, df &lt;dbl&gt;,
+#   model &lt;list&gt;, benthic_demersal_eff &lt;dbl&gt;, benthic_pelagic_eff &lt;dbl&gt;,
+#   demersal_pelagic_eff &lt;dbl&gt;, benthic_mn &lt;dbl&gt;, demersal_mn &lt;dbl&gt;,
+#   pelagic_mn &lt;dbl&gt;, benthic_se &lt;dbl&gt;, demersal_se &lt;dbl&gt;, pelagic_se &lt;dbl&gt;</code></pre>
+<pre class="r"><code>emmeans(modeltests$model[[2]], ~Habitat)</code></pre>
+<pre><code> Habitat    emmean     SE df lower.CL upper.CL
+ benthic  -0.02279 0.0386 74  -0.0997   0.0541
+ demersal -0.02882 0.0381 74  -0.1048   0.0472
+ pelagic   0.00649 0.0392 74  -0.0716   0.0846
+
+Degrees-of-freedom method: df.error 
+Confidence level used: 0.95 </code></pre>
+<pre class="r"><code>sigvars &lt;- pull(modeltests, var)</code></pre>
+<pre class="r"><code>write_csv(modeltests, here(&quot;output/modeltests.csv&quot;))
+saveRDS(modeltests, here(&quot;output/PGLSmodels.Rds&quot;))</code></pre>
+</div>
+<div id="mean-plots-with-stats" class="section level2">
+<h2>Mean plots with stats</h2>
+<p>This sets up the data in long form, with all the variables stacked, and the variables ordered by descending total effect size.</p>
+<pre class="r"><code>vertdata_long &lt;-
+  vertdata_sp0 %&gt;%
+  select(Habitat, Species, !!sigvars) %&gt;%
+  pivot_longer(cols = !Habitat &amp; !Species, names_to = &quot;var&quot;, values_to = &quot;value&quot;) %&gt;%
+  left_join(
+    modeltests %&gt;%
+      select(var, total_eff, p.value), 
+    by = &quot;var&quot;) %&gt;%
+  mutate(var = as.factor(var),
+         var = fct_reorder(var, total_eff, .desc = TRUE))</code></pre>
+<p>Plot all the effects</p>
+<pre class="r"><code>vertdata_long %&gt;%
+  filter(!is.na(var) &amp; p.value &lt; 0.05) %&gt;%
+  ggplot(aes(x = Habitat, y = value, color = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = mean_sdl) +
+  # geom_boxplot(width=0.3, alpha=0.5, outlier.shape = NA) +
+  stat_summary(aes(group = 1), fun = &quot;mean&quot;, geom = &quot;line&quot;) +
+  facet_wrap(~ var, scales = &quot;free_y&quot;)</code></pre>
+<p><img src="figure/11-VertPGLS.Rmd/unnamed-chunk-34-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.1.2 (2021-11-01)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices datasets  utils     methods   base     
+
+other attached packages:
+ [1] Hmisc_4.5-0      Formula_1.2-4    survival_3.2-13  lattice_0.20-45 
+ [5] car_3.0-11       carData_3.0-4    emmeans_1.6.3    ggtree_3.0.2    
+ [9] geiger_2.0.7     nlme_3.1-153     here_1.0.1       patchwork_1.1.1 
+[13] phytools_0.7-80  maps_3.3.0       ape_5.5          ggbeeswarm_0.6.0
+[17] forcats_0.5.1    stringr_1.4.0    dplyr_1.0.7      purrr_0.3.4     
+[21] readr_2.0.1      tidyr_1.1.3      tibble_3.1.4     ggplot2_3.3.5   
+[25] tidyverse_1.3.1 
+
+loaded via a namespace (and not attached):
+  [1] readxl_1.3.1            backports_1.2.1         fastmatch_1.1-3        
+  [4] workflowr_1.7.0         plyr_1.8.6              igraph_1.2.6           
+  [7] lazyeval_0.2.2          splines_4.1.2           digest_0.6.27          
+ [10] yulab.utils_0.0.2       htmltools_0.5.2         fansi_0.5.0            
+ [13] checkmate_2.0.0         magrittr_2.0.1          cluster_2.1.2          
+ [16] tzdb_0.1.2              openxlsx_4.2.4          modelr_0.1.8           
+ [19] vroom_1.5.4             jpeg_0.1-9              colorspace_2.0-2       
+ [22] rvest_1.0.1             haven_2.4.3             xfun_0.25              
+ [25] crayon_1.4.1            jsonlite_1.7.2          phangorn_2.7.1         
+ [28] glue_1.4.2              gtable_0.3.0            abind_1.4-5            
+ [31] scales_1.1.1            mvtnorm_1.1-2           DBI_1.1.1              
+ [34] Rcpp_1.0.7              plotrix_3.8-2           htmlTable_2.2.1        
+ [37] xtable_1.8-4            tmvnsim_1.0-2           gridGraphics_0.5-1     
+ [40] tidytree_0.3.5          bit_4.0.4               foreign_0.8-81         
+ [43] subplex_1.6             deSolve_1.28            htmlwidgets_1.5.4      
+ [46] httr_1.4.2              RColorBrewer_1.1-2      ellipsis_0.3.2         
+ [49] farver_2.1.0            pkgconfig_2.0.3         nnet_7.3-16            
+ [52] dbplyr_2.1.1            utf8_1.2.2              labeling_0.4.2         
+ [55] ggplotify_0.1.0         tidyselect_1.1.1        rlang_0.4.11           
+ [58] later_1.3.0             munsell_0.5.0           cellranger_1.1.0       
+ [61] tools_4.1.2             cli_3.0.1               generics_0.1.0         
+ [64] broom_0.7.9             evaluate_0.14           fastmap_1.1.0          
+ [67] yaml_2.2.1              bit64_4.0.5             knitr_1.34             
+ [70] fs_1.5.0                zip_2.2.0               whisker_0.4            
+ [73] aplot_0.1.0             xml2_1.3.2              compiler_4.1.2         
+ [76] rstudioapi_0.13         beeswarm_0.4.0          curl_4.3.2             
+ [79] png_0.1-7               reprex_2.0.1            treeio_1.16.1          
+ [82] clusterGeneration_1.3.7 stringi_1.7.4           highr_0.9              
+ [85] Matrix_1.3-4            vctrs_0.3.8             pillar_1.6.2           
+ [88] lifecycle_1.0.0         BiocManager_1.30.16     combinat_0.0-8         
+ [91] estimability_1.3        data.table_1.14.0       httpuv_1.6.4           
+ [94] R6_2.5.1                latticeExtra_0.6-29     promises_1.2.0.1       
+ [97] renv_0.14.0             gridExtra_2.3           rio_0.5.27             
+[100] vipor_0.4.5             codetools_0.2-18        MASS_7.3-54            
+[103] assertthat_0.2.1        rprojroot_2.0.2         withr_2.4.2            
+[106] mnormt_2.0.2            expm_0.999-6            parallel_4.1.2         
+[109] hms_1.1.0               quadprog_1.5-8          grid_4.1.2             
+[112] rpart_4.1-15            coda_0.19-4             rmarkdown_2.10         
+[115] rvcheck_0.1.8           git2r_0.29.0            numDeriv_2016.8-1.1    
+[118] scatterplot3d_0.3-41    lubridate_1.7.10        base64enc_0.1-3        </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
