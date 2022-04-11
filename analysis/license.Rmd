@@ -23,6 +23,3 @@ You should have received a copy of the GNU General Public License along with thi
 # Text
 
 Text in these notebooks and the text of the manuscript are licensed under a [Creative Commons Attribution License](https://creativecommons.org/licenses/by/4.0/) (CC BY). which allows users to copy, distribute and transmit an article, adapt the article and make commercial use of the article. The CC BY license permits commercial and non-commercial re-use of an open access article, as long as the author is properly attributed.
-
-How should others cite your work? It's a convention to save a file `CITATION`
-in the root of your Git repo that contains the citation information.
