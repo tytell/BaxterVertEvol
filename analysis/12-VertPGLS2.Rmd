@@ -1,0 +1,712 @@
+---
+title: "PGLS analysis on vertebrae"
+output: html_notebook
+---
+
+
+```{r setup}
+library(tidyverse) # for everything
+library(geomorph) # for PGLS analysis
+#library(emmeans) # doesn't work with geomorph
+library(ggbeeswarm) # shows beeswarm points
+library(ggpubr) # for effect size brackets
+library(phytools) # for loading phylogenies
+library(rstatix)
+library(Hmisc) # for simple points with confidence limits
+library(patchwork) # for tiling figure panels
+library(gt) # for making nice tables
+library(here) # for locating data
+```
+
+# Load data
+
+## Summary data
+
+These data tables have means for each species, plus the pruned phylogenetic tree.
+
+```{r}
+vertdata_sp <- read_csv(here('output/vertdata_summary_lm_species.csv')) |> 
+  mutate(Habitat = factor(Habitat, levels = c('benthic', 'demersal', 'pelagic')))
+verttree <- readRDS(here('output/vert_tree.rds'))
+```
+
+## Vertebral measurements
+
+```{r}
+vertdata <- read_csv(here('output', "MasterVert_Measurements_Matched.csv")) %>%
+  separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
+  relocate(MatchGenus, MatchSpecies, .after=Species) %>%
+  rename(alphaPos = alpha_Pos,
+         alphaAnt = alpha_Ant,
+         DPos = D_Pos,
+         DAnt = D_Ant,
+         BodyShape = `Body Shape`,
+         dBW = d_BW,
+         DAntBW = D_Ant_BW,
+         DPosBW = D_Pos_BW,
+         fineness = `SL/Max_BW`)
+
+head(vertdata)
+```
+
+# Multivariate tests on individual vertebrae
+
+Get the most common value
+```{r}
+mode <- function(x) {
+   return(as.numeric(names(which.max(table(x)))))
+}
+```
+
+Pull out the landmarks for each vertebra
+```{r}
+vertdatapts <-
+  vertdata |> left_join(select(vertdata_sp, Species, Tip, FullName), 
+                      by = "Species") |> 
+  filter(Indiv == 1) |> 
+  select(Habitat, Pos, starts_with('Pt'), fineness, Tip, FullName) |> 
+  pivot_longer(cols = starts_with('Pt'),
+               names_to = c('point', '.value'),
+               names_pattern = "Pt(.)(.)")
+  
+```
+
+Read in the phylogenetic tree.
+```{r}
+tree <- read.tree(here('data/12862_2017_958_MOESM2_ESM.tre'))
+```
+
+Get species that have the same number of vertebrae digitized.
+```{r}
+vertdatapts <-
+  vertdatapts |> 
+  filter(Pos %in% seq(40,90, by = 10) & !is.na(Tip)) |> 
+  group_by(FullName) |> 
+  mutate(npts = sum(!is.na(x))) |> 
+  ungroup() |> 
+  filter(npts == mode(npts))
+  
+```
+
+Get the tip numbers for each of those species and prune the tree to just those species.
+```{r}
+tips <-
+  vertdatapts |> 
+  ungroup() |> 
+  distinct(Tip) |> 
+  pull(Tip) |> 
+  as.vector()
+
+verttree2 <- keep.tip(tree, tips)
+```
+
+Get the names of each species, without repeats.
+```{r}
+ids <-
+  distinct(vertdatapts, FullName, .keep_all=TRUE)
+```
+
+## Construct geomorph data frames for each vertebra
+
+Pull out vertebrae at 40%, 50%, etc and construct the data frame for each one separately.
+```{r}
+gdf.vert1 <- list()
+selpts <- seq(40,90, by = 10)
+
+for (i in seq_along(selpts)) {
+  # print(selpts[[i]])
+  v1 <- vertdatapts |> 
+    filter(Pos == selpts[[i]] & !is.na(Tip)) |> 
+    group_by(FullName) |> 
+    mutate(n1 = n())
+  
+  if (any(v1$n1 != mode(v1$n1))) stop('Bad!') 
+  
+  # print(v1 |> select(Pos, x,y) |> head())
+  pts <- array(data = c(v1$x, v1$y),
+          dim = c(mode(v1$n1), 2, nrow(ids)),
+             dimnames = list(NULL, NULL, ids$FullName))
+  Y.gpa1 <- gpagen(pts, print.progress = FALSE)
+  # print(head(Y.gpa1$consensus))
+  
+  gdf1 <- geomorph.data.frame(Y.gpa1, phy = verttree2)
+  gdf1$Habitat = array(ids$Habitat, dim = c(nrow(ids), 1),
+                       dimnames = list(ids$FullName, NULL))
+  gdf1$fineness = array(ids$fineness, dim = c(nrow(ids), 1),
+                        dimnames = list(ids$FullName, NULL))
+  gdf.vert1[[i]] <- gdf1
+}
+```
+
+Run the multivariate PGLS tests for each vertebra.
+```{r}
+pgls.vert1 <- list()
+for (i in seq_along(gdf.vert1)) {
+  pg1 <- procD.pgls(coords ~ Habitat + fineness, phy = phy, 
+                    data = gdf.vert1[[i]],
+                    iter = 999, SS.type = 'III',
+                    print.progress = FALSE)
+  pgls.vert1[[i]] <- pg1
+  pgls.vert1[[i]] <- RRPP::manova.update(pg1, tol = 0, print.progress = FALSE)
+}
+```
+
+```{r}
+all.summaries <- purrr::map(pgls.vert1, ~ summary(.x, test = 'Pillai'))
+```
+
+```{r}
+manovatabs <-
+  purrr::map2(all.summaries, selpts, ~ .x$stats.table |> 
+              mutate(var = as.character(.y)) |> 
+              rownames_to_column(var = 'Effect')) |> 
+  bind_rows()
+
+manovatabs
+```
+
+# Tests on means
+
+## Construct the geomorph data frame
+
+`geomorph` requires a sort of weird version of the data frame, including multidimensional arrays with dimensions labeled according to the species name. This constructs the data frame containing the variables we're interested in.
+
+```{r}
+vars <- c('CBL_mn', 'd_mn', 'alphaAnt_mn', 'alphaPos_mn', 'DAnt_mn', 'DPos_mn',
+         'fineness', 'Habitat')
+
+gdf <- geomorph.data.frame(phy = verttree)
+for (v in vars) {
+  arr = array(vertdata_sp[[v]], dim = c(nrow(vertdata_sp), 1),
+              dimnames = list(vertdata_sp$FullName, NULL))
+  gdf[[v]] <- arr
+}
+```
+
+
+# Check fineness
+
+How does fineness depend on habitat?
+
+```{r}
+ggplot(vertdata_sp, aes(x = Habitat, y = fineness, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = 'mean_cl_boot') +
+  stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
+  labs(y = "Fineness") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+```
+
+
+```{r}
+fineness_habitat <- procD.pgls(fineness ~ Habitat, phy = phy, data = gdf, iter = 999, 
+                               SS.type = 'III', print.progress = FALSE)
+```
+
+```{r}
+summary(fineness_habitat)
+```
+No significant difference in fineness relative to habitat.
+
+
+# Multivariate ANOVA
+
+Putting all of our measurements together, is there a difference relative to habitat or fineness?
+
+```{r}
+manova.pgls <- procD.pgls(as.matrix(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn, DAnt_mn, DPos_mn))
+                     ~ Habitat + fineness, phy = phy, data = gdf, iter = 999, SS.type = 'III',
+                     print.progress = FALSE)
+manova.pgls <- RRPP::manova.update(manova.pgls, tol = 0, print.progress = FALSE)
+```
+
+```{r}
+manova.sum <-
+  summary(manova.pgls, test = 'Pillai')
+manova.sum
+```
+
+```{r}
+manovatabsall <-
+  manova.sum$stats.table |> 
+  as.data.frame() |> 
+  rownames_to_column(var = 'Effect') |> 
+  mutate(var = 'Overall means') |> 
+  bind_rows(manovatabs)
+
+manovatabsall
+```
+
+```{r}
+manovatab <-
+  manovatabsall |> 
+  rename(p = `Pr(>Pillai)`) |> 
+  select(var, Effect, Df, Pillai, Z, p) |> 
+  filter(Effect %in% c('Habitat', 'fineness')) |> 
+  group_by(var) |> 
+  gt(
+    groupname_col = "var",
+    rowname_col = "Effect"
+  ) |> 
+  fmt_number(
+    columns = c("Pillai", "Z"),
+    suffixing = FALSE,
+    n_sigfig = 2
+  ) |> 
+  fmt_number(
+    columns = "p",
+    decimals = 3
+  ) |> 
+  cols_label(
+    var = md("Location"),
+    p = md("p"),
+  ) |> 
+  tab_style(
+    locations = cells_column_labels(columns = c("var", 'Df', 'Pillai', 'Z', "p")),
+    style = cell_text(v_align = "middle",
+                      align = "center")
+  ) |> 
+  tab_stubhead("Location") |> 
+  tab_style(
+    locations = cells_stubhead(),
+    style = cell_text(v_align = "middle")
+  ) |> 
+  sub_missing(columns = 3:6,
+              missing_text = "")  
+
+manovatab
+```
+
+```{r}
+gtsave(manovatab, here("output/manova_table.rtf"))
+```
+
+# Univariate tests
+
+Test each measurement separately.
+
+```{r}
+models <- list(CBL_mn = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                   iter = 999, SS.type = 'III', print.progress = FALSE),
+            d_mn = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                              iter = 999, SS.type = 'III', print.progress = FALSE),
+            alphaAnt_mn = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                     iter = 999, SS.type = 'III', print.progress = FALSE),
+            alphaPos_mn = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                     iter = 999, SS.type = 'III', print.progress = FALSE),
+            DAnt_mn = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                 iter = 999, SS.type = 'III', print.progress = FALSE),
+            DPos_mn = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                 iter = 999, SS.type = 'III', print.progress = FALSE))
+```
+
+
+```{r}
+anovatabs <- c()
+for (i in seq_along(models)) {
+  print(names(models)[i])
+  tab1 <- data.frame(models[[i]]$aov.table)
+  tab1$var <- names(models)[i]
+  anovatabs[[i]] <- tab1 |> 
+    rownames_to_column(var = 'Effect')
+}
+
+anovatabs <- bind_rows(anovatabs) |> 
+  rename(p = Pr..F.)
+
+anovatabs
+```
+
+```{r}
+anovatabs <-
+  anovatabs |> 
+  bind_rows(
+    data.frame(fineness_habitat$aov.table) |> 
+      mutate(var = 'fineness') |> 
+      rownames_to_column(var = 'Effect') |> 
+      rename(p = Pr..F.)
+  )
+```
+
+## Construct effect sizes
+
+Get the overall means and standard deviations of each variable within each habitat.
+```{r}
+vertdata_sp_means <-
+  vertdata_sp |> 
+  group_by(Habitat) |>
+  dplyr::summarize(across(c(d_mn, CBL_mn, alphaPos_mn, alphaAnt_mn, DPos_mn, DAnt_mn), 
+                          list(mn = ~ mean(., na.rm = TRUE), sd = ~ sd(., na.rm = TRUE)))) |> 
+  ungroup()
+```
+
+Set up two data frames so that we can do the pairwise comparisons
+```{r}
+vertdata_sp1 <-
+  vertdata_sp_means |> 
+  select(Habitat, ends_with('mn'), ends_with('sd')) |> 
+  rename_with(~ paste0(., '1'), c(Habitat, ends_with('mn'), ends_with('sd')))
+
+vertdata_sp2 <-
+  vertdata_sp_means |> 
+  select(Habitat, ends_with('mn'), ends_with('sd')) |> 
+  rename_with(~ paste0(., '2'), c(Habitat, ends_with('mn'), ends_with('sd')))
+```
+
+Merge the data frames so that we have the relevant pairwise combinations.
+```{r}
+PW <-
+  expand.grid(Habitat1 = vertdata_sp1$Habitat1, Habitat2 = vertdata_sp2$Habitat2) |> 
+  left_join(vertdata_sp1) |> 
+  left_join(vertdata_sp2) |> 
+  filter(Habitat1 != Habitat2 &
+           as.integer(Habitat1) < as.integer(Habitat2)) |> 
+  rename_with(~ str_replace(., '_mn_', '_'))
+```
+
+Then make the data frame longer so that we can do the calculations for each variable.
+```{r}
+PW <-
+  PW |> 
+  pivot_longer(cols = contains('mn') | contains('sd'),
+               names_pattern = '(.*)_(.*)',
+               names_to = c('var', '.value')) |> 
+  mutate(sdjoint = sqrt((sd1^2 + sd2^2)/2),
+         eff = (mn2 - mn1) / sdjoint)
+
+PW
+```
+
+```{r}
+effectsizes <-
+  PW |> 
+  select(Habitat1, Habitat2, var, eff) |> 
+  mutate(Habitat = Habitat1) |> 
+  rename(group1 = Habitat1,
+         group2 = Habitat2)
+
+effectsizes
+```
+Rearrange the table
+```{r}
+effectsizes_wide <- 
+  effectsizes |> 
+  mutate(contrast = str_c(group1, group2, sep = ' - '),
+         contrast = str_replace(contrast, '(\\w+) - (\\w+)', '\\1_\\2')) |> 
+  select(var, contrast, eff) |> 
+  pivot_wider(names_from = contrast, values_from = eff,
+              names_glue = '{contrast}_{.value}') |> 
+  mutate(var = str_c(var, '_mn'),
+         Effect = 'Habitat') 
+
+effectsizes_wide
+```
+
+```{r}
+anovatabs <-
+  anovatabs |> 
+  left_join(effectsizes_wide, by = c('var', 'Effect'))
+```
+
+## Make the stats table
+
+```{r}
+anovatab <-
+  anovatabs |> 
+  select(var, Effect, Df, Rsq, F, Z, p, ends_with('eff')) |> 
+  filter(Effect %in% c('Habitat', 'fineness')) |> 
+  mutate(var = str_remove(var, '_mn')) |> 
+  mutate(var = case_when(
+    var == "alphaAnt"   ~   "Anterior cone angle",
+    var == "alphaPos"   ~   "Posterior cone angle",
+    var == "CBL"   ~   "Centrum body length",
+    var == "DAnt"   ~   "Anterior cone diameter",
+    var == "DPos"   ~   "Posterior cone diameter",
+    var == "d"   ~   "Foramen diameter",
+    var == "fineness"   ~   "Fineness"
+  )) |> 
+  #group_by(var) |> 
+  gt(
+    # groupname_col = "var",
+    rowname_col = "Effect"
+  ) |> 
+  fmt_number(
+    columns = c("F", "Z"),
+    suffixing = FALSE,
+    n_sigfig = 2
+  ) |> 
+  fmt_number(
+    columns = "p",
+    decimals = 3
+  ) |> 
+  fmt_number(
+    columns = "Rsq",
+    decimals = 2
+  ) |> 
+  fmt_number( 
+    columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff"),
+    decimals = 2,
+    force_sign = TRUE
+  ) |> 
+  cols_label(
+    var = md("Measurement"),
+    p = md("p"),
+    benthic_demersal_eff = md("b - d"),
+    benthic_pelagic_eff = md("b - p"),
+    demersal_pelagic_eff = md("d - p")
+  ) |> 
+  tab_style(
+    locations = cells_column_labels(columns = c("var", 'Df', 'Rsq', 'F', 'Z', "p")),
+    style = cell_text(v_align = "middle",
+                      align = "center")
+  ) |> 
+  #tab_stubhead("Measurement") |> 
+  tab_style(
+    locations = cells_stubhead(),
+    style = cell_text(v_align = "middle")
+  ) |> 
+  # tab_spanner(
+  #   label = "Effect sizes",
+  #   columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff")
+  # ) |> 
+  sub_missing(columns = 2:10,
+              missing_text = "")
+  
+anovatab
+```
+
+```{r}
+gtsave(anovatab, here("output/anova_table.rtf"))
+```
+
+
+```{r}
+reversemeasurements <- function(df) {
+  df %>%
+    mutate(Pt1x = CBL/2,
+           Pt1y = DPos/2,
+           Pt2x = CBL/2,
+           Pt2y = -DPos/2,
+           Pt3x = -CBL/2,
+           Pt3y = DAnt/2,
+           Pt4x = -CBL/2,
+           Pt4y = -DAnt/2,
+           Pt5x = 0,
+           Pt5y = 0,
+           Pt6x = 0,
+           Pt6y = d/2,
+           Pt7x = 0,
+           Pt7y = -d/2,
+           Pt8x = CBL/2 - (DPos - d)/2 / tan(alphaPos/2 * pi/180),
+           Pt8y = d/2,
+           Pt9x = CBL/2 - (DPos - d)/2 / tan(alphaPos/2 * pi/180),
+           Pt9y = -d/2,
+           Pt10x = -CBL/2 + (DAnt - d)/2 / tan(alphaAnt/2 * pi/180),
+           Pt10y = d/2,
+           Pt11x = -CBL/2 + (DAnt - d)/2 / tan(alphaAnt/2 * pi/180),
+           Pt11y = -d/2)
+}
+```
+
+```{r}
+vertshape <-
+  vertdata_sp |> 
+  group_by(Habitat) |> 
+  dplyr::summarize(across(c(d_mn, CBL_mn, DPos_mn, DAnt_mn, alphaPos_mn, alphaAnt_mn), ~ mean(., na.rm = TRUE))) |> 
+  rename_with(~ str_replace(.x, "_mn", "")) %>%
+  reversemeasurements()
+```
+
+
+```{r}
+vertshape <-
+  vertshape %>%
+  mutate(Shape1x = Pt1x,
+         Shape2x = Pt2x,
+         Shape3x = Pt9x,
+         Shape4x = Pt11x,
+         Shape5x = Pt4x,
+         Shape6x = Pt3x,
+         Shape7x = Pt10x,
+         Shape8x = Pt8x,
+         Shape9x = Pt1x,
+         Shape1y = Pt1y,
+         Shape2y = Pt2y,
+         Shape3y = Pt9y,
+         Shape4y = Pt11y,
+         Shape5y = Pt4y,
+         Shape6y = Pt3y,
+         Shape7y = Pt10y,
+         Shape8y = Pt8y,
+         Shape9y = Pt1y)
+```
+
+```{r}
+vertshape <-
+  vertshape %>%
+  select(!starts_with("Pt")) %>%
+  pivot_longer(starts_with("Shape"), names_to = "Pt", values_to = "value") %>%
+  extract(Pt, into = c("Num", "XY"), regex = "Shape(\\d+)(x|y)") %>%
+  pivot_wider(names_from = XY, values_from = value)
+
+```
+
+```{r}
+vertshape_panel <-
+  vertshape %>%
+  ggplot(aes(x = x, y = y, color = Habitat, fill = Habitat)) +
+  geom_path() +
+  geom_polygon(alpha = 0.2) +
+  coord_fixed() +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"),
+                     guide = "none") +
+  scale_fill_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"),
+                     guide = "none") +
+  annotate("line", x = c(0.01, 0.01), y = c(-0.003, -0.007), color = "black") +
+  annotate("text", x = 0.01, y = -0.005, label = "0.004 BL", angle=90, size=4, vjust = 1.3) +
+  theme_minimal() +
+  theme(line = element_blank(),
+        text = element_blank(),
+        title = element_blank())
+
+vertshape_panel
+```
+
+```{r}
+dyl = 0.0005
+yl = max(vertdata_sp$d_mn) + dyl
+
+p1 <- anovatabs |> 
+  filter(var == 'd_mn' & Effect == 'Habitat') |> 
+  pull(p)
+
+d_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = 'mean_cl_boot') +
+  stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
+  stat_pvalue_manual(data = filter(effectsizes, var == 'd',
+                                   abs(eff) > 0.3),
+                     y.position = yl, step.increase = 0.12,
+                     label = '{round(eff, digits=2)}') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
+  labs(y = "Mean foramen\ndiameter (BL)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+d_mn_panel
+```
+
+```{r}
+dyl = 5
+yl = max(vertdata_sp$alphaPos_mn) + dyl
+
+p1 <- anovatabs |> 
+  filter(var == 'alphaPos_mn' & Effect == 'Habitat') |> 
+  pull(p)
+
+alphaPos_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = 'mean_cl_boot') +
+  stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
+  stat_pvalue_manual(data = filter(effectsizes, var == 'alphaPos',
+                                   abs(eff) > 0.3),
+                     y.position = yl, step.increase = 0.12,
+                     label = '{round(eff, digits=2)}') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
+  labs(y = "Mean posterior\ncone angle (deg)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+alphaPos_mn_panel
+```
+
+```{r}
+dyl = 0
+yl = max(vertdata_sp$CBL_mn) + dyl
+
+p1 <- anovatabs |> 
+  filter(var == 'CBL_mn' & Effect == 'Habitat') |> 
+  pull(p)
+
+CBL_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = CBL_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = 'mean_cl_boot') +
+  # stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
+  # stat_pvalue_manual(data = filter(pairtests, var == 'CBL_mn',
+  #                                  Z > 0.5),
+  #                    y.position = yl, step.increase = 0.12,
+  #                    label = '{round(Z, digits=2)}') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
+  labs(y = "Centrum body\nlength (BL)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+CBL_mn_panel
+```
+
+```{r}
+alphaPos_mn_panel / d_mn_panel / CBL_mn_panel / vertshape_panel + 
+  plot_annotation(tag_levels = 'A') +
+  plot_layout(guides = 'collect') &
+  theme(legend.position = "bottom",
+        panel.border = element_blank(), axis.line = element_line())
+```
+
+```{r}
+ggsave(here('output/mean_d_alphaPos_CBL.pdf'), width = 3, units = "in")
+```
+
+```{r}
+p1 <- anovatabs |> 
+  filter(var == 'CBL_mn' & Effect == 'fineness') |> 
+  pull(p)
+
+ggplot(vertdata_sp, aes(x = fineness, y = CBL_mn, color = Habitat, shape = Habitat)) +
+  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+  geom_point() +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
+  labs(y = "Centrum body\nlength (BL)") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+```
+```{r}
+p1 <- anovatabs |> 
+  filter(var == 'DPos_mn' & Effect == 'fineness') |> 
+  pull(p)
+
+ggplot(vertdata_sp, aes(x = fineness, y = DPos_mn, color = Habitat, shape = Habitat)) +
+  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+  geom_point() +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
+  labs(y = "Posterior cone\ndiameter (BL)") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+```
+
+```{r}
+p1 <- anovatabs |> 
+  filter(var == 'DAnt_mn' & Effect == 'fineness') |> 
+  pull(p)
+
+ggplot(vertdata_sp, aes(x = fineness, y = DAnt_mn, color = Habitat, shape = Habitat)) +
+  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+  geom_point() +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
+  labs(y = "Anterior cone\ndiamater (BL)") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+```
+
+
