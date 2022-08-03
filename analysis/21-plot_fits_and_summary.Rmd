@@ -14,68 +14,44 @@ library(here)
 
 ```{r}
 vertdata <- read_csv(here("output/vertdata_summary_lm_species.csv"))
-PGLSmodels <- readRDS(here('output/PGLSmodels.Rds'))
 vertdata_all <- read_csv(here("output/vertdata_centered.csv"))
-modeltests <- read_csv(here("output/modeltests.csv"))
-```
-
-```{r}
-overallmeans <-
-  vertdata %>%
-  group_by(Habitat) %>%
-  dplyr::summarize(across(c(alphaPos_mn, alphaAnt_mn, CBL_mn, d_mn, DAnt_mn, DPos_mn,
-                     alphaPos_80, alphaAnt_80, CBL_80, d_80, DAnt_80, DPos_80,
-                     alphaPos_vtx, alphaAnt_vtx, CBL_vtx, d_vtx, DAnt_vtx, DPos_vtx,
-                     alphaPos_quad, alphaAnt_quad, CBL_quad, d_quad, DAnt_quad, DPos_quad), 
-                   list(mn = mean, se = ~ sd(.x) / sqrt(length(.x)))))
-
-overallmeans
-```
-
-```{r}
-modelmeans <-
-  modeltests %>%
-  select(var, ends_with("mn"), ends_with("se")) %>%
-  pivot_longer(ends_with("mn") | ends_with("se"), names_to = "HabitatEff", values_to = "value") %>%
-  separate(HabitatEff, sep = "_", into = c("Habitat", "Eff")) %>%
-  unite(var, c(var, Eff)) %>%
-  pivot_wider(names_from = var, values_from = value)
-
-modelmeans
+anovatabs <- read_csv(here("output/anovatabs.csv"))
 ```
 
 ```{r}
 reversemeasurements <- function(df) {
   df %>%
-    mutate(Pt1x = DPos / 2 / tan(alphaPos/2 * pi/180),
-           Pt2x = DPos / 2 / tan(alphaPos/2 * pi/180),
-           Pt3x = -DAnt / 2 / tan(alphaAnt/2 * pi/180),
-           Pt4x = -DAnt / 2 / tan(alphaAnt/2 * pi/180),
+    mutate(Pt1x = CBL/2,
+           Pt1y = DPos/2,
+           Pt2x = CBL/2,
+           Pt2y = -DPos/2,
+           Pt3x = -CBL/2,
+           Pt3y = DAnt/2,
+           Pt4x = -CBL/2,
+           Pt4y = -DAnt/2,
            Pt5x = 0,
-           Pt6x = 0,
-           Pt7x = 0,
-           Pt8x = d/2 * tan(alphaPos/2 * pi/180),
-           Pt9x = d/2 * tan(alphaPos/2 * pi/180),
-           Pt10x = -d/2 * tan(alphaAnt/2 * pi/180),
-           Pt11x = -d/2 * tan(alphaAnt/2 * pi/180),
-           Pt1y = DPos / 2,
-           Pt2y = -DPos / 2,
-           Pt3y = DAnt / 2,
-           Pt4y = -DAnt / 2,
            Pt5y = 0,
-           Pt6y = d / 2,
-           Pt7y = -d / 2,
-           Pt8y = d / 2,
-           Pt9y = -d / 2,
-           Pt10y = d / 2,
-           Pt11y = -d / 2)
+           Pt6x = 0,
+           Pt6y = d/2,
+           Pt7x = 0,
+           Pt7y = -d/2,
+           Pt8x = CBL/2 - (DPos - d)/2 / tan(alphaPos/2 * pi/180),
+           Pt8y = d/2,
+           Pt9x = CBL/2 - (DPos - d)/2 / tan(alphaPos/2 * pi/180),
+           Pt9y = -d/2,
+           Pt10x = -CBL/2 + (DAnt - d)/2 / tan(alphaAnt/2 * pi/180),
+           Pt10y = d/2,
+           Pt11x = -CBL/2 + (DAnt - d)/2 / tan(alphaAnt/2 * pi/180),
+           Pt11y = -d/2)
 }
 ```
 
 ```{r}
 vertshape <-
-  modelmeans %>%
-  rename_with(~ str_replace(.x, "_mn_mn", "")) %>%
+  vertdata_sp |> 
+  group_by(Habitat) |> 
+  dplyr::summarize(across(c(d_mn, CBL_mn, DPos_mn, DAnt_mn, alphaPos_mn, alphaAnt_mn), ~ mean(., na.rm = TRUE))) |> 
+  rename_with(~ str_replace(.x, "_mn", "")) %>%
   reversemeasurements()
 ```
 
@@ -133,28 +109,27 @@ vertshape_panel <-
 
 vertshape_panel
 ```
-```{r}
-modeltests %>%
-  filter(str_detect(var, "alphaPos_mn") | str_detect(var, "d_mn")) %>%
-  arrange(var)
-  
-```
+
 
 ```{r}
-
 dyl = 0.0005
-yl = max(vertdata$d_mn) + dyl
+yl = max(vertdata_sp$d_mn) + dyl
 
-d_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
+p1 <- anovatabs |> 
+  filter(var == 'd_mn' & Effect == 'Habitat') |> 
+  pull(p)
+
+d_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  geom_line(data = modelmeans, aes(x = Habitat, y = d_mn_mn, group = 1), color = "black") +
-  geom_pointrange(data = modelmeans, 
-                  aes(x = Habitat, y = d_mn_mn, 
-                      ymin = d_mn_mn - d_mn_se, ymax = d_mn_mn + d_mn_se), size = 0.8) +
-  annotate("line", x = c(2,3), y = c(yl, yl), color = "black") +
-  annotate("text", x = 2.5, y = yl, label = "* 0.37", size = 3, vjust = -0.2) +
-  annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
-  annotate("text", x = 2, y = yl+dyl, label = "* 0.43", size = 3, vjust = -0.2) +
+  stat_summary(fun.data = 'mean_cl_boot') +
+  stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
+  stat_pvalue_manual(data = filter(effectsizes, var == 'd',
+                                   abs(eff) > 0.3),
+                     y.position = yl, step.increase = 0.12,
+                     label = '{round(eff, digits=2)}',
+                     size = 3) +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'),
+           size = 3) +
   labs(y = "Mean foramen\ndiameter (BL)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
@@ -163,21 +138,25 @@ d_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = d_mn, color = Habitat, shape
 
 d_mn_panel
 ```
-
 ```{r}
 dyl = 5
-yl = max(vertdata$alphaPos_mn) + dyl
+yl = max(vertdata_sp$alphaPos_mn) + dyl
 
-alphaPos_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
+p1 <- anovatabs |> 
+  filter(var == 'alphaPos_mn' & Effect == 'Habitat') |> 
+  pull(p)
+
+alphaPos_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  geom_line(data = modelmeans, aes(x = Habitat, y = alphaPos_mn_mn, group = 1), color = "black") +
-  geom_pointrange(data = modelmeans, 
-                  aes(x = Habitat, y = alphaPos_mn_mn, 
-                      ymin = alphaPos_mn_mn - alphaPos_mn_se, ymax = alphaPos_mn_mn + alphaPos_mn_se), size = 0.8) +
-  annotate("line", x = c(1,2), y = c(yl, yl), color = "black") +
-  annotate("text", x = 1.5, y = yl, label = "*** 0.34", size = 3, vjust = -0.2) +
-  annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
-  annotate("text", x = 2, y = yl+dyl, label = "** 0.52", size = 3, vjust = -0.2) +
+  stat_summary(fun.data = 'mean_cl_boot') +
+  stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black', show.legend = FALSE) +
+  stat_pvalue_manual(data = filter(effectsizes, var == 'alphaPos',
+                                   abs(eff) > 0.3),
+                     y.position = yl, step.increase = 0.12,
+                     label = '{round(eff, digits=2)}',
+                     size = 3) +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'),
+           size = 3) +
   labs(y = "Mean posterior\ncone angle (deg)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
@@ -187,21 +166,24 @@ alphaPos_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = alphaPos_mn, color = 
 alphaPos_mn_panel
 ```
 
-
 ```{r}
 dyl = 0
-yl = max(vertdata$CBL_mn) + dyl
+yl = max(vertdata_sp$CBL_mn) + dyl
 
-CBL_mn_panel <- ggplot(vertdata, aes(x = Habitat, y = CBL_mn, color = Habitat, shape = Habitat)) +
+p1 <- anovatabs |> 
+  filter(var == 'CBL_mn' & Effect == 'Habitat') |> 
+  pull(p)
+
+CBL_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = CBL_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  geom_line(data = modelmeans, aes(x = Habitat, y = CBL_mn_mn, group = 1), color = "black") +
-  geom_pointrange(data = modelmeans, 
-                  aes(x = Habitat, y = CBL_mn_mn, 
-                      ymin = CBL_mn_mn - CBL_mn_se, ymax = CBL_mn_mn + CBL_mn_se), size = 0.8) +
-  #annotate("line", x = c(1,2), y = c(yl, yl), color = "black") +
-  #annotate("text", x = 1.5, y = yl, label = "*** 0.34", size = 3, vjust = -0.2) +
-  #annotate("line", x = c(1,3), y = c(yl + dyl, yl + dyl), color = "black") +
-  #annotate("text", x = 2, y = yl+dyl, label = "** 0.52", size = 3, vjust = -0.2) +
+  stat_summary(fun.data = 'mean_cl_boot') +
+  # stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
+  # stat_pvalue_manual(data = filter(pairtests, var == 'CBL_mn',
+  #                                  Z > 0.5),
+  #                    y.position = yl, step.increase = 0.12,
+  #                    label = '{round(Z, digits=2)}') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'),
+           size = 3) +
   labs(y = "Centrum body\nlength (BL)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
@@ -467,7 +449,7 @@ tab <-
     label = "Effect sizes",
     columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff")
   ) %>%
-  fmt_missing(columns = 1:7,
+  sub_missing(columns = 1:7,
               missing_text = "")
 
 tab
