@@ -13,7 +13,8 @@ library(here)
 ```
 
 ```{r}
-vertdata <- read_csv(here("output/vertdata_summary_lm_species.csv"))
+vertdata_sp <- read_csv(here('output/vertdata_summary_lm_species.csv')) |> 
+  mutate(Habitat = factor(Habitat, levels = c('benthic', 'demersal', 'pelagic')))
 vertdata_all <- read_csv(here("output/vertdata_centered.csv"))
 anovatabs <- read_csv(here("output/anovatabs.csv"))
 ```
@@ -110,6 +111,15 @@ vertshape_panel <-
 vertshape_panel
 ```
 
+```{r}
+ggsave(here('output/vertshape.pdf'), plot = vertshape_panel,
+       width = 3, height = 2, units = "in")
+```
+
+```{r}
+effectsizes <- read_csv(here('output/effectsizes.csv'))
+```
+
 
 ```{r}
 dyl = 0.0005
@@ -121,15 +131,13 @@ p1 <- anovatabs |>
 
 d_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  stat_summary(fun.data = 'mean_cl_boot') +
-  stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
+  stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
+  stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
   stat_pvalue_manual(data = filter(effectsizes, var == 'd',
                                    abs(eff) > 0.3),
                      y.position = yl, step.increase = 0.12,
-                     label = '{round(eff, digits=2)}',
-                     size = 3) +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'),
-           size = 3) +
+                     label = '{round(eff, digits=2)}', size = 3) +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
   labs(y = "Mean foramen\ndiameter (BL)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
@@ -138,6 +146,35 @@ d_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_mn, color = Habitat, sh
 
 d_mn_panel
 ```
+
+```{r}
+dyl = 5
+yl = max(vertdata_sp$alphaAnt_mn) + dyl
+
+p1 <- anovatabs |> 
+  filter(var == 'alphaAnt_mn' & Effect == 'Habitat') |> 
+  pull(p)
+
+alphaAnt_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaAnt_mn, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  # geom_line(data = preddata, aes(x = Habitat, y = pred, group = 1), 
+  #           color = 'black', inherit.aes = FALSE) +
+  # geom_point(data = preddata, aes(x = Habitat, y = pred, shape = Habitat),
+  #           color = 'black', size = 3, inherit.aes = FALSE) +
+  # stat_pvalue_manual(data = filter(effectsizes, var == 'd',
+  #                                  abs(eff) > 0.3),
+  #                    y.position = yl, step.increase = 0.12,
+  #                    label = '{round(eff, digits=2)}') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+  labs(y = "Anterior cone\nangle (deg)") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+alphaAnt_mn_panel
+```
+
 ```{r}
 dyl = 5
 yl = max(vertdata_sp$alphaPos_mn) + dyl
@@ -148,16 +185,14 @@ p1 <- anovatabs |>
 
 alphaPos_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  stat_summary(fun.data = 'mean_cl_boot') +
-  stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black', show.legend = FALSE) +
+  stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
+  stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
   stat_pvalue_manual(data = filter(effectsizes, var == 'alphaPos',
-                                   abs(eff) > 0.3),
+                                   abs(eff) >= 0.3),
                      y.position = yl, step.increase = 0.12,
-                     label = '{round(eff, digits=2)}',
-                     size = 3) +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'),
-           size = 3) +
-  labs(y = "Mean posterior\ncone angle (deg)") +
+                     label = '{round(eff, digits=2)}', size = 3) +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+  labs(y = "Posterior cone\nangle (deg)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
@@ -166,26 +201,18 @@ alphaPos_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaPos_mn, color
 alphaPos_mn_panel
 ```
 
-```{r}
-dyl = 0
-yl = max(vertdata_sp$CBL_mn) + dyl
+## Effects relative to fineness
 
+```{r}
 p1 <- anovatabs |> 
-  filter(var == 'CBL_mn' & Effect == 'Habitat') |> 
+  filter(var == 'CBL_mn' & Effect == 'fineness') |> 
   pull(p)
 
-CBL_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = CBL_mn, color = Habitat, shape = Habitat)) +
-  geom_quasirandom(width=0.3, alpha = 0.5) +
-  stat_summary(fun.data = 'mean_cl_boot') +
-  # stat_summary(aes(group = 1), fun = 'mean', geom='line', color='black') +
-  # stat_pvalue_manual(data = filter(pairtests, var == 'CBL_mn',
-  #                                  Z > 0.5),
-  #                    y.position = yl, step.increase = 0.12,
-  #                    label = '{round(Z, digits=2)}') +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'),
-           size = 3) +
+CBL_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = CBL_mn, color = Habitat, shape = Habitat)) +
+  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+  geom_point() +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
   labs(y = "Centrum body\nlength (BL)") +
-  scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
   theme_bw() + theme(aspect.ratio = 0.7)
@@ -193,8 +220,45 @@ CBL_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = CBL_mn, color = Habitat
 CBL_mn_panel
 ```
 
+
 ```{r}
-alphaPos_mn_panel / d_mn_panel / CBL_mn_panel / vertshape_panel + 
+p1 <- anovatabs |> 
+  filter(var == 'DPos_mn' & Effect == 'fineness') |> 
+  pull(p)
+
+DPos_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = DPos_mn, color = Habitat, shape = Habitat)) +
+  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+  geom_point() +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+  labs(y = "Posterior cone\ndiameter (BL)") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+DPos_mn_panel
+```
+
+```{r}
+p1 <- anovatabs |> 
+  filter(var == 'DAnt_mn' & Effect == 'fineness') |> 
+  pull(p)
+
+DAnt_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = DAnt_mn, color = Habitat, shape = Habitat)) +
+  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+  geom_point() +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+  labs(y = "Anterior cone\ndiamater (BL)") +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  theme_bw() + theme(aspect.ratio = 0.7)
+
+DAnt_mn_panel
+```
+
+
+```{r}
+((d_mn_panel / alphaAnt_mn_panel / alphaPos_mn_panel) | 
+   (CBL_mn_panel / DAnt_mn_panel / DPos_mn_panel)) + 
   plot_annotation(tag_levels = 'A') +
   plot_layout(guides = 'collect') &
   theme(legend.position = "bottom",
@@ -202,8 +266,10 @@ alphaPos_mn_panel / d_mn_panel / CBL_mn_panel / vertshape_panel +
 ```
 
 ```{r}
-ggsave(here('output/mean_d_alphaPos_CBL.pdf'), width = 3, units = "in")
+ggsave(here('output/mean_params.pdf'), width = 6, height = 7, units = "in")
 ```
+
+
 
 # Distribution along the body
 
@@ -251,9 +317,9 @@ CBLvPosPanel
 ```
 ```{r}
 dyl = 1
-yl = max(vertdata$CBL_vtx) + dyl
+yl = max(vertdata_sp$CBL_vtx) + dyl
 
-CBLvtxPanel <- ggplot(vertdata, aes(x = Habitat, y = CBL_vtx, color = Habitat, shape = Habitat)) +
+CBLvtxPanel <- ggplot(vertdata_sp, aes(x = Habitat, y = CBL_vtx, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
   geom_line(data = modelmeans, aes(x = Habitat, y = CBL_vtx_mn, group = 1), color = "black") +
   geom_pointrange(data = modelmeans, 
@@ -274,9 +340,9 @@ CBLvtxPanel
 
 ```{r}
 dyl = 0.01
-yl = max(vertdata$CBL_quad) + dyl
+yl = max(vertdata_sp$CBL_quad) + dyl
 
-CBLquadPanel <- ggplot(vertdata, aes(x = Habitat, y = CBL_quad, color = Habitat, shape = Habitat)) +
+CBLquadPanel <- ggplot(vertdata_sp, aes(x = Habitat, y = CBL_quad, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
   geom_line(data = modelmeans, aes(x = Habitat, y = CBL_quad_mn, group = 1), color = "black") +
   geom_pointrange(data = modelmeans, 
@@ -321,9 +387,9 @@ modeltests %>%
 
 ```{r}
 dyl = 1
-yl = max(vertdata$d_vtx) + dyl
+yl = max(vertdata_sp$d_vtx) + dyl
 
-dvtxPanel <- ggplot(vertdata, aes(x = Habitat, y = d_vtx, color = Habitat, shape = Habitat)) +
+dvtxPanel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_vtx, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
   geom_line(data = modelmeans, aes(x = Habitat, y = d_vtx_mn, group = 1), color = "black") +
   geom_pointrange(data = modelmeans, 
@@ -344,9 +410,9 @@ dvtxPanel
 
 ```{r}
 dyl = 0.01
-yl = max(vertdata$d_quad) + dyl
+yl = max(vertdata_sp$d_quad) + dyl
 
-dQuadPanel <- ggplot(vertdata, aes(x = Habitat, y = d_quad, color = Habitat, shape = Habitat)) +
+dQuadPanel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_quad, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
   geom_line(data = modelmeans, aes(x = Habitat, y = d_quad_mn, group = 1), color = "black") +
   geom_pointrange(data = modelmeans, 

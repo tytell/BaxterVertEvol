@@ -73,24 +73,89 @@ highlightpairs <-
   pull(parent)
 ```
 
+```{r}
+vertdata |> 
+  distinct(FullName) |> 
+  dplyr::summarise(n = n())
+```
+
+```{r}
+vertdata |> 
+  group_by(Habitat) |> 
+  dplyr::summarize(n = n()) |> 
+  mutate(pct = n / sum(n) * 100)
+```
+
+```{r}
+vertdata |> 
+  distinct(Family) |> 
+  dplyr::summarise(n = n())
+```
+
+```{r}
+vertdata |> 
+  group_by(Habitat) |> 
+  distinct(Family) |> 
+  dplyr::summarize(n = n())
+```
+
+```{r}
+vertdata |> 
+  group_by(Water_Type) |> 
+  dplyr::summarize(n = n()) |> 
+  mutate(pct = n / sum(n) * 100)
+```
+
+```{r}
+newick <- paste0("((Pongo_abelii,(Gorilla_gorilla_gorilla,(Pan_paniscus,",
+          "Pan_troglodytes)Pan,Homo_sapiens)Homininae)Hominidae,",
+          "Nomascus_leucogenys)Hominoidea;")
+
+tree <- read.tree(text=newick)
+
+d <- ggimage::phylopic_uid(tree$tip.label)
+d$body_mass <- c(52, 114, 47, 45, 58, 6)
+
+p <- ggtree(tree) %<+% d + 
+  geom_tiplab(aes(image=uid, colour=body_mass), geom="phylopic", offset=2.5) +
+  geom_tiplab(aes(label=label), offset = .2) + xlim(NA, 7) +
+  scale_color_viridis_c()
+
+p
+```
+
+```{r}
+showspecies <- read_csv(here('output/vertdata_show_species.csv'),
+                        col_select = 1:5)
+```
 
 ```{r}
 left_join(as_tibble(verttree), vertdata, by = c("label" = "FullName")) %>%
-  mutate(label = str_replace(Species, "_", " ")) %>%
+  left_join(showspecies)
+```
+
+```{r}
+left_join(as_tibble(verttree), vertdata, by = c("label" = "FullName")) %>%
+  left_join(showspecies) %>%
+  mutate(label = str_replace(Species, '_', ' ')) %>%
+         # str_c(Family, Species)) %>%
   tidytree::as.treedata() %>%
-  ggtree() + # layout = "circular", open.angle = 120) + 
+  ggtree(branch.length = 'none') + # layout = "circular", open.angle = 120) + 
   scale_y_reverse() +
-  geom_tiplab(aes(color = Habitat), size=1.5, offset = 5) +
+  geom_tiplab(aes(color = Habitat), size=1.5, offset = 0.2) +
   geom_tippoint(aes(shape = Water_Type)) +
-  geom_text2(aes(label=Species, subset=Species %in% examplespecies),
+  geom_tiplab(aes(image = uid), geom="phylopic", offset = 1) +
+  geom_text2(aes(label=label, subset=Species %in% examplespecies),
              hjust = 0, vjust = 0) +
-  geom_hilight(mapping=aes(subset = node %in% highlightpairs)) +
+  # geom_hilight(mapping=aes(subset = node %in% highlightpairs)) +
   scale_shape_manual(values = c(3, 23, 24)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
   theme(legend.position = "bottom")
   #geom_label2(aes(label='P', subset = ispair))
 ```
 ```{r}
+# ggsave(here('output/phylogeny_families.pdf'), width=6.5, height=8, units="in")
+
 ggsave(here('output/plot_example_data_figure.pdf'), width=3.5, height=6, units="in")
 ```
 

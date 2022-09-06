@@ -34,6 +34,11 @@ vertdata <- read_csv(here('output', "MasterVert_Measurements_Matched.csv")) %>%
 head(vertdata)
 ```
 
+```{r}
+vertdata |> 
+  filter(str_detect(Species, 'purp'))
+```
+
 Compute the correct CBL
 ```{r}
 vertdata <-

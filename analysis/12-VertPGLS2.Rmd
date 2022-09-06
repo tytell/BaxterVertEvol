@@ -12,10 +12,36 @@ library(ggbeeswarm) # shows beeswarm points
 library(ggpubr) # for effect size brackets
 library(phytools) # for loading phylogenies
 library(rstatix)
+library(esvis)  # for effect sizes
 library(Hmisc) # for simple points with confidence limits
 library(patchwork) # for tiling figure panels
 library(gt) # for making nice tables
 library(here) # for locating data
+```
+
+Package details
+
+```{r}
+R.version.string
+```
+
+```{r}
+citation()
+```
+```{r}
+citation('geomorph')
+```
+```{r}
+packageVersion('geomorph')
+packageVersion('rrpp')
+```
+
+```{r}
+citation('esvis')
+```
+
+```{r}
+packageVersion('esvis')
 ```
 
 # Load data
@@ -101,34 +127,18 @@ No significant difference in fineness relative to habitat.
 Putting all of our measurements together, is there a difference relative to habitat or fineness?
 
 ```{r}
-manova.pgls.habfine <- procD.pgls(as.matrix(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn, DAnt_mn, DPos_mn))
+manova.pgls <- procD.pgls(as.matrix(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn, DAnt_mn, DPos_mn))
                      ~ Habitat + fineness, phy = phy, data = gdf, iter = 999, SS.type = 'III',
                      print.progress = FALSE)
 ```
 
 ```{r}
-manova.pgls.hab <- procD.pgls(as.matrix(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn, DAnt_mn, DPos_mn))
-                     ~ Habitat, phy = phy, data = gdf, iter = 999, SS.type = 'III',
-                     print.progress = FALSE)
-manova.pgls.habfineint <- procD.pgls(as.matrix(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn, DAnt_mn, DPos_mn))
-                     ~ Habitat * fineness, phy = phy, data = gdf, iter = 999, SS.type = 'III',
-                     print.progress = FALSE)
-
-```
-
-```{r}
-manova.pgls.hab <- RRPP::manova.update(manova.pgls.hab, tol = 0, print.progress = FALSE)
-manova.pgls.habfine <- RRPP::manova.update(manova.pgls.habfine, tol = 0, print.progress = FALSE)
-manova.pgls.habfineint <- RRPP::manova.update(manova.pgls.habfineint, tol = 0, print.progress = FALSE)
+manova.pgls <- RRPP::manova.update(manova.pgls, tol = 0, print.progress = FALSE)
 ```
 
 
 ```{r}
-anova(manova.pgls.hab, manova.pgls.habfine, manova.pgls.habfineint)
-```
-
-```{r}
-manova.sum <- summary(manova.pgls.habfine, test = 'Pillai')
+manova.sum <- summary(manova.pgls, test = 'Pillai')
 manova.sum
 ```
 
@@ -142,7 +152,7 @@ mode <- function(x) {
 }
 ```
 
-Pull out the landmarks for each vertebra
+Pull out the landmarks for each vertebra and scale each to body length.
 ```{r}
 vertdatapts <-
   vertdata |> left_join(select(vertdata_sp, Species, Tip, FullName), 
@@ -202,6 +212,7 @@ vertdatapts <-
 
 ## Construct geomorph data frames for each vertebra
 
+This is the data frame with all of the vertebrae together.
 ```{r}
 pts <- with(vertdatapts,
             array(data = c(x, y),
@@ -343,6 +354,21 @@ manovatab
 gtsave(manovatab, here("output/manova_table.rtf"))
 ```
 
+## MANOVA for mean measurements
+
+```{r}
+manova.means <- procD.pgls(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn,
+                               DAnt_mn, DPos_mn) ~ Habitat + fineness,
+                           phy = phy, data = gdf, iter = 999, SS.type = 'III',
+                           print.progress = FALSE)
+manova.means <- RRPP::manova.update(manova.means, tol = 0, print.progress = FALSE)
+```
+
+```{r}
+summary(manova.means, test = 'Pillai')
+
+```
+
 # Univariate tests
 
 Test each measurement separately.
@@ -422,63 +448,33 @@ anovatabs <-
 
 ## Construct effect sizes
 
-Get the overall means and standard deviations of each variable within each habitat.
-```{r}
-vertdata_sp_means <-
-  vertdata_sp |> 
-  group_by(Habitat) |>
-  dplyr::summarize(across(c(d_mn, CBL_mn, alphaPos_mn, alphaAnt_mn, DPos_mn, DAnt_mn), 
-                          list(mn = ~ mean(., na.rm = TRUE), sd = ~ sd(., na.rm = TRUE)))) |> 
-  ungroup()
-```
-
-Set up two data frames so that we can do the pairwise comparisons
-```{r}
-vertdata_sp1 <-
-  vertdata_sp_means |> 
-  select(Habitat, ends_with('mn'), ends_with('sd')) |> 
-  rename_with(~ paste0(., '1'), c(Habitat, ends_with('mn'), ends_with('sd')))
-
-vertdata_sp2 <-
-  vertdata_sp_means |> 
-  select(Habitat, ends_with('mn'), ends_with('sd')) |> 
-  rename_with(~ paste0(., '2'), c(Habitat, ends_with('mn'), ends_with('sd')))
-```
-
-Merge the data frames so that we have the relevant pairwise combinations.
-```{r}
-PW <-
-  expand.grid(Habitat1 = vertdata_sp1$Habitat1, Habitat2 = vertdata_sp2$Habitat2) |> 
-  left_join(vertdata_sp1) |> 
-  left_join(vertdata_sp2) |> 
-  filter(Habitat1 != Habitat2 &
-           as.integer(Habitat1) < as.integer(Habitat2)) |> 
-  rename_with(~ str_replace(., '_mn_', '_'))
-```
-
-Then make the data frame longer so that we can do the calculations for each variable.
-```{r}
-PW <-
-  PW |> 
-  pivot_longer(cols = contains('mn') | contains('sd'),
-               names_pattern = '(.*)_(.*)',
-               names_to = c('var', '.value')) |> 
-  mutate(sdjoint = sqrt((sd1^2 + sd2^2)/2),
-         eff = (mn2 - mn1) / sdjoint)
-
-PW
-```
-
 ```{r}
 effectsizes <-
-  PW |> 
-  select(Habitat1, Habitat2, var, eff) |> 
-  mutate(Habitat = Habitat1) |> 
-  rename(group1 = Habitat1,
-         group2 = Habitat2)
-
-effectsizes
+  vertdata_sp |> 
+  select(Habitat, Species, d_mn, CBL_mn, alphaPos_mn, alphaAnt_mn, DPos_mn, DAnt_mn) |> 
+  group_by(Habitat, Species) |> 
+  pivot_longer(cols = c(d_mn, CBL_mn, 
+                        alphaPos_mn, alphaAnt_mn, DPos_mn, DAnt_mn),
+               names_to = 'var') |> 
+  ungroup() |> 
+  nest(data = c(Habitat, Species, value)) |> 
+  mutate(eff = purrr::map(data, ~ esvis::hedg_g(.x, value ~ Habitat))) |> 
+  select(-data) |> 
+  unnest(eff) |> 
+  mutate(Habitat_ref = factor(Habitat_ref, levels = levels(vertdata_sp$Habitat)),
+         Habitat_foc = factor(Habitat_foc, levels = levels(vertdata_sp$Habitat))) |> 
+  filter(as.integer(Habitat_ref) > as.integer(Habitat_foc)) |> 
+  mutate(Habitat = Habitat_ref,
+         var = str_remove(var, '_mn')) |> 
+  rename(group1 = Habitat_ref,
+         group2 = Habitat_foc,
+         eff = hedg_g)
 ```
+
+```{r}
+write_csv(effectsizes, here('output/effectsizes.csv'))
+```
+
 Rearrange the table
 ```{r}
 effectsizes_wide <- 
@@ -503,6 +499,7 @@ anovatabs <-
 ```{r}
 write_csv(anovatabs, here("output/anovatabs.csv"))
 ```
+
 
 ## Make the stats table
 
@@ -540,16 +537,17 @@ anovatab <-
     decimals = 2
   ) |> 
   fmt_number( 
-    columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff"),
+    columns = c('demersal_benthic_eff', 'pelagic_benthic_eff', 'pelagic_demersal_eff'),
+    # columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff"),
     decimals = 2,
     force_sign = TRUE
   ) |> 
   cols_label(
     var = md("Measurement"),
     p = md("p"),
-    benthic_demersal_eff = md("b - d"),
-    benthic_pelagic_eff = md("b - p"),
-    demersal_pelagic_eff = md("d - p")
+    demersal_benthic_eff = md("b - d"),
+    pelagic_benthic_eff = md("b - p"),
+    pelagic_demersal_eff = md("d - p")
   ) |> 
   tab_style(
     locations = cells_column_labels(columns = c("var", 'Df', 'Rsq', 'F', 'Z', "p")),
@@ -575,152 +573,5 @@ anovatab
 gtsave(anovatab, here("output/anova_table.rtf"))
 ```
 
-```{r}
-dyl = 0.0005
-yl = max(vertdata_sp$d_mn) + dyl
-
-p1 <- anovatabs |> 
-  filter(var == 'd_mn' & Effect == 'Habitat') |> 
-  pull(p)
-
-preddata <- predvals |> 
-  filter(var == 'd_mn') |> 
-  pull(data)
-preddata <- preddata[[1]]
-
-d_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
-  geom_quasirandom(width=0.3, alpha = 0.5) +
-  geom_line(data = preddata, aes(x = Habitat, y = pred, group = 1), 
-            color = 'black', inherit.aes = FALSE) +
-  geom_point(data = preddata, aes(x = Habitat, y = pred, shape = Habitat),
-            color = 'black', size = 3, inherit.aes = FALSE) +
-  stat_pvalue_manual(data = filter(effectsizes, var == 'd',
-                                   abs(eff) > 0.3),
-                     y.position = yl, step.increase = 0.12,
-                     label = '{round(eff, digits=2)}') +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
-  labs(y = "Mean foramen\ndiameter (BL)") +
-  scale_x_discrete(labels = c("b", "d", "p")) +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
-  theme_bw() + theme(aspect.ratio = 0.7)
-
-d_mn_panel
-```
-
-```{r}
-dyl = 5
-yl = max(vertdata_sp$alphaAnt_mn) + dyl
-
-p1 <- anovatabs |> 
-  filter(var == 'alphaAnt_mn' & Effect == 'Habitat') |> 
-  pull(p)
-
-preddata <- predvals |> 
-  filter(var == 'alphaAnt_mn') |> 
-  pull(data)
-preddata <- preddata[[1]]
-
-alphaAnt_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaAnt_mn, color = Habitat, shape = Habitat)) +
-  geom_quasirandom(width=0.3, alpha = 0.5) +
-  # geom_line(data = preddata, aes(x = Habitat, y = pred, group = 1), 
-  #           color = 'black', inherit.aes = FALSE) +
-  # geom_point(data = preddata, aes(x = Habitat, y = pred, shape = Habitat),
-  #           color = 'black', size = 3, inherit.aes = FALSE) +
-  # stat_pvalue_manual(data = filter(effectsizes, var == 'd',
-  #                                  abs(eff) > 0.3),
-  #                    y.position = yl, step.increase = 0.12,
-  #                    label = '{round(eff, digits=2)}') +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
-  labs(y = "Anterior cone\nangle (deg)") +
-  scale_x_discrete(labels = c("b", "d", "p")) +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
-  theme_bw() + theme(aspect.ratio = 0.7)
-
-alphaAnt_mn_panel
-```
-
-```{r}
-dyl = 5
-yl = max(vertdata_sp$alphaPos_mn) + dyl
-
-p1 <- anovatabs |> 
-  filter(var == 'alphaPos_mn' & Effect == 'Habitat') |> 
-  pull(p)
-
-preddata <- predvals |> 
-  filter(var == 'alphaPos_mn') |> 
-  pull(data)
-preddata <- preddata[[1]]
-
-alphaPos_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
-  geom_quasirandom(width=0.3, alpha = 0.5) +
-  geom_line(data = preddata, aes(x = Habitat, y = pred, group = 1),
-            color = 'black', inherit.aes = FALSE) +
-  geom_point(data = preddata, aes(x = Habitat, y = pred, shape = Habitat),
-            color = 'black', size = 3, inherit.aes = FALSE) +
-  stat_summary(fun.data = 'mean_cl_boot') +
-  stat_pvalue_manual(data = filter(effectsizes, var == 'alphaPos',
-                                   abs(eff) >= 0.3),
-                     y.position = yl, step.increase = 0.12,
-                     label = '{round(eff, digits=2)}') +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
-  labs(y = "Posterior cone\nangle (deg)") +
-  scale_x_discrete(labels = c("b", "d", "p")) +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
-  theme_bw() + theme(aspect.ratio = 0.7)
-
-alphaPos_mn_panel
-```
-
-
-
-```{r}
-p1 <- anovatabs |> 
-  filter(var == 'CBL_mn' & Effect == 'fineness') |> 
-  pull(p)
-
-ggplot(vertdata_sp, aes(x = fineness, y = CBL_mn, color = Habitat, shape = Habitat)) +
-  # geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
-  geom_ribbon(data = CBLpreddf, aes(x = fineness, ymin = CBL_pred_lcl, ymax = CBL_pred_ucl), inherit.aes = FALSE, color = 'black', alpha = 0.5) +
-  geom_line(data = CBLpreddf, aes(x = fineness, y = CBL_pred), inherit.aes = FALSE, color = 'black') +
-  geom_point() +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
-  labs(y = "Centrum body\nlength (BL)") +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
-  theme_bw() + theme(aspect.ratio = 0.7)
-```
-```{r}
-p1 <- anovatabs |> 
-  filter(var == 'DPos_mn' & Effect == 'fineness') |> 
-  pull(p)
-
-ggplot(vertdata_sp, aes(x = fineness, y = DPos_mn, color = Habitat, shape = Habitat)) +
-  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
-  geom_point() +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
-  labs(y = "Posterior cone\ndiameter (BL)") +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
-  theme_bw() + theme(aspect.ratio = 0.7)
-```
-
-```{r}
-p1 <- anovatabs |> 
-  filter(var == 'DAnt_mn' & Effect == 'fineness') |> 
-  pull(p)
-
-ggplot(vertdata_sp, aes(x = fineness, y = DAnt_mn, color = Habitat, shape = Habitat)) +
-  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
-  geom_point() +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}')) +
-  labs(y = "Anterior cone\ndiamater (BL)") +
-  scale_shape_manual(values = c(15, 19, 4)) +
-  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
-  theme_bw() + theme(aspect.ratio = 0.7)
-```
 
 
