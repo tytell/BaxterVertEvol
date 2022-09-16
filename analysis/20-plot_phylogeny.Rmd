@@ -18,8 +18,7 @@ library(plotly)
 For this figure, we need to identify three species from the three habitat classes that have clearly different vertebrae.
 
 ```{r}
-vertdata <- read_csv(here('output/vertdata_summary_lm_species.csv'))
-pairs <- read_csv(here('output/vertdata_pairs.csv'))
+vertdata <- read_csv(here('output/vertdata_summary_species.csv'))
 ```
 
 ```{r}
@@ -48,8 +47,8 @@ We'll use the sculpin as an example benthic species, because we have good histol
 
 ```{r}
 examplespecies <- list("Myoxocephalus_polyacanthocephalus",
-                    "Poecilia_reticulata",
-                    "Sphyraena_sphyraena")
+                    "Anoplarchus_purpurescens",
+                    "Cymatogaster_aggregata")
 ```
 
 ```{r}
@@ -67,15 +66,8 @@ vertdata <-
 ```
 
 ```{r}
-highlightpairs <-
-  pairs %>%
-  distinct(parent) %>%
-  pull(parent)
-```
-
-```{r}
 vertdata |> 
-  distinct(FullName) |> 
+  distinct(Species) |> 
   dplyr::summarise(n = n())
 ```
 
@@ -107,58 +99,81 @@ vertdata |>
 ```
 
 ```{r}
-newick <- paste0("((Pongo_abelii,(Gorilla_gorilla_gorilla,(Pan_paniscus,",
-          "Pan_troglodytes)Pan,Homo_sapiens)Homininae)Hominidae,",
-          "Nomascus_leucogenys)Hominoidea;")
+orders <-
+  left_join(as_tibble(verttree), vertdata, by = c("label" = "Species")) |> 
+  mutate(Species = label,
+         label = str_replace(label, '_', ' ')) |> 
+  group_by(Order) |> 
+  dplyr::summarize(id = min(parent),
+                   n = n()) |> 
+  filter(n >= 2 & !str_detect(Order, 'Incertae') & !is.na(Order))
+orders
+```
+```{r}
+nodestolabel <- c('Actinopterygii',
+                  'Neopterygii',
+                  'Teleostei',
+                  'Otomorpha',
+                  # 'Euteleostomorpha',
+                  'Neoteleostei',
+                  'Acanthomorphata',
+                  'Percomorphaceae',
+                  'Eupercaria')
 
-tree <- read.tree(text=newick)
+allnodes <-
+  left_join(as_tibble(verttree), vertdata, by = c("label" = "Species")) |> 
+  mutate(Species = label,
+         label = str_replace(label, '_', ' '),
+         alltaxon = replace_na(alltaxon, '-')) |> 
+  select(parent, node, alltaxon)
 
-d <- ggimage::phylopic_uid(tree$tip.label)
-d$body_mass <- c(52, 114, 47, 45, 58, 6)
-
-p <- ggtree(tree) %<+% d + 
-  geom_tiplab(aes(image=uid, colour=body_mass), geom="phylopic", offset=2.5) +
-  geom_tiplab(aes(label=label), offset = .2) + xlim(NA, 7) +
-  scale_color_viridis_c()
-
-p
+labelnodes <- tibble()
+for (n in nodestolabel) {
+  print(n[[1]])
+  labelnodes <-
+    allnodes |>
+    dplyr::filter(str_detect(alltaxon, n[[1]])) |> 
+    dplyr::summarize(taxon = n[[1]],
+                     # alltaxon = alltaxon[1],
+                     pmin = min(parent),
+                     nmin = min(node)) |> 
+    bind_rows(labelnodes)
+}
+labelnodes
 ```
 
-```{r}
-showspecies <- read_csv(here('output/vertdata_show_species.csv'),
-                        col_select = 1:5)
-```
 
 ```{r}
-left_join(as_tibble(verttree), vertdata, by = c("label" = "FullName")) %>%
-  left_join(showspecies)
-```
-
-```{r}
-left_join(as_tibble(verttree), vertdata, by = c("label" = "FullName")) %>%
-  left_join(showspecies) %>%
-  mutate(label = str_replace(Species, '_', ' ')) %>%
+left_join(as_tibble(verttree), vertdata, by = c("label" = "Species")) %>%
+  # left_join(labelnodes, by = c('parent' = 'pmin')) %>%
+  mutate(Species = label,
+         label = str_replace(label, '_', ' ')) %>%
          # str_c(Family, Species)) %>%
   tidytree::as.treedata() %>%
-  ggtree(branch.length = 'none') + # layout = "circular", open.angle = 120) + 
+  ggtree() + #branch.length = 'none') + # layout = "circular", open.angle = 120) + 
   scale_y_reverse() +
   geom_tiplab(aes(color = Habitat), size=1.5, offset = 0.2) +
   geom_tippoint(aes(shape = Water_Type)) +
-  geom_tiplab(aes(image = uid), geom="phylopic", offset = 1) +
   geom_text2(aes(label=label, subset=Species %in% examplespecies),
              hjust = 0, vjust = 0) +
-  # geom_hilight(mapping=aes(subset = node %in% highlightpairs)) +
+  geom_cladelab(data=orders,
+                mapping=aes(node=id, label=Order), geom='text',
+                offset=50) +
+  # geom_text2(aes(label=taxon, subset=!is.na(taxon))) +
+  geom_treescale() +
   scale_shape_manual(values = c(3, 23, 24)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
   theme(legend.position = "bottom")
   #geom_label2(aes(label='P', subset = ispair))
 ```
+
+
+
 ```{r}
 # ggsave(here('output/phylogeny_families.pdf'), width=6.5, height=8, units="in")
 
 ggsave(here('output/plot_example_data_figure.pdf'), width=3.5, height=6, units="in")
 ```
-
 
 ```{r}
 vertdata %>%

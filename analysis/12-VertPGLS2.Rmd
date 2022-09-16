@@ -46,22 +46,12 @@ packageVersion('esvis')
 
 # Load data
 
-## Summary data
-
-These data tables have means for each species, plus the pruned phylogenetic tree.
-
-```{r}
-vertdata_sp <- read_csv(here('output/vertdata_summary_lm_species.csv')) |> 
-  mutate(Habitat = factor(Habitat, levels = c('benthic', 'demersal', 'pelagic')))
-verttree <- readRDS(here('output/vert_tree.rds'))
-```
-
 ## Vertebral measurements
 
 ```{r}
 vertdata <- read_csv(here('output', "MasterVert_Measurements_Matched.csv")) %>%
-  separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
-  relocate(MatchGenus, MatchSpecies, .after=Species) %>%
+  # separate(MatchSpecies, into=c("MatchGenus", "MatchSpecies"), sep="_") %>%
+  relocate(MatchSpecies, .after=Species) %>%
   rename(alphaPos = alpha_Pos,
          alphaAnt = alpha_Ant,
          DPos = D_Pos,
@@ -74,6 +64,75 @@ vertdata <- read_csv(here('output', "MasterVert_Measurements_Matched.csv")) %>%
 
 head(vertdata)
 ```
+
+Pull out the landmarks for each vertebra and scale each to body length.
+```{r}
+vertdatapts <-
+  vertdata |> 
+  filter(Indiv == 1) |> 
+  select(Habitat, Species, MatchSpecies, Pos, starts_with('Pt'), fineness, SL) |>
+  pivot_longer(cols = starts_with('Pt'),
+               names_to = c('point', '.value'),
+               names_pattern = "Pt(.)(.)") |>
+  mutate(x = x/SL,
+         y = y/SL)
+  
+```
+
+Get the most common value
+```{r}
+mode <- function(x) {
+   return(as.numeric(names(which.max(table(x)))))
+}
+```
+
+
+```{r}
+toofewpoints <-
+  vertdatapts |> 
+  filter(Pos %in% seq(40,90, by = 10) & !is.na(Habitat)) |> 
+  group_by(Species) |> 
+  dplyr::summarize(npts = sum(!is.na(x))) |> 
+  ungroup() |> 
+  filter(npts != mode(npts)) |> 
+  pull(Species)
+```
+
+Get species that have the same number of vertebrae digitized.
+```{r}
+vertdatapts <-
+  vertdatapts |> 
+  filter(Pos %in% seq(40,90, by = 10) & !is.na(Habitat)) |> 
+  group_by(Species) |> 
+  mutate(npts = sum(!is.na(x))) |> 
+  ungroup() |> 
+  filter(npts == mode(npts))
+  
+```
+
+## Summary data
+
+These data tables have means for each species, plus the pruned phylogenetic tree.
+
+```{r}
+vertdata_sp <- read_csv(here('output/vertdata_summary_species.csv')) |> 
+  mutate(Habitat = factor(Habitat, levels = c('benthic', 'demersal', 'pelagic')))
+verttree <- readRDS(here('output/vert_tree.rds'))
+```
+
+```{r}
+vertdata_sp <-
+  vertdata_sp |> 
+  filter(!(Species %in% toofewpoints))
+```
+
+
+```{r}
+vertdatapts <-
+  vertdatapts |> 
+  filter(Species %in% vertdata_sp$Species)
+```
+
 
 # Tests on means
 
@@ -88,7 +147,7 @@ vars <- c('CBL_mn', 'd_mn', 'alphaAnt_mn', 'alphaPos_mn', 'DAnt_mn', 'DPos_mn',
 gdf <- geomorph.data.frame(phy = verttree)
 for (v in vars) {
   arr = array(vertdata_sp[[v]], dim = c(nrow(vertdata_sp), 1),
-              dimnames = list(vertdata_sp$FullName, NULL))
+              dimnames = list(vertdata_sp$Species, NULL))
   gdf[[v]] <- arr
 }
 ```
@@ -119,7 +178,7 @@ fineness_habitat <- procD.pgls(fineness ~ Habitat, phy = phy, data = gdf, iter =
 ```{r}
 summary(fineness_habitat)
 ```
-No significant difference in fineness relative to habitat.
+Marginally significant, with pelagic species more elongate than benthic.
 
 
 # Multivariate ANOVA
@@ -145,67 +204,39 @@ manova.sum
 
 # Multivariate tests on individual vertebrae
 
-Get the most common value
-```{r}
-mode <- function(x) {
-   return(as.numeric(names(which.max(table(x)))))
-}
-```
 
-Pull out the landmarks for each vertebra and scale each to body length.
-```{r}
-vertdatapts <-
-  vertdata |> left_join(select(vertdata_sp, Species, Tip, FullName), 
-                      by = "Species") |> 
-  filter(Indiv == 1) |> 
-  select(Habitat, Pos, starts_with('Pt'), fineness, SL, Tip, FullName) |> 
-  pivot_longer(cols = starts_with('Pt'),
-               names_to = c('point', '.value'),
-               names_pattern = "Pt(.)(.)") |> 
-  mutate(x = x/SL,
-         y = y/SL)
-  
-```
-
-Read in the phylogenetic tree.
-```{r}
-tree <- read.tree(here('data/12862_2017_958_MOESM2_ESM.tre'))
-```
-
-Get species that have the same number of vertebrae digitized.
-```{r}
-vertdatapts <-
-  vertdatapts |> 
-  filter(Pos %in% seq(40,90, by = 10) & !is.na(Tip)) |> 
-  group_by(FullName) |> 
-  mutate(npts = sum(!is.na(x))) |> 
-  ungroup() |> 
-  filter(npts == mode(npts))
-  
-```
-
-Get the tip numbers for each of those species and prune the tree to just those species.
-```{r}
-tips <-
-  vertdatapts |> 
-  ungroup() |> 
-  distinct(Tip) |> 
-  pull(Tip) |> 
-  as.vector()
-
-verttree2 <- keep.tip(tree, tips)
-```
 
 Get the names of each species, without repeats.
 ```{r}
 ids <-
-  distinct(vertdatapts, FullName, .keep_all=TRUE)
+  distinct(vertdatapts, Species, .keep_all=TRUE)
+```
+
+```{r}
+nrow(ids)
+```
+
+```{r}
+ids <-
+  ids |> 
+  mutate(rowname = Species) %>%
+  remove_rownames() |> 
+  column_to_rownames(var = "rowname")
+```
+
+
+```{r}
+name.check(verttree, ids)
+```
+
+```{r}
+verttree2 <- keep.tip(verttree, ids$Species)
 ```
 
 ```{r}
 vertdatapts <-
   vertdatapts |> 
-  group_by(Habitat, fineness, SL, Tip, FullName, Pos) |> 
+  group_by(Habitat, fineness, SL, Species, MatchSpecies, Pos) |> 
   mutate(x = x - mean(x),
          y = y - mean(y))
 ```
@@ -217,22 +248,23 @@ This is the data frame with all of the vertebrae together.
 pts <- with(vertdatapts,
             array(data = c(x, y),
              dim = c(mode(npts), 2, nrow(ids)),
-             dimnames = list(NULL, NULL, ids$FullName)))
+             dimnames = list(NULL, NULL, ids$Species)))
 Y.gpa <- gpagen(pts, print.progress = FALSE)
 
 gdfall <- geomorph.data.frame(Y.gpa, phy = verttree2)
 gdfall$Habitat = array(ids$Habitat, dim = c(nrow(ids), 1),
-                     dimnames = list(ids$FullName, NULL))
+                     dimnames = list(ids$Species, NULL))
 gdfall$fineness = array(ids$fineness, dim = c(nrow(ids), 1),
-                      dimnames = list(ids$FullName, NULL))
+                      dimnames = list(ids$Species, NULL))
 ```
 
 ```{r}
-pgall <- procD.pgls(coords ~ Habitat + fineness, phy = phy,
+pgall <- procD.pgls(coords ~ Habitat + fineness, phy = verttree,
                     data = gdfall, inter = 999, SS.type = 'III',
                     print.progress = FALSE)
 pgall <- RRPP::manova.update(pgall, tol = 0, print.progress = FALSE)
 ```
+
 
 ```{r}
 summary(pgall, test = 'Pillai')
@@ -246,8 +278,8 @@ selpts <- seq(40,90, by = 10)
 for (i in seq_along(selpts)) {
   # print(selpts[[i]])
   v1 <- vertdatapts |> 
-    filter(Pos == selpts[[i]] & !is.na(Tip)) |> 
-    group_by(FullName) |> 
+    filter(Pos == selpts[[i]]) |> 
+    group_by(Species) |> 
     mutate(n1 = n())
   
   if (any(v1$n1 != mode(v1$n1))) stop('Bad!') 
@@ -255,15 +287,15 @@ for (i in seq_along(selpts)) {
   # print(v1 |> select(Pos, x,y) |> head())
   pts <- array(data = c(v1$x, v1$y),
           dim = c(mode(v1$n1), 2, nrow(ids)),
-             dimnames = list(NULL, NULL, ids$FullName))
+             dimnames = list(NULL, NULL, ids$Species))
   Y.gpa1 <- gpagen(pts, print.progress = FALSE)
   # print(head(Y.gpa1$consensus))
   
   gdf1 <- geomorph.data.frame(Y.gpa1, phy = verttree2)
   gdf1$Habitat <- array(ids$Habitat, dim = c(nrow(ids), 1),
-                       dimnames = list(ids$FullName, NULL))
+                       dimnames = list(ids$Species, NULL))
   gdf1$fineness <- array(ids$fineness, dim = c(nrow(ids), 1),
-                        dimnames = list(ids$FullName, NULL))
+                        dimnames = list(ids$Species, NULL))
   gdf.vert1[[i]] <- gdf1
 }
 ```
@@ -354,20 +386,6 @@ manovatab
 gtsave(manovatab, here("output/manova_table.rtf"))
 ```
 
-## MANOVA for mean measurements
-
-```{r}
-manova.means <- procD.pgls(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn,
-                               DAnt_mn, DPos_mn) ~ Habitat + fineness,
-                           phy = phy, data = gdf, iter = 999, SS.type = 'III',
-                           print.progress = FALSE)
-manova.means <- RRPP::manova.update(manova.means, tol = 0, print.progress = FALSE)
-```
-
-```{r}
-summary(manova.means, test = 'Pillai')
-
-```
 
 # Univariate tests
 
@@ -385,6 +403,8 @@ models <- list(CBL_mn = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data 
             DAnt_mn = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
                                  iter = 999, SS.type = 'III', print.progress = FALSE),
             DPos_mn = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                 iter = 999, SS.type = 'III', print.progress = FALSE),
+            fineness = procD.pgls(fineness ~ Habitat, phy = phy, data = gdf, 
                                  iter = 999, SS.type = 'III', print.progress = FALSE))
 ```
 
@@ -393,6 +413,9 @@ habdf <- with(vertdata_sp,
                expand_grid(Habitat = levels(Habitat)))
 finedf <- with(vertdata_sp,
                expand_grid(fineness = pracma::linspace(min(fineness), max(fineness), n = 10)))
+habfinedf <- with(vertdata_sp,
+               expand_grid(Habitat = levels(Habitat),
+                           fineness = pracma::linspace(min(fineness), max(fineness), n = 10)))
 ```
 
 
@@ -400,6 +423,8 @@ finedf <- with(vertdata_sp,
 anovatabs <- c()
 predvals <- tibble(var = names(models),
                    data = list(list()))
+habvals <- tibble(var = names(models),
+                  data = list(list()))
 for (i in seq_along(models)) {
   print(names(models)[i])
   tab1 <- data.frame(models[[i]]$aov.table)
@@ -408,27 +433,64 @@ for (i in seq_along(models)) {
     rownames_to_column(var = 'Effect') |> 
     rename(p = Pr..F.)
   
+  # pint <- anovatabs[[i]] |> 
+  #   filter(Effect == 'Habitat:fineness') |> 
+  #   pull(p)
   phab <- anovatabs[[i]] |> 
     filter(Effect == 'Habitat') |> 
     pull(p)
   pfine <- anovatabs[[i]] |> 
     filter(Effect == 'fineness') |> 
     pull(p)
+
+  if (length(pfine) == 0) {
+    pfine <- Inf
+  }
+  pred1 <- predict(models[[i]], newdata = habdf)
   
-  if (phab < 0.05) {
+  pred1df <- habdf
+  pred1df$pred <- as.vector(pred1$mean)
+  pred1df$lcl <- as.vector(pred1$lcl)
+  pred1df$ucl <- as.vector(pred1$ucl)
+  
+  habvals$data[[i]] <- pred1df
+  
+  if (phab < 0.05 & pfine < 0.05) {
+    print('both')
+    pred1 <- predict(models[[i]], newdata = habfinedf)
+
+    pred1df <- habfinedf
+    pred1df$pred <- as.vector(pred1$mean)
+
+    predvals$data[[i]] <- pred1df
+  } else if (phab < 0.05) {
+    print('habitat')
     pred1 <- predict(models[[i]], newdata = habdf)
   
     pred1df <- habdf
     pred1df$pred <- as.vector(pred1$mean)
+    pred1df$lcl <- as.vector(pred1$lcl)
+    pred1df$ucl <- as.vector(pred1$ucl)
     
     predvals$data[[i]] <- pred1df
   } else if (pfine < 0.05) {
+    print('fineness')
     pred1 <- predict(models[[i]], newdata = finedf)
   
     pred1df <- finedf
     pred1df$pred <- as.vector(pred1$mean)
+    pred1df$lcl <- as.vector(pred1$lcl)
+    pred1df$ucl <- as.vector(pred1$ucl)
+    predvals$data[[i]] <- pred1df
+  } else {
+    print('none')
+    pred1df <- habdf
+    pred1df$pred <- NA
+    pred1df$lcl <- NA
+    pred1df$ucl <- NA
     predvals$data[[i]] <- pred1df
   }
+  
 }
 
 anovatabs <- bind_rows(anovatabs) 
@@ -436,40 +498,133 @@ anovatabs
 ```
 
 ```{r}
-anovatabs <-
-  anovatabs |> 
-  bind_rows(
-    data.frame(fineness_habitat$aov.table) |> 
-      mutate(var = 'fineness') |> 
-      rownames_to_column(var = 'Effect') |> 
-      rename(p = Pr..F.)
-  )
+habvals <-
+  habvals |> 
+  unnest(data)
+
+write_csv(habvals, here('output/habitatvals.csv'))
+```
+
+```{r}
+saveRDS(predvals, file = here('output/predvals.Rds'))
 ```
 
 ## Construct effect sizes
 
 ```{r}
-effectsizes <-
-  vertdata_sp |> 
-  select(Habitat, Species, d_mn, CBL_mn, alphaPos_mn, alphaAnt_mn, DPos_mn, DAnt_mn) |> 
-  group_by(Habitat, Species) |> 
-  pivot_longer(cols = c(d_mn, CBL_mn, 
-                        alphaPos_mn, alphaAnt_mn, DPos_mn, DAnt_mn),
-               names_to = 'var') |> 
-  ungroup() |> 
-  nest(data = c(Habitat, Species, value)) |> 
-  mutate(eff = purrr::map(data, ~ esvis::hedg_g(.x, value ~ Habitat))) |> 
-  select(-data) |> 
-  unnest(eff) |> 
-  mutate(Habitat_ref = factor(Habitat_ref, levels = levels(vertdata_sp$Habitat)),
-         Habitat_foc = factor(Habitat_foc, levels = levels(vertdata_sp$Habitat))) |> 
-  filter(as.integer(Habitat_ref) > as.integer(Habitat_foc)) |> 
-  mutate(Habitat = Habitat_ref,
-         var = str_remove(var, '_mn')) |> 
-  rename(group1 = Habitat_ref,
-         group2 = Habitat_foc,
-         eff = hedg_g)
+# models <- list(CBL_mn = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+#                                    iter = 999, SS.type = 'III', print.progress = FALSE),
+#             d_mn = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+#                               iter = 999, SS.type = 'III', print.progress = FALSE),
+#             alphaAnt_mn = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+#                                      iter = 999, SS.type = 'III', print.progress = FALSE),
+#             alphaPos_mn = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+#                                      iter = 999, SS.type = 'III', print.progress = FALSE),
+#             DAnt_mn = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+#                                  iter = 999, SS.type = 'III', print.progress = FALSE),
+#             DPos_mn = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+#                                  iter = 999, SS.type = 'III', print.progress = FALSE))
 ```
+
+```{r}
+vars <- c('CBL_mn', 'd_mn', 'alphaAnt_mn', 'alphaPos_mn', 'DAnt_mn', 'DPos_mn',
+         'fineness', 'Habitat')
+pairs <- list(c('benthic','demersal'),
+              c('benthic','pelagic'),
+              c('demersal','pelagic'))
+
+gdfpair <- list()
+for (i in seq_along(pairs)) {
+  gdfpair[[i]] <- geomorph.data.frame(phy = verttree)
+  vp1 <- vertdata_sp |> 
+    filter(Habitat %in% pairs[[i]])
+  
+  for (v in vars) {
+    arr = array(vp1[[v]], dim = c(nrow(vp1), 1),
+                dimnames = list(vp1$Species, NULL))
+    gdfpair[[i]][[v]] <- arr
+  }
+}
+```
+
+```{r}
+modelpairs <- list(CBL_p1 = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   CBL_p2 = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   CBL_p3 = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   d_p1 = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   d_p2 = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   d_p3 = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   alphaAnt_p1 = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   alphaAnt_p2 = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   alphaAnt_p3 = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   alphaPos_p1 = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   alphaPos_p2 = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   alphaPos_p3 = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),                   
+                   DAnt_p1 = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   DAnt_p2 = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   DAnt_p3 = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   DPos_p1 = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   DPos_p2 = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   DPos_p3 = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   fineness_p1 = procD.pgls(fineness ~ Habitat, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   fineness_p2 = procD.pgls(fineness ~ Habitat, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE),
+                   fineness_p3 = procD.pgls(fineness ~ Habitat, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = 'III', print.progress = FALSE))
+                   
+```
+
+```{r}
+effectsizes <- list()
+for (i in seq_along(modelpairs)) {
+  a1 <- anova(modelpairs[[i]], effect.type = 'cohenf')
+  df1 <- as_tibble(a1$table) |> 
+    rename(p = `Pr(>Cohen's f-squared)`,
+           eff = Z) |> 
+    select(eff, p) |> 
+    head(n = 1) |> 
+    mutate(var = names(modelpairs)[[i]])
+  effectsizes[[i]] <- df1
+}
+
+effectsizes <-
+  bind_rows(effectsizes) |> 
+  separate(var, into = c('var', 'pair')) |> 
+  mutate(Habitat_foc = case_when(pair == 'p1'  ~  'benthic',
+                                 pair == 'p2'  ~  'benthic',
+                                 pair == 'p3'  ~  'demersal'),
+         Habitat_ref = case_when(pair == 'p1'  ~  'pelagic',
+                                 pair == 'p2'  ~  'demersal',
+                                 pair == 'p3'  ~  'pelagic'),
+         Habitat = Habitat_ref) |> 
+  rename(group1 = Habitat_ref,
+         group2 = Habitat_foc) |> 
+  select(-pair)
+```
+
+```{r}
+effectsizes
+```
+
 
 ```{r}
 write_csv(effectsizes, here('output/effectsizes.csv'))
@@ -481,11 +636,11 @@ effectsizes_wide <-
   effectsizes |> 
   mutate(contrast = str_c(group1, group2, sep = ' - '),
          contrast = str_replace(contrast, '(\\w+) - (\\w+)', '\\1_\\2')) |> 
-  select(var, contrast, eff) |> 
-  pivot_wider(names_from = contrast, values_from = eff,
+  select(var, contrast, eff, p) |> 
+  pivot_wider(names_from = contrast, values_from = c(eff, p),
               names_glue = '{contrast}_{.value}') |> 
-  mutate(var = str_c(var, '_mn'),
-         Effect = 'Habitat') 
+  mutate(var = if_else(var == 'fineness', var, str_c(var, '_mn')),
+         Effect = 'Habitat')
 
 effectsizes_wide
 ```
@@ -506,8 +661,8 @@ write_csv(anovatabs, here("output/anovatabs.csv"))
 ```{r}
 anovatab <-
   anovatabs |> 
-  select(var, Effect, Df, Rsq, F, Z, p, ends_with('eff')) |> 
-  filter(Effect %in% c('Habitat', 'fineness')) |> 
+  select(var, Effect, Df, Rsq, F, Z, p, ends_with('p')) |> 
+  filter(Effect %in% c('Habitat', 'fineness', 'Habitat:fineness')) |> 
   mutate(var = str_remove(var, '_mn')) |> 
   mutate(var = case_when(
     var == "alphaAnt"   ~   "Anterior cone angle",
@@ -537,17 +692,18 @@ anovatab <-
     decimals = 2
   ) |> 
   fmt_number( 
-    columns = c('demersal_benthic_eff', 'pelagic_benthic_eff', 'pelagic_demersal_eff'),
+    columns = c('demersal_benthic_p', 'pelagic_benthic_p', 'pelagic_demersal_p'),
+    # columns = c('demersal_benthic_p', 'pelagic_benthic_p', 'pelagic_demersal_p'),
     # columns = c("benthic_demersal_eff", "benthic_pelagic_eff", "demersal_pelagic_eff"),
-    decimals = 2,
-    force_sign = TRUE
+    decimals = 3,
+    # force_sign = TRUE
   ) |> 
   cols_label(
     var = md("Measurement"),
     p = md("p"),
-    demersal_benthic_eff = md("b - d"),
-    pelagic_benthic_eff = md("b - p"),
-    pelagic_demersal_eff = md("d - p")
+    demersal_benthic_p = md("d - b"),
+    pelagic_benthic_p = md("p - b"),
+    pelagic_demersal_p = md("p - d")
   ) |> 
   tab_style(
     locations = cells_column_labels(columns = c("var", 'Df', 'Rsq', 'F', 'Z', "p")),

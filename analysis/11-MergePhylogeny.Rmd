@@ -42,7 +42,9 @@ packageVersion("geiger")
 # Load data
 
 ```{r}
-vertdata_sum <- read_csv(here("output/vertdata_summary.csv"))
+vertdata_sum <- read_csv(here("output/vertdata_summary.csv")) |> 
+  mutate(MatchSpecies = str_c(MatchGenus, MatchSpecies, sep = '_')) |> 
+  select(-MatchGenus)
 ```
 
 ## Phylogeny
@@ -52,23 +54,17 @@ This is the whole Betancur-R tree.
 tree <- read.tree(here('data/12862_2017_958_MOESM2_ESM.tre'))
 ```
 
+This is the tree from the Fish Tree of Life: https://fishtreeoflife.org/
 ```{r}
-newtree <- read.tree(here('data/actinopt_12k_raxml.tre.xz'))
+tree <- read.tree(here('data/actinopt_12k_treePL.tre.xz'))
 ```
 
 
 Get the names of species from the tree.
 ```{r}
 allspecies <- tibble(tree$tip.label)
-colnames(allspecies) <- c('FullName')
+colnames(allspecies) <- c('Species')
 head(allspecies)
-```
-
-And split the names into family, genus, and species.
-```{r}
-allspecies <- 
-  allspecies %>% separate(FullName, sep='_', into=c('Family', 'Genus', 'Species'), 
-                          extra='drop', remove=FALSE)
 ```
 
 Set up the tip number (just the row)
@@ -76,9 +72,18 @@ Set up the tip number (just the row)
 allspecies$Tip <- seq_len(nrow(allspecies))
 ```
 
+The double species name for Fundulus confuses things, so we'll just correct it manually.
+```{r}
+vertdata_sum <-
+  vertdata_sum |> 
+  mutate(MatchSpecies = if_else(Species == 'Fundulus_heteroclitus',
+                                'Fundulus_heteroclitus_heteroclitus',
+                                MatchSpecies))
+```
+
 ```{r}
 vertdata <- left_join(vertdata_sum, allspecies, 
-                                  by=c("MatchGenus"="Genus", "MatchSpecies"="Species")) %>%
+                                  by=c("MatchSpecies"="Species")) %>%
   select(-(ends_with(".x") | ends_with(".y")))
 vertdata
 ```
@@ -88,7 +93,7 @@ Drop species without a match
 vertdata %>%
   filter(is.na(Tip)) %>%
   distinct(Species, .keep_all=TRUE) %>%
-  select(Species, MatchGenus, MatchSpecies, Tip, Habitat)
+  select(Species, MatchSpecies, Tip, Habitat)
 ```
 
 ```{r}
@@ -109,6 +114,16 @@ ourspecies <-
 verttree <- keep.tip(tree, tip=as.vector(ourspecies$Tip))
 ```
 
+Replace the names of species in the tree with our matched ones.
+
+```{r}
+verttree$tip.label <-
+  ourspecies |> 
+  arrange(Tip) |> 
+  pull(Species)
+```
+
+
 ```{r}
 plotTree(verttree)
 ```
@@ -117,13 +132,9 @@ plotTree(verttree)
 ```{r}
 vertdata_sp <- 
   vertdata %>%
-  distinct(FullName, .keep_all = TRUE) %>%
-  mutate(rowname = FullName) %>%
+  distinct(Species, .keep_all = TRUE) %>%
+  mutate(rowname = Species) %>%
   column_to_rownames(var = "rowname")
-```
-
-```{r}
-verttree <- keep.tip(tree, tip=as.vector(vertdata_sp$Tip))
 ```
 
 ```{r}
@@ -151,24 +162,14 @@ verttree_data <-
   as_tibble(verttree) %>%
   left_join(vertdata_sp %>%
               rownames_to_column("label") %>%
-              select(label, Habitat, Family,
+              select(label, Habitat, alltaxon, Order, Family, fineness,
                      ends_with("80"), ends_with("max"), ends_with("med"), ends_with("slope"), ends_with("quad")))
 ```
 
-```{r}
-vertdata_sp <-
-  vertdata_sp %>%
-  mutate(CBL_vtx = -CBL_slope / CBL_quad,
-         alphaPos_vtx = -alphaPos_slope / alphaPos_quad,
-         alphaAnt_vtx = -alphaAnt_slope / alphaAnt_quad,
-         d_vtx = -d_slope / d_quad,
-         DAnt_vtx = -DAnt_slope / DAnt_quad,
-         DPos_vtx = -DPos_slope / DPos_quad)
-```
 
 Save out the tree data. There is something subtly different about saving the data out as a csv file and saving it as an RDS file. The base class of the tree is tbl_tree, but when we load it back in from a csv, despite having exactly the same data, it won't work with the tidytree functions. So we save it in an RDS file, which preserves the class.
 ```{r}
-write_csv(vertdata_sp, here('output/vertdata_summary_lm_species.csv'))
+write_csv(vertdata_sp, here('output/vertdata_summary_species.csv'))
 saveRDS(verttree, here('output/vert_tree.rds'))
 ```
 

@@ -36,8 +36,26 @@ head(vertdata)
 
 ```{r}
 vertdata |> 
-  filter(str_detect(Species, 'purp'))
+  filter(Habitat_Friedman != Habitat) |> 
+  distinct(Species, .keep_all = TRUE) |> 
+  select(Species, starts_with('Habitat')) |> 
+  arrange(Habitat_Friedman)
 ```
+
+```{r}
+vertdata |>
+  unite(MatchSpecies, MatchGenus, MatchSpecies) |> 
+  filter(Indiv == 1) |> 
+  group_by(MatchSpecies, Pos) |> 
+  filter(n() > 1)
+
+```
+```{r}
+vertdata <-
+  vertdata |> 
+  filter(Indiv == 1 & Species != 'Xiphister_atropurpureus')
+```
+
 
 Compute the correct CBL
 ```{r}
@@ -204,13 +222,15 @@ This gives us the mean, median, and max values for each of the measurements.
 ```{r}
 vertdata_summary <-
   vertdata2 %>%
-  filter(Pos != 0.2 & Pos != 0.3) %>%
-  group_by(Species, Indiv, Habitat, Water_Type, MatchSpecies, MatchGenus, fineness) %>%
-  dplyr::summarize(across(c(CBL, d, alphaAnt, alphaPos, DAnt, DPos, 
-                     dBW, DAntBW, DPosBW, d_normCBL, d_normD, Iratio),
-                   list(med = ~ median(.x, na.rm = TRUE),
-                        max = ~ max(.x, na.rm = TRUE),
-                        mn = ~ mean(.x, na.rm = TRUE)))) %>%
+  dplyr::filter(Pos != 0.2 & Pos != 0.3) %>%
+  group_by(Species, Indiv, Habitat, Water_Type, MatchSpecies, MatchGenus, 
+           alltaxon, Order, Family) %>%
+  dplyr::summarize(fineness = mean(fineness),
+                   across(c(CBL, d, alphaAnt, alphaPos, DAnt, DPos,
+                            dBW, DAntBW, DPosBW, d_normCBL, d_normD, Iratio),
+                          list(med = ~ median(.x, na.rm = TRUE),
+                               max = ~ max(.x, na.rm = TRUE),
+                               mn = ~ mean(.x, na.rm = TRUE)))) %>%
   ungroup()
 ```
 

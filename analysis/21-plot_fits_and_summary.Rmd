@@ -48,11 +48,14 @@ reversemeasurements <- function(df) {
 ```
 
 ```{r}
+habitatvals <- read_csv(here('output/habitatvals.csv'))
+```
+```{r}
 vertshape <-
-  vertdata_sp |> 
-  group_by(Habitat) |> 
-  dplyr::summarize(across(c(d_mn, CBL_mn, DPos_mn, DAnt_mn, alphaPos_mn, alphaAnt_mn), ~ mean(., na.rm = TRUE))) |> 
-  rename_with(~ str_replace(.x, "_mn", "")) %>%
+  habitatvals |> 
+  mutate(var = str_remove(var, '_mn')) |> 
+  select(-lcl, -ucl) |> 
+  pivot_wider(names_from = var, values_from = pred) |> 
   reversemeasurements()
 ```
 
@@ -119,25 +122,74 @@ ggsave(here('output/vertshape.pdf'), plot = vertshape_panel,
 ```{r}
 effectsizes <- read_csv(here('output/effectsizes.csv'))
 ```
+```{r}
+predvals <- readRDS(here('output/predvals.Rds'))
+```
 
+```{r}
+dyl = 0.0005
+yl = max(vertdata_sp$fineness) + dyl
+
+pred1 <- predvals |> 
+  filter(var == 'fineness') |> 
+  pull(data)
+pred1 <- pred1[[1]]
+
+fineness_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = fineness, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  # stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
+  # stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
+  stat_pvalue_manual(data = filter(effectsizes, var == 'fineness',
+                                   p < 0.05),
+                     y.position = yl, step.increase = 0.12,
+                     label = '{round(p, digits=3)}', size = 3) +
+  geom_point(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, ymin = lcl, ymax = ucl), color = 'black') +
+  geom_line(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, group = 1), color = 'black') +
+  labs(y = "Fineness ratio") +
+  scale_x_discrete(labels = c("b", "d", "p")) +
+  scale_shape_manual(values = c(15, 19, 4), guide='none') +
+  scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2"),
+                     guide='none') +
+  theme_bw() + theme(aspect.ratio = 0.7,
+                     legend.position = "bottom",
+                     panel.border = element_blank(), axis.line = element_line())
+
+
+fineness_panel
+```
+
+```{r}
+ggsave(here('output/fineness.pdf'), plot = fineness_panel,
+       width = 3, height = 2, units = "in")
+```
 
 ```{r}
 dyl = 0.0005
 yl = max(vertdata_sp$d_mn) + dyl
 
-p1 <- anovatabs |> 
+phab <- anovatabs |> 
   filter(var == 'd_mn' & Effect == 'Habitat') |> 
   pull(p)
+pfine <- anovatabs |> 
+  filter(var == 'd_mn' & Effect == 'fineness') |> 
+  pull(p)
+pred1 <- predvals |> 
+  filter(var == 'd_mn') |> 
+  pull(data)
+pred1 <- pred1[[1]]
 
 d_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
-  stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
+  # stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
+  # stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
   stat_pvalue_manual(data = filter(effectsizes, var == 'd',
-                                   abs(eff) > 0.3),
+                                   p < 0.05),
                      y.position = yl, step.increase = 0.12,
-                     label = '{round(eff, digits=2)}', size = 3) +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+                     label = '{round(p, digits=3)}', size = 3) +
+  geom_point(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, ymin = lcl, ymax = ucl), color = 'black') +
+  geom_line(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, group = 1), color = 'black') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, 
+           label = glue::glue('p_fine = {pfine}; p_hab = {phab}'), size = 3) +
   labs(y = "Mean foramen\ndiameter (BL)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
@@ -146,26 +198,33 @@ d_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = d_mn, color = Habitat, sh
 
 d_mn_panel
 ```
-
 ```{r}
-dyl = 5
-yl = max(vertdata_sp$alphaAnt_mn) + dyl
+dyl = 0.0005
+yl = max(vertdata_sp$d_mn) + dyl
 
-p1 <- anovatabs |> 
+phab <- anovatabs |> 
   filter(var == 'alphaAnt_mn' & Effect == 'Habitat') |> 
   pull(p)
+pfine <- anovatabs |> 
+  filter(var == 'alphaAnt_mn' & Effect == 'fineness') |> 
+  pull(p)
+pred1 <- predvals |> 
+  filter(var == 'alphaAnt_mn') |> 
+  pull(data)
+pred1 <- pred1[[1]]
 
 alphaAnt_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaAnt_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  # geom_line(data = preddata, aes(x = Habitat, y = pred, group = 1), 
-  #           color = 'black', inherit.aes = FALSE) +
-  # geom_point(data = preddata, aes(x = Habitat, y = pred, shape = Habitat),
-  #           color = 'black', size = 3, inherit.aes = FALSE) +
+  # stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
+  # stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
   # stat_pvalue_manual(data = filter(effectsizes, var == 'd',
   #                                  abs(eff) > 0.3),
   #                    y.position = yl, step.increase = 0.12,
-  #                    label = '{round(eff, digits=2)}') +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+  #                    label = '{round(eff, digits=2)}', size = 3) +
+  # geom_point(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, ymin = lcl, ymax = ucl), color = 'black') +
+  # geom_line(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, group = 1), color = 'black') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, 
+           label = glue::glue('p_fine = {pfine}; p_hab = {phab}'), size = 3) +
   labs(y = "Anterior cone\nangle (deg)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
@@ -179,19 +238,29 @@ alphaAnt_mn_panel
 dyl = 5
 yl = max(vertdata_sp$alphaPos_mn) + dyl
 
-p1 <- anovatabs |> 
+phab <- anovatabs |> 
   filter(var == 'alphaPos_mn' & Effect == 'Habitat') |> 
   pull(p)
+pfine <- anovatabs |> 
+  filter(var == 'alphaPos_mn' & Effect == 'fineness') |> 
+  pull(p)
+pred1 <- predvals |> 
+  filter(var == 'alphaPos_mn') |> 
+  pull(data)
+pred1 <- pred1[[1]]
 
 alphaPos_mn_panel <- ggplot(vertdata_sp, aes(x = Habitat, y = alphaPos_mn, color = Habitat, shape = Habitat)) +
   geom_quasirandom(width=0.3, alpha = 0.5) +
-  stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
-  stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
+  # stat_summary(aes(group = 1), fun = mean, geom = 'line', color = 'black') +
+  # stat_summary(fun.data = 'mean_cl_boot', color = 'black') +
   stat_pvalue_manual(data = filter(effectsizes, var == 'alphaPos',
-                                   abs(eff) >= 0.3),
+                                   p < 0.05),
                      y.position = yl, step.increase = 0.12,
-                     label = '{round(eff, digits=2)}', size = 3) +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+                     label = '{round(p, digits=3)}', size = 3) +
+  geom_point(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, ymin = lcl, ymax = ucl), color = 'black') +
+  geom_line(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, group = 1), color = 'black') +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, 
+           label = glue::glue('p_fine = {pfine}; p_hab = {phab}'), size = 3) +
   labs(y = "Posterior cone\nangle (deg)") +
   scale_x_discrete(labels = c("b", "d", "p")) +
   scale_shape_manual(values = c(15, 19, 4)) +
@@ -204,14 +273,23 @@ alphaPos_mn_panel
 ## Effects relative to fineness
 
 ```{r}
-p1 <- anovatabs |> 
+phab <- anovatabs |> 
+  filter(var == 'CBL_mn' & Effect == 'Habitat') |> 
+  pull(p)
+pfine <- anovatabs |> 
   filter(var == 'CBL_mn' & Effect == 'fineness') |> 
   pull(p)
+pred1 <- predvals |> 
+  filter(var == 'CBL_mn') |> 
+  pull(data)
+pred1 <- pred1[[1]]
 
 CBL_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = CBL_mn, color = Habitat, shape = Habitat)) +
-  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+  # geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
   geom_point() +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+  #geom_point(data = pred1, inherit.aes = FALSE, aes(x = Habitat, y = pred, ymin = lcl, ymax = ucl), color = 'black') +
+  geom_line(data = pred1, inherit.aes = FALSE, aes(x = fineness, y = pred, color = Habitat)) +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p_fine = {pfine}; p_hab = {phab}'), size = 3) +
   labs(y = "Centrum body\nlength (BL)") +
   scale_shape_manual(values = c(15, 19, 4)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
@@ -222,34 +300,56 @@ CBL_mn_panel
 
 
 ```{r}
-p1 <- anovatabs |> 
+ph <- anovatabs |> 
+  filter(var == 'DPos_mn' & Effect == 'Habitat') |> 
+  pull(p)
+pf <- anovatabs |> 
   filter(var == 'DPos_mn' & Effect == 'fineness') |> 
   pull(p)
+pred1 <- predvals |> 
+  filter(var == 'DPos_mn') |> 
+  pull(data)
+pred1 <- pred1[[1]]
 
-DPos_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = DPos_mn, color = Habitat, shape = Habitat)) +
-  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+DPos_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = DPos_mn, color = Habitat, fill = Habitat, shape = Habitat)) +
+  # geom_smooth(method = 'lm') + #aes(group = 1), color = 'black', method = 'lm') +
   geom_point() +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
+  geom_line(data = pred1, inherit.aes = FALSE, aes(x = fineness, y = pred, color = Habitat)) +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, 
+           label = glue::glue('p_hab = {ph}, p_fine = {pf}'), size = 3) +
   labs(y = "Posterior cone\ndiameter (BL)") +
   scale_shape_manual(values = c(15, 19, 4)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  scale_fill_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
   theme_bw() + theme(aspect.ratio = 0.7)
 
 DPos_mn_panel
 ```
 
 ```{r}
-p1 <- anovatabs |> 
+ph <- anovatabs |> 
+  filter(var == 'DAnt_mn' & Effect == 'Habitat') |> 
+  pull(p)
+pf <- anovatabs |> 
   filter(var == 'DAnt_mn' & Effect == 'fineness') |> 
   pull(p)
+phf <- anovatabs |> 
+  filter(var == 'DAnt_mn' & Effect == 'Habitat:fineness') |> 
+  pull(p)
+pred1 <- predvals |> 
+  filter(var == 'DAnt_mn') |> 
+  pull(data)
+pred1 <- pred1[[1]]
 
-DAnt_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = DAnt_mn, color = Habitat, shape = Habitat)) +
-  geom_smooth(aes(group = 1), color = 'black', method = 'lm') +
+DAnt_mn_panel <- ggplot(vertdata_sp, aes(x = fineness, y = DAnt_mn, color = Habitat, fill = Habitat, shape = Habitat)) +
   geom_point() +
-  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, label = glue::glue('p = {p1}'), size = 3) +
-  labs(y = "Anterior cone\ndiamater (BL)") +
+  geom_line(data = pred1, inherit.aes = FALSE, aes(x = fineness, y = pred, color = Habitat)) +
+  annotate('text', x = -Inf, y = Inf, hjust = -0.1, vjust = 1.5, 
+           label = glue::glue('p_hab = {ph}, p_fine = {pf}, p_hxf = {phf}'), size = 3) +
+  labs(y = "Anterior cone\ndiameter (BL)") +
   scale_shape_manual(values = c(15, 19, 4)) +
   scale_color_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
+  scale_fill_manual(values = c(benthic="chocolate4", demersal = "gold", pelagic = "deepskyblue2")) +
   theme_bw() + theme(aspect.ratio = 0.7)
 
 DAnt_mn_panel
