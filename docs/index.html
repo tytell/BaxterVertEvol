@@ -13,8 +13,8 @@
 
 <title>Baxter et al 2022 vertebrae analysis</title>
 
-<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -72,6 +72,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -92,6 +93,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -149,11 +153,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -244,7 +252,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -287,7 +295,9 @@ $(document).ready(function () {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -296,7 +306,9 @@ $(document).ready(function () {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -305,17 +317,27 @@ $(document).ready(function () {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-04-11
+<strong>Last updated:</strong> 2022-10-23
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>Code/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>Code/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
 </p>
 <p>
-This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -324,31 +346,54 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltree32c03787bfe13f55065a188c0d704ed65c94588ctargetblank32c0378a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/tytell/BaxterVertEvol/tree/32c03787bfe13f55065a188c0d704ed65c94588c" target="_blank">32c0378</a>
+</a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltreee47dde2b2a99a3313f0d2dd3de04e4d203ce7af3targetblanke47dde2a" class="panel-collapse collapse">
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltree32c03787bfe13f55065a188c0d704ed65c94588ctargetblank32c0378a"
+class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/tytell/BaxterVertEvol/tree/e47dde2b2a99a3313f0d2dd3de04e4d203ce7af3" target="_blank">e47dde2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version
+<a href="https://github.com/tytell/BaxterVertEvol/tree/32c03787bfe13f55065a188c0d704ed65c94588c" target="_blank">32c0378</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
 </p>
 <p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
 </p>
 <pre><code>
 Ignored files:
@@ -370,42 +415,77 @@ Ignored files:
     Ignored:    VertPGLS.nb.html
     Ignored:    VertPairs.nb.html
     Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/02-CheckSpeciesMatch.nb.html
     Ignored:    analysis/10-VertLM.nb.html
+    Ignored:    analysis/12-VertPGLS2.nb.html
+    Ignored:    analysis/13-VertPGLS-MANOVA40.nb.html
+    Ignored:    analysis/13-VertPGLS-MANOVA90.nb.html
+    Ignored:    analysis/14-VertPGLS-MANOVA40.nb.html
     Ignored:    analysis/20-plot_phylogeny.nb.html
     Ignored:    analysis/21-plot_fits_and_summary.nb.html
     Ignored:    analysis/CheckSpeciesMatch.nb.html
     Ignored:    caper_test.nb.html
     Ignored:    data/.DS_Store
     Ignored:    ggtree_attempt.nb.html
+    Ignored:    output/.DS_Store
     Ignored:    plot_example_data.nb.html
     Ignored:    plot_fits_and_summary.nb.html
     Ignored:    plot_phylogeny.nb.html
-    Ignored:    renv/library/
-    Ignored:    renv/staging/
     Ignored:    summarize_vert_meas.nb.html
     Ignored:    test_phylogeny.nb.html
     Ignored:    test_vertebraspace.nb.html
     Ignored:    vert_evol.Rproj
 
 Untracked files:
+    Untracked:  Archive.zip
     Untracked:  Main.html
     Untracked:  ProcessFCSVfiles.Rmd
     Untracked:  VertPGLS.html
+    Untracked:  analysis/13-VertPGLS-MANOVA90.Rmd
+    Untracked:  analysis/14-VertPGLS-MANOVA40.Rmd
+    Untracked:  data/actinopt_12k_raxml.tre.xz
     Untracked:  gg_saver.R
     Untracked:  output/BodyDistribution.pdf
     Untracked:  output/MasterVert_Measurements.csv
+    Untracked:  output/anova_table.rtf
+    Untracked:  output/anovatabs.csv
+    Untracked:  output/effectsizes.csv
+    Untracked:  output/fineness.pdf
+    Untracked:  output/habitatvals.csv
+    Untracked:  output/manova_table.rtf
     Untracked:  output/mean_d_alphaPos_CBL.pdf
+    Untracked:  output/mean_params.pdf
     Untracked:  output/pair_plot.pdf
+    Untracked:  output/phylogeny_families.pdf
     Untracked:  output/plot_example_data_figure.pdf
+    Untracked:  output/predvals.Rds
     Untracked:  output/stats_table.rtf
+    Untracked:  output/vertdata_show_species.csv
+    Untracked:  output/vertdata_summary_species.csv
+    Untracked:  output/vertshape.pdf
     Untracked:  plot_fits_and_summary.Rmd
     Untracked:  summarize_vert_meas.html
     Untracked:  testtree.csv
     Untracked:  vert_tree.csv
 
+Unstaged changes:
+    Deleted:    .Rprofile
+    Modified:   data/MasterVert_Measurements.csv
+    Modified:   output/MasterVert_Measurements_Matched.csv
+    Modified:   output/vert_tree.rds
+    Modified:   output/vertdata_centered.csv
+    Modified:   output/vertdata_summary.csv
+    Deleted:    renv.lock
+    Deleted:    renv/.gitignore
+    Deleted:    renv/activate.R
+    Deleted:    renv/settings.dcf
+
 </code></pre>
 <p>
-Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
 </p>
 </div>
 </div>
@@ -416,7 +496,11 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML (<code>docs/index.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML
+(<code>docs/index.html</code>) files. If you’ve configured a remote Git
+repository (see <code>?wflow_git_remote</code>), click on the hyperlinks
+in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -445,6 +529,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/32c03787bfe13f55065a188c0d704ed65c94588c/analysis/index.Rmd" target="_blank">32c0378</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2022-10-23
+</td>
+<td>
+Final analysis scripts
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/tytell/BaxterVertEvol/5e4be8cda3993ebf1257933dd0836d10bd5bfe3a/docs/index.html" target="_blank">5e4be8c</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2022-04-11
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/tytell/BaxterVertEvol/blob/7983950281a23b61d263e2b44db22083b43fe71b/analysis/index.Rmd" target="_blank">7983950</a>
 </td>
 <td>
@@ -454,7 +572,7 @@ Eric Tytell
 2022-04-11
 </td>
 <td>
-wflow_git_commit(c(“analysis/about.Rmd”, “analysis/index.Rmd”,
+wflow_git_commit(c("analysis/about.Rmd", "analysis/index.Rmd",
 </td>
 </tr>
 <tr>
@@ -515,77 +633,123 @@ Start workflowr project.
 </div>
 </div>
 </div>
-<div id="internal-vertebral-morphology-of-bony-fishes-matches-the-mechanical-demands-of-different-environments" class="section level1">
-<h1>Internal vertebral morphology of bony fishes matches the mechanical demands of different environments</h1>
-<p>Dana Baxter<span class="math inline">\(^1\)</span> | Karly E. Cohen<span class="math inline">\(^3\)</span> | Cassandra M. Donatelli<span class="math inline">\(^2\)</span> | Eric D. Tytell<span class="math inline">\(^1\)</span></p>
-<p><span class="math inline">\(^1\)</span>Tufts University, Department of Biology <span class="math inline">\(^2\)</span>University of Ottawa, Department of Biology <span class="math inline">\(^3\)</span>University of Washington, Friday Harbor Labs</p>
-<p>Submitted to <em>Ecology and Evolution</em> April 12, 2022.</p>
+<div
+id="internal-vertebral-morphology-of-bony-fishes-matches-the-mechanical-demands-of-different-environments"
+class="section level1">
+<h1>Internal vertebral morphology of bony fishes matches the mechanical
+demands of different environments</h1>
+<p>Dana Baxter<span class="math inline">\(^1\)</span> | Karly E.
+Cohen<span class="math inline">\(^3\)</span> | Cassandra M.
+Donatelli<span class="math inline">\(^2\)</span> | Eric D. Tytell<span
+class="math inline">\(^1\)</span></p>
+<p><span class="math inline">\(^1\)</span>Tufts University, Department
+of Biology <span class="math inline">\(^2\)</span>University of Ottawa,
+Department of Biology <span class="math inline">\(^3\)</span>University
+of Washington, Friday Harbor Labs</p>
+<p>Accepted at <em>Ecology and Evolution</em> October 20, 2022.</p>
 <p><a href="about.html">Abstract</a></p>
 </div>
 <div id="raw-data" class="section level1">
 <h1>Raw data</h1>
-<p>The initial measurements were made by Dana Baxter by clicking points on vertebrae from CT scans. The measurements are in <code>MasterVert_Measurements_old.csv</code>.</p>
-<p>Dana processed the data from Cymatogaster aggregata a bit later, so we have to merge it into the main data set.</p>
-<p>Input: <code>data/MasterVert_Measurements_old.csv</code> Output: <code>data/MasterVert_Measurements.csv</code></p>
-<p>Here is the process to merge the Cymatogaster data: <a href="01-ProcessCymatogasterFiles.html">01-ProcessCymatogasterFiles</a>.</p>
+<p>The initial measurements were made by Dana Baxter by clicking points
+on vertebrae from CT scans. The measurements are in
+<code>MasterVert_Measurements_old.csv</code>.</p>
+<p>Dana processed the data from Cymatogaster aggregata a bit later, so
+we have to merge it into the main data set.</p>
+<p>Input: <code>data/MasterVert_Measurements_old.csv</code> Output:
+<code>data/MasterVert_Measurements.csv</code></p>
+<p>Here is the process to merge the Cymatogaster data: <a
+href="01-ProcessCymatogasterFiles.html">01-ProcessCymatogasterFiles</a>.</p>
 </div>
 <div id="matching-species" class="section level1">
 <h1>Matching species</h1>
-<p>Species are distributed somewhat randomly throughout the bony fishes. We use the phylogeny from Betancur-R et al 2017. Not every species we digitized is in their tree. For most of them, we can use another species in the same genus, since we don’t have many species in our data set that are in one genus.</p>
-<p>Input: <code>data/MasterVert_Measurements.csv</code> Output: <code>output/MasterVert_Measurements_Matched.csv</code> This contains all of the measurements for all of the vertebrae, but with a new set of columns for “MatchSpecies” and “MatchGenus”, which are the matching species in the Betancur-R tree.</p>
-<p>This notebook checks the match between our species and the one in the tree: <a href="02-CheckSpeciesMatch.html">02-CheckSpeciesMatch</a>.</p>
+<p>Species are distributed somewhat randomly throughout the bony fishes.
+We use the phylogeny from Betancur-R et al 2017. Not every species we
+digitized is in their tree. For most of them, we can use another species
+in the same genus, since we don’t have many species in our data set that
+are in one genus.</p>
+<p>Input: <code>data/MasterVert_Measurements.csv</code> Output:
+<code>output/MasterVert_Measurements_Matched.csv</code> This contains
+all of the measurements for all of the vertebrae, but with a new set of
+columns for “MatchSpecies” and “MatchGenus”, which are the matching
+species in the Betancur-R tree.</p>
+<p>This notebook checks the match between our species and the one in the
+tree: <a href="02-CheckSpeciesMatch.html">02-CheckSpeciesMatch</a>.</p>
 </div>
 <div id="summary-data-sets" class="section level1">
 <h1>Summary data sets</h1>
 <div id="centering-and-taking-maxes-and-medians" class="section level2">
 <h2>Centering and taking maxes and medians</h2>
-<p>Here, we take the data for each vertebra and produce summary values for each species. We first center the data set by finding the median value of any measurement for each vertebra across all of the species, then subtracting the actual value from that median.</p>
-<p>Input: <code>output/MasterVert_Measurements_Matched.csv</code> Output:</p>
+<p>Here, we take the data for each vertebra and produce summary values
+for each species. We first center the data set by finding the median
+value of any measurement for each vertebra across all of the species,
+then subtracting the actual value from that median.</p>
+<p>Input: <code>output/MasterVert_Measurements_Matched.csv</code>
+Output:</p>
 <ul>
-<li><code>output/vertdata_centered.csv</code>: This contains the centered measurements</li>
-<li><code>output/vertdata_summary.csv</code>: This contains the summary maximum values and medians for each species</li>
+<li><code>output/vertdata_centered.csv</code>: This contains the
+centered measurements</li>
+<li><code>output/vertdata_summary.csv</code>: This contains the summary
+maximum values and medians for each species</li>
 </ul>
 <p><a href="03-summarize_vert_meas.html">Notebook</a></p>
 </div>
-<div id="fitting-the-data-with-linear-models" class="section level2">
-<h2>Fitting the data with linear models</h2>
-<p>To represent the variation of the measurements along the vertebrae, we fit linear models to each measurement as a function of position along the body. Based on AIC, we use just an overall mean, a slope and a midpoint, or a quadratic fit.</p>
-<p>We use midpoint rather than intercept. Midpoint is the value at 80% of the way down the body. If we use intercept, we sometimes end up with negative values, which is weird.</p>
-<p>Input: <code>output/vertdata_centered.csv</code>, <code>output/vertdata_summary.csv</code> Output:</p>
-<ul>
-<li><code>output/vertdata_summary_lm.csv</code>: Contains the midpoint, slope, and quadratic coefficients as appropriate for each model.</li>
-<li><code>output/vertdata_summary_lm_models.Rds</code>: Same data, but storing the actual models in an Rds file.</li>
-</ul>
-<p><a href="10-VertLM.html">Notebook</a></p>
 </div>
-</div>
-<div id="statistics" class="section level1">
-<h1>Statistics</h1>
-<p>Here, we run the phylogenetic generalized least squares models to determine which variables differ among species.</p>
-<p>Input: <code>output/vertdata_centered.csv</code>, <code>output/vertdata_summary.csv</code> Output:</p>
+<div id="merge-the-phylogeneny" class="section level1">
+<h1>Merge the phylogeneny</h1>
+<p>First, we need to merge our data set with an existing phylogeny. We
+use the phylogeny from Fish Tree of Life: <a
+href="https://fishtreeoflife.org/"
+class="uri">https://fishtreeoflife.org/</a>. (Daniel L. Rabosky<em>,
+Jonathan Chang</em>, Pascal O. Title<em>, Peter F. Cowman, Lauren
+Sallan, Matt Friedman, Kristin Kaschner, Cristina Garilao, Thomas J.
+Near, Marta Coll, Michael E. Alfaro</em> (2018). An inverse latitudinal
+gradient in speciation rate for marine fishes. Nature, 559(7714),
+392–395 <a href="doi:10.1038/s41586-018-0273-1"
+class="uri">doi:10.1038/s41586-018-0273-1</a>)</p>
+<p>Input: <code>data/actinopt_12k_treePL.tre.xz</code>,
+<code>output/vertdata_summary.csv</code> Output:</p>
 <ul>
-<li><code>output/vertdata_summary_lm_species.csv</code>: Contains the summary data with the matched tip and label from the phylogenetic tree</li>
-<li><code>output/vert_tree.rds</code>: The phylogeny containing just our species in RData format. The CSV export wasn’t working properly for tree data</li>
+<li><code>output/vertdata_summary_species.csv</code>: Summary data with
+matched tips and labels from the phylogenetic tree.</li>
+<li><code>output/vert_tree.rds</code>: The phylogeny containing just our
+species in RData format. The CSV export wasn’t working properly for tree
+data</li>
 </ul>
-<p><a href="11-VertPGLS.html">Notebook</a></p>
+<p><a href="11-MergePhylogeny.html">Notebook</a></p>
+</div>
+<div id="run-the-statistics" class="section level1">
+<h1>Run the statistics</h1>
+<p>This script runs all of the PGLS analysis and generates most of the
+output tables and figures.</p>
+<p><a href="12-VertPGLS2.html">Notebook</a></p>
+<p>Input: <code>output/MasterVert_Measurements_Matched.csv</code>,
+<code>output/vertdata_summary_species.csv</code>
+<code>output/vert_tree.rds</code> Output:</p>
+<ul>
+<li><code>output/habitatvals.csv</code>: Predicted values for the
+morphological parameters in each habitat</li>
+<li><code>output/effectsizes.csv</code>: Effect sizes for differences in
+habitats</li>
+<li><code>output/anovatabs.csv</code>: Anova table</li>
+</ul>
 </div>
 <div id="figures" class="section level1">
 <h1>Figures</h1>
-<div id="figure-1-shows-the-phylogeny-and-several-example-vertabrae." class="section level2">
+<div id="figure-1-shows-the-phylogeny-and-several-example-vertabrae."
+class="section level2">
 <h2>Figure 1: Shows the phylogeny and several example vertabrae.</h2>
 <p>This produces the phylogeny.</p>
 <p><a href="20-plot_phylogeny.html">Notebook</a></p>
 </div>
-<div id="figure-2-3" class="section level2">
-<h2>Figure 2, 3</h2>
-<p>Figures showing the overall mean for foramen diameter, posterior cone angle, and centrum body length, along with the distribution of the parameters along the body.</p>
+<div id="figure-3-4-5" class="section level2">
+<h2>Figure 3, 4, 5</h2>
+<p>Figures showing the distribution of fineness across habitats, the
+means of all the morphological parameters as a function of habitat and
+fineness, and the mean shape of the vertebrae based on the
+measurements.</p>
 <p>Also generates the stats table.</p>
 <p><a href="21-plot_fits_and_summary.html">Notebook</a></p>
-</div>
-<div id="figure-4" class="section level2">
-<h2>Figure 4</h2>
-<p>Plots the relationship among pairs of species that differ in habitat.</p>
-<p><a href="22-VertPairs.html">Notebook</a></p>
 </div>
 </div>
 
