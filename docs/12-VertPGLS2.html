@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>PGLS analysis on vertebrae</title>
+
+<script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Code</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/tytell/BaxterVertEvol">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">PGLS analysis on vertebrae</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-10-23
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>Code/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20211230code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20211230)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20211230code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20211230)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltree5fd47a79ac6f13a5954adb34da16c8e0a8e17039targetblank5fd47a7a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/tytell/BaxterVertEvol/tree/5fd47a79ac6f13a5954adb34da16c8e0a8e17039" target="_blank">5fd47a7</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomtytellBaxterVertEvoltree5fd47a79ac6f13a5954adb34da16c8e0a8e17039targetblank5fd47a7a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/tytell/BaxterVertEvol/tree/5fd47a79ac6f13a5954adb34da16c8e0a8e17039" target="_blank">5fd47a7</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Flexibility Comparisons.nb.html
+    Ignored:    Main.nb.html
+    Ignored:    PGLS.FullData.nb.html
+    Ignored:    PGLSforeachMeasFeature.nb.html
+    Ignored:    PGLSwithPCA_Dims.nb.html
+    Ignored:    PreppedVertMeas.nb.html
+    Ignored:    ProcessCymatogasterFiles.nb.html
+    Ignored:    ProcessFCSVfiles.nb.html
+    Ignored:    TestingHabitatwithFriedmanData.nb.html
+    Ignored:    Trilok_tree.nb.html
+    Ignored:    VertLM.nb.html
+    Ignored:    VertMeasLDA_Attempt.nb.html
+    Ignored:    VertPGLS.nb.html
+    Ignored:    VertPairs.nb.html
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/02-CheckSpeciesMatch.nb.html
+    Ignored:    analysis/10-VertLM.nb.html
+    Ignored:    analysis/12-VertPGLS2.nb.html
+    Ignored:    analysis/13-VertPGLS-MANOVA40.nb.html
+    Ignored:    analysis/13-VertPGLS-MANOVA90.nb.html
+    Ignored:    analysis/14-VertPGLS-MANOVA40.nb.html
+    Ignored:    analysis/20-plot_phylogeny.nb.html
+    Ignored:    analysis/21-plot_fits_and_summary.nb.html
+    Ignored:    analysis/CheckSpeciesMatch.nb.html
+    Ignored:    analysis/figure/
+    Ignored:    caper_test.nb.html
+    Ignored:    data/.DS_Store
+    Ignored:    ggtree_attempt.nb.html
+    Ignored:    output/.DS_Store
+    Ignored:    plot_example_data.nb.html
+    Ignored:    plot_fits_and_summary.nb.html
+    Ignored:    plot_phylogeny.nb.html
+    Ignored:    summarize_vert_meas.nb.html
+    Ignored:    test_phylogeny.nb.html
+    Ignored:    test_vertebraspace.nb.html
+    Ignored:    vert_evol.Rproj
+
+Untracked files:
+    Untracked:  Archive.zip
+    Untracked:  Main.html
+    Untracked:  ProcessFCSVfiles.Rmd
+    Untracked:  VertPGLS.html
+    Untracked:  analysis/13-VertPGLS-MANOVA90.Rmd
+    Untracked:  analysis/14-VertPGLS-MANOVA40.Rmd
+    Untracked:  data/actinopt_12k_raxml.tre.xz
+    Untracked:  gg_saver.R
+    Untracked:  output/BodyDistribution.pdf
+    Untracked:  output/MasterVert_Measurements.csv
+    Untracked:  output/anova_table.rtf
+    Untracked:  output/anovatabs.csv
+    Untracked:  output/effectsizes.csv
+    Untracked:  output/fineness.pdf
+    Untracked:  output/habitatvals.csv
+    Untracked:  output/manova_table.rtf
+    Untracked:  output/mean_d_alphaPos_CBL.pdf
+    Untracked:  output/mean_params.pdf
+    Untracked:  output/pair_plot.pdf
+    Untracked:  output/phylogeny_families.pdf
+    Untracked:  output/plot_example_data_figure.pdf
+    Untracked:  output/predvals.Rds
+    Untracked:  output/stats_table.rtf
+    Untracked:  output/vertdata_show_species.csv
+    Untracked:  output/vertdata_summary_species.csv
+    Untracked:  output/vertshape.pdf
+    Untracked:  plot_fits_and_summary.Rmd
+    Untracked:  summarize_vert_meas.html
+    Untracked:  testtree.csv
+    Untracked:  vert_tree.csv
+
+Unstaged changes:
+    Deleted:    .Rprofile
+    Modified:   analysis/11-MergePhylogeny.Rmd
+    Modified:   analysis/20-plot_phylogeny.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   data/MasterVert_Measurements.csv
+    Modified:   output/MasterVert_Measurements_Matched.csv
+    Modified:   output/vert_tree.rds
+    Modified:   output/vertdata_centered.csv
+    Modified:   output/vertdata_summary.csv
+    Deleted:    renv.lock
+    Deleted:    renv/.gitignore
+    Deleted:    renv/activate.R
+    Deleted:    renv/settings.dcf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/12-VertPGLS2.Rmd</code>) and HTML
+(<code>docs/12-VertPGLS2.html</code>) files. If you’ve configured a
+remote Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/5fd47a79ac6f13a5954adb34da16c8e0a8e17039/analysis/12-VertPGLS2.Rmd" target="_blank">5fd47a7</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2022-10-23
+</td>
+<td>
+wflow_publish("analysis/12-VertPGLS2.Rmd")
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/65e217eb4dfde937a04837c1d98cc6d615b8f3f5/analysis/12-VertPGLS2.Rmd" target="_blank">65e217e</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2022-09-16
+</td>
+<td>
+Updated code
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/8b12300fa67936e180193ac4e5e968ad78ef9244/analysis/12-VertPGLS2.Rmd" target="_blank">8b12300</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2022-09-06
+</td>
+<td>
+Assorted updates
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/01233ef7f4ab9af10ee87641e66fe2b513f667ac/analysis/12-VertPGLS2.Rmd" target="_blank">01233ef</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2022-08-03
+</td>
+<td>
+Before update for new stats
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/0eac19a6b907ad3a39f9fd9e1f1c5b6d178b5238/analysis/12-VertPGLS2.Rmd" target="_blank">0eac19a</a>
+</td>
+<td>
+Eric Tytell
+</td>
+<td>
+2022-07-16
+</td>
+<td>
+New PGLS analysis using procD
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(tidyverse) # for everything</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+✔ tibble  3.1.8     ✔ dplyr   1.0.9
+✔ tidyr   1.2.0     ✔ stringr 1.4.1
+✔ readr   2.1.2     ✔ forcats 0.5.2
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(geomorph) # for PGLS analysis</code></pre>
+<pre><code>Loading required package: RRPP
+Loading required package: rgl
+This build of rgl does not include OpenGL functions.  Use
+ rglwidget() to display results, e.g. via options(rgl.printRglwidget = TRUE).
+Loading required package: Matrix
+
+Attaching package: &#39;Matrix&#39;
+
+The following objects are masked from &#39;package:tidyr&#39;:
+
+    expand, pack, unpack</code></pre>
+<pre class="r"><code>#library(emmeans) # doesn&#39;t work with geomorph
+library(ggbeeswarm) # shows beeswarm points
+library(ggpubr) # for effect size brackets
+library(phytools) # for loading phylogenies</code></pre>
+<pre><code>Loading required package: ape
+
+Attaching package: &#39;ape&#39;
+
+The following object is masked from &#39;package:ggpubr&#39;:
+
+    rotate
+
+Loading required package: maps
+
+Attaching package: &#39;maps&#39;
+
+The following object is masked from &#39;package:purrr&#39;:
+
+    map</code></pre>
+<pre class="r"><code>library(geiger) # phylogenetics - but we just use name.check
+library(rstatix)</code></pre>
+<pre><code>
+Attaching package: &#39;rstatix&#39;
+
+The following object is masked from &#39;package:stats&#39;:
+
+    filter</code></pre>
+<pre class="r"><code>library(esvis)  # for effect sizes
+library(Hmisc) # for simple points with confidence limits</code></pre>
+<pre><code>Loading required package: lattice
+Loading required package: survival
+Loading required package: Formula
+
+Attaching package: &#39;Hmisc&#39;
+
+The following object is masked from &#39;package:ape&#39;:
+
+    zoom
+
+The following objects are masked from &#39;package:dplyr&#39;:
+
+    src, summarize
+
+The following objects are masked from &#39;package:base&#39;:
+
+    format.pval, units</code></pre>
+<pre class="r"><code>library(patchwork) # for tiling figure panels
+library(gt) # for making nice tables</code></pre>
+<pre><code>
+Attaching package: &#39;gt&#39;
+
+The following object is masked from &#39;package:Hmisc&#39;:
+
+    html</code></pre>
+<pre class="r"><code>library(here) # for locating data</code></pre>
+<pre><code>here() starts at /Users/etytel01/Documents/Vertebrae/Code</code></pre>
+<p>Package details</p>
+<pre class="r"><code>R.version.string</code></pre>
+<pre><code>[1] &quot;R version 4.2.0 (2022-04-22)&quot;</code></pre>
+<pre class="r"><code>citation()</code></pre>
+<pre><code>
+To cite R in publications use:
+
+  R Core Team (2022). R: A language and environment for statistical
+  computing. R Foundation for Statistical Computing, Vienna, Austria.
+  URL https://www.R-project.org/.
+
+A BibTeX entry for LaTeX users is
+
+  @Manual{,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2022},
+    url = {https://www.R-project.org/},
+  }
+
+We have invested a lot of time and effort in creating R, please cite it
+when using it for data analysis. See also &#39;citation(&quot;pkgname&quot;)&#39; for
+citing R packages.</code></pre>
+<pre class="r"><code>citation(&#39;geomorph&#39;)</code></pre>
+<pre><code>
+To cite package &#39;geomorph&#39; in a publication use the first two
+references.  If analyses with RRPP were used, cite the subsequent three
+references:
+
+  Baken, E. K., M. L. Collyer, A. Kaliontzopoulou, and D. C. Adams.
+  2021. geomorph v4.0 and gmShiny: enhanced analytics and a new
+  graphical interface for a comprehensive morphometric experience.
+  Methods in Ecology and Evolution. Methods in Ecology and Evolution.
+  12:2355-2363.
+
+  Adams, D. C., M. L. Collyer, A. Kaliontzopoulou, and E.K. Baken.
+  2022. Geomorph: Software for geometric morphometric analyses. R
+  package version 4.0.4. https://cran.r-project.org/package=geomorph.
+
+  Collyer, M. L. and D. C. Adams. 2021. RRPP: Linear Model Evaluation
+  with Randomized Residuals in a Permutation Procedure.
+  https://cran.r-project.org/web/packages/RRPP
+
+  Collyer, M. L. and D. C. Adams. 2018. RRPP: RRPP: An R package for
+  fitting linear models to high‐dimensional data using residual
+  randomization. Methods in Ecology and Evolution. 9(2): 1772-1779.
+
+As geomorph is evolving quickly, you may want to cite also its version
+number (found with &#39;library(help = geomorph)&#39;).  Additionally, the RRPP
+package should also be cited for any analyses using RRPP. (See
+&#39;library(help = RRPP)&#39; or &#39;citation(&#39;RRPP&#39;)&#39;.)
+To see these entries in BibTeX format, use &#39;print(&lt;citation&gt;,
+bibtex=TRUE)&#39;, &#39;toBibtex(.)&#39;, or set
+&#39;options(citation.bibtex.max=999)&#39;.</code></pre>
+<pre class="r"><code>packageVersion(&#39;geomorph&#39;)</code></pre>
+<pre><code>[1] &#39;4.0.4&#39;</code></pre>
+<pre class="r"><code>packageVersion(&#39;rrpp&#39;)</code></pre>
+<pre><code>[1] &#39;1.3.0&#39;</code></pre>
+<pre class="r"><code>citation(&#39;esvis&#39;)</code></pre>
+<pre><code>
+To cite package &#39;esvis&#39; in publications use:
+
+  Anderson D (2020). _esvis: Visualization and Estimation of Effect
+  Sizes_. R package version 0.3.1,
+  &lt;https://CRAN.R-project.org/package=esvis&gt;.
+
+A BibTeX entry for LaTeX users is
+
+  @Manual{,
+    title = {esvis: Visualization and Estimation of Effect Sizes},
+    author = {Daniel Anderson},
+    year = {2020},
+    note = {R package version 0.3.1},
+    url = {https://CRAN.R-project.org/package=esvis},
+  }</code></pre>
+<pre class="r"><code>packageVersion(&#39;esvis&#39;)</code></pre>
+<pre><code>[1] &#39;0.3.1&#39;</code></pre>
+<div id="load-data" class="section level1">
+<h1>Load data</h1>
+<div id="vertebral-measurements" class="section level2">
+<h2>Vertebral measurements</h2>
+<pre class="r"><code>vertdata &lt;- read_csv(here(&#39;output&#39;, &quot;MasterVert_Measurements_Matched.csv&quot;)) %&gt;%
+  # separate(MatchSpecies, into=c(&quot;MatchGenus&quot;, &quot;MatchSpecies&quot;), sep=&quot;_&quot;) %&gt;%
+  relocate(MatchSpecies, .after=Species) %&gt;%
+  rename(alphaPos = alpha_Pos,
+         alphaAnt = alpha_Ant,
+         DPos = D_Pos,
+         DAnt = D_Ant,
+         BodyShape = `Body Shape`,
+         dBW = d_BW,
+         DAntBW = D_Ant_BW,
+         DPosBW = D_Pos_BW,
+         fineness = `SL/Max_BW`)</code></pre>
+<pre><code>Rows: 585 Columns: 56
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (18): Species, Body Shape, Habitat_Initial, Habitat_Friedman, Habitat_Fi...
+dbl (38): Indiv, Pos, SL, CBL_raw, alpha_Pos_raw, d_raw, D_Pos_raw, alpha_An...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>head(vertdata)</code></pre>
+<pre><code># A tibble: 6 × 56
+  Species        Match…¹ Indiv   Pos    SL CBL_raw alpha…² d_raw D_Pos…³ alpha…⁴
+  &lt;chr&gt;          &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+1 Alectis_cilia… Alecti…     1    40   799    24.9    1.51  3.57    17.5    1.56
+2 Alectis_cilia… Alecti…     1    50   799    34.4    1.18  3.13    21.1    1.31
+3 Alectis_cilia… Alecti…     1    60   799    35.8    1.38  2       22.6    1.4 
+4 Alectis_cilia… Alecti…     1    70   799    36.6    1.34  0.75    22.2    1.36
+5 Alectis_cilia… Alecti…     1    80   799    35.2    1.32  0.54    22.2    1.27
+6 Alectis_cilia… Alecti…     1    90   799    32.8    1.31  0.49    19.4    1.28
+# … with 46 more variables: D_Ant_raw &lt;dbl&gt;, CBL &lt;dbl&gt;, alphaPos &lt;dbl&gt;,
+#   d &lt;dbl&gt;, DPos &lt;dbl&gt;, alphaAnt &lt;dbl&gt;, DAnt &lt;dbl&gt;, Pt1x &lt;dbl&gt;, Pt1y &lt;dbl&gt;,
+#   Pt2x &lt;dbl&gt;, Pt2y &lt;dbl&gt;, Pt3x &lt;dbl&gt;, Pt3y &lt;dbl&gt;, Pt4x &lt;dbl&gt;, Pt4y &lt;dbl&gt;,
+#   Pt5x &lt;dbl&gt;, Pt5y &lt;dbl&gt;, Pt6x &lt;dbl&gt;, Pt6y &lt;dbl&gt;, Pt7x &lt;dbl&gt;, Pt7y &lt;dbl&gt;,
+#   BodyShape &lt;chr&gt;, Habitat_Initial &lt;chr&gt;, Habitat_Friedman &lt;chr&gt;,
+#   Habitat_FishBase &lt;chr&gt;, Habitat &lt;chr&gt;, Water_Type &lt;chr&gt;, Max_BW_mm &lt;dbl&gt;,
+#   BW_slide &lt;dbl&gt;, Max_BH_mm &lt;dbl&gt;, BH_slide &lt;dbl&gt;, dBW &lt;dbl&gt;, DPosBW &lt;dbl&gt;, …</code></pre>
+<p>Pull out the landmarks for each vertebra and scale each to body
+length.</p>
+<pre class="r"><code>vertdatapts &lt;-
+  vertdata |&gt; 
+  filter(Indiv == 1) |&gt; 
+  select(Habitat, Species, MatchSpecies, Pos, starts_with(&#39;Pt&#39;), fineness, SL) |&gt;
+  pivot_longer(cols = starts_with(&#39;Pt&#39;),
+               names_to = c(&#39;point&#39;, &#39;.value&#39;),
+               names_pattern = &quot;Pt(.)(.)&quot;) |&gt;
+  mutate(x = x/SL,
+         y = y/SL)</code></pre>
+<p>Get the most common value</p>
+<pre class="r"><code>mode &lt;- function(x) {
+   return(as.numeric(names(which.max(table(x)))))
+}</code></pre>
+<pre class="r"><code>toofewpoints &lt;-
+  vertdatapts |&gt; 
+  filter(Pos %in% seq(40,90, by = 10) &amp; !is.na(Habitat)) |&gt; 
+  group_by(Species) |&gt; 
+  dplyr::summarize(npts = sum(!is.na(x))) |&gt; 
+  ungroup() |&gt; 
+  filter(npts != mode(npts)) |&gt; 
+  pull(Species)</code></pre>
+<p>Get species that have the same number of vertebrae digitized.</p>
+<pre class="r"><code>vertdatapts &lt;-
+  vertdatapts |&gt; 
+  filter(Pos %in% seq(40,90, by = 10) &amp; !is.na(Habitat)) |&gt; 
+  group_by(Species) |&gt; 
+  mutate(npts = sum(!is.na(x))) |&gt; 
+  ungroup() |&gt; 
+  filter(npts == mode(npts))</code></pre>
+</div>
+<div id="summary-data" class="section level2">
+<h2>Summary data</h2>
+<p>These data tables have means for each species, plus the pruned
+phylogenetic tree.</p>
+<pre class="r"><code>vertdata_sp &lt;- read_csv(here(&#39;output/vertdata_summary_species.csv&#39;)) |&gt; 
+  mutate(Habitat = factor(Habitat, levels = c(&#39;benthic&#39;, &#39;demersal&#39;, &#39;pelagic&#39;)))</code></pre>
+<pre><code>Rows: 82 Columns: 46
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (7): Species, Habitat, Water_Type, MatchSpecies, alltaxon, Order, Family
+dbl (39): Indiv, fineness, CBL_med, CBL_max, CBL_mn, d_med, d_max, d_mn, alp...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>verttree &lt;- readRDS(here(&#39;output/vert_tree.rds&#39;))</code></pre>
+<pre class="r"><code>vertdata_sp &lt;-
+  vertdata_sp |&gt; 
+  filter(!(Species %in% toofewpoints))</code></pre>
+<pre class="r"><code>vertdatapts &lt;-
+  vertdatapts |&gt; 
+  filter(Species %in% vertdata_sp$Species)</code></pre>
+</div>
+</div>
+<div id="tests-on-means" class="section level1">
+<h1>Tests on means</h1>
+<div id="construct-the-geomorph-data-frame" class="section level2">
+<h2>Construct the geomorph data frame</h2>
+<p><code>geomorph</code> requires a sort of weird version of the data
+frame, including multidimensional arrays with dimensions labeled
+according to the species name. This constructs the data frame containing
+the variables we’re interested in.</p>
+<pre class="r"><code>vars &lt;- c(&#39;CBL_mn&#39;, &#39;d_mn&#39;, &#39;alphaAnt_mn&#39;, &#39;alphaPos_mn&#39;, &#39;DAnt_mn&#39;, &#39;DPos_mn&#39;,
+         &#39;fineness&#39;, &#39;Habitat&#39;)
+
+gdf &lt;- geomorph.data.frame(phy = verttree)
+for (v in vars) {
+  arr = array(vertdata_sp[[v]], dim = c(nrow(vertdata_sp), 1),
+              dimnames = list(vertdata_sp$Species, NULL))
+  gdf[[v]] &lt;- arr
+}</code></pre>
+</div>
+</div>
+<div id="check-fineness" class="section level1">
+<h1>Check fineness</h1>
+<p>How does fineness depend on habitat?</p>
+<pre class="r"><code>ggplot(vertdata_sp, aes(x = Habitat, y = fineness, color = Habitat, shape = Habitat)) +
+  geom_quasirandom(width=0.3, alpha = 0.5) +
+  stat_summary(fun.data = &#39;mean_cl_boot&#39;) +
+  stat_summary(aes(group = 1), fun = &#39;mean&#39;, geom=&#39;line&#39;, color=&#39;black&#39;) +
+  labs(y = &quot;Fineness&quot;) +
+  scale_x_discrete(labels = c(&quot;b&quot;, &quot;d&quot;, &quot;p&quot;)) +
+  scale_shape_manual(values = c(15, 19, 4)) +
+  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
+  theme_bw() + theme(aspect.ratio = 0.7)</code></pre>
+<p><img src="figure/12-VertPGLS2.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>fineness_habitat &lt;- procD.pgls(fineness ~ Habitat, phy = phy, data = gdf, iter = 999, 
+                               SS.type = &#39;III&#39;, print.progress = FALSE)</code></pre>
+<pre class="r"><code>summary(fineness_habitat)</code></pre>
+<pre><code>
+Analysis of Variance, using Residual Randomization
+Permutation procedure: Randomization of null model residuals 
+Number of permutations: 1000 
+Estimation method: Generalized Least-Squares (via OLS projection) 
+Sums of Squares and Cross-products: Type III 
+Effect sizes (Z) based on F distributions
+
+          Df      SS      MS     Rsq      F      Z Pr(&gt;F)  
+Habitat    2  0.9975 0.49874 0.08704 3.6231 1.6356  0.048 *
+Residuals 76 10.4620 0.13766 0.91296                       
+Total     78 11.4594                                       
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Call: procD.lm(f1 = fineness ~ Habitat, iter = iter, seed = seed, RRPP = TRUE,  
+    SS.type = SS.type, effect.type = effect.type, int.first = int.first,  
+    Cov = Cov, data = data, print.progress = print.progress)</code></pre>
+<p>Marginally significant, with pelagic species more elongate than
+benthic.</p>
+</div>
+<div id="multivariate-anova" class="section level1">
+<h1>Multivariate ANOVA</h1>
+<p>Putting all of our measurements together, is there a difference
+relative to habitat or fineness?</p>
+<pre class="r"><code>manova.pgls &lt;- procD.pgls(as.matrix(cbind(CBL_mn, d_mn, alphaAnt_mn, alphaPos_mn, DAnt_mn, DPos_mn))
+                     ~ Habitat + fineness, phy = phy, data = gdf, iter = 999, SS.type = &#39;III&#39;,
+                     print.progress = FALSE)</code></pre>
+<pre class="r"><code>manova.pgls &lt;- RRPP::manova.update(manova.pgls, tol = 0, print.progress = FALSE)</code></pre>
+<pre class="r"><code>manova.sum &lt;- summary(manova.pgls, test = &#39;Pillai&#39;)
+manova.sum</code></pre>
+<pre><code>
+Linear Model fit with lm.rrpp
+
+Number of observations: 79
+Number of dependent variables: 6
+Data space dimensions: 6
+Residual covariance matrix rank: 6
+Sums of Squares and Cross-products: Type III
+Number of permutations: 1000 
+
+           Df Rand      Pillai    Z        Pr(&gt;Pillai)
+Habitat     2 Residuals 0.6211324 3.478830 0.001      
+fineness    1 Residuals 0.5152165 4.567569 0.001      
+Full.Model  3 Residuals 1.0560400 4.192412 0.001      
+Residuals  75                                         </code></pre>
+</div>
+<div id="multivariate-tests-on-individual-vertebrae"
+class="section level1">
+<h1>Multivariate tests on individual vertebrae</h1>
+<p>Get the names of each species, without repeats.</p>
+<pre class="r"><code>ids &lt;-
+  distinct(vertdatapts, Species, .keep_all=TRUE)</code></pre>
+<pre class="r"><code>nrow(ids)</code></pre>
+<pre><code>[1] 79</code></pre>
+<pre class="r"><code>ids &lt;-
+  ids |&gt; 
+  mutate(rowname = Species) %&gt;%
+  remove_rownames() |&gt; 
+  column_to_rownames(var = &quot;rowname&quot;)</code></pre>
+<pre class="r"><code>name.check(verttree, ids)</code></pre>
+<pre><code>$tree_not_data
+[1] &quot;Anoplogaster_cornuta&quot;       &quot;Chaetostoma_lineopunctatum&quot;
+[3] &quot;Stephanolepis_hispidus&quot;    
+
+$data_not_tree
+character(0)</code></pre>
+<pre class="r"><code>verttree2 &lt;- keep.tip(verttree, ids$Species)</code></pre>
+<pre class="r"><code>vertdatapts &lt;-
+  vertdatapts |&gt; 
+  group_by(Habitat, fineness, SL, Species, MatchSpecies, Pos) |&gt; 
+  mutate(x = x - mean(x),
+         y = y - mean(y))</code></pre>
+<div id="construct-geomorph-data-frames-for-each-vertebra"
+class="section level2">
+<h2>Construct geomorph data frames for each vertebra</h2>
+<p>This is the data frame with all of the vertebrae together.</p>
+<pre class="r"><code>pts &lt;- with(vertdatapts,
+            array(data = c(x, y),
+             dim = c(mode(npts), 2, nrow(ids)),
+             dimnames = list(NULL, NULL, ids$Species)))
+Y.gpa &lt;- gpagen(pts, print.progress = FALSE)
+
+gdfall &lt;- geomorph.data.frame(Y.gpa, phy = verttree2)
+gdfall$Habitat = array(ids$Habitat, dim = c(nrow(ids), 1),
+                     dimnames = list(ids$Species, NULL))
+gdfall$fineness = array(ids$fineness, dim = c(nrow(ids), 1),
+                      dimnames = list(ids$Species, NULL))</code></pre>
+<pre class="r"><code>pgall &lt;- procD.pgls(coords ~ Habitat + fineness, phy = verttree,
+                    data = gdfall, inter = 999, SS.type = &#39;III&#39;,
+                    print.progress = FALSE)
+pgall &lt;- RRPP::manova.update(pgall, tol = 0, print.progress = FALSE)</code></pre>
+<pre class="r"><code>summary(pgall, test = &#39;Pillai&#39;)</code></pre>
+<pre><code>
+Linear Model fit with lm.rrpp
+
+Number of observations: 79
+Number of dependent variables: 84
+Data space dimensions: 71
+Residual covariance matrix rank: 70
+Sums of Squares and Cross-products: Type III
+Number of permutations: 1000 
+
+           Df Rand      Pillai    Z        Pr(&gt;Pillai)
+Habitat     2 Residuals 1.9060379 0.946832 0.045      
+fineness    1 Residuals 0.9276357 0.457751 0.301      
+Full.Model  3 Residuals 2.8335337 1.094130 0.028      
+Residuals  75                                         </code></pre>
+<p>Pull out vertebrae at 40%, 50%, etc and construct the data frame for
+each one separately.</p>
+<pre class="r"><code>gdf.vert1 &lt;- list()
+selpts &lt;- seq(40,90, by = 10)
+
+for (i in seq_along(selpts)) {
+  # print(selpts[[i]])
+  v1 &lt;- vertdatapts |&gt; 
+    filter(Pos == selpts[[i]]) |&gt; 
+    group_by(Species) |&gt; 
+    mutate(n1 = n())
+  
+  if (any(v1$n1 != mode(v1$n1))) stop(&#39;Bad!&#39;) 
+  
+  # print(v1 |&gt; select(Pos, x,y) |&gt; head())
+  pts &lt;- array(data = c(v1$x, v1$y),
+          dim = c(mode(v1$n1), 2, nrow(ids)),
+             dimnames = list(NULL, NULL, ids$Species))
+  Y.gpa1 &lt;- gpagen(pts, print.progress = FALSE)
+  # print(head(Y.gpa1$consensus))
+  
+  gdf1 &lt;- geomorph.data.frame(Y.gpa1, phy = verttree2)
+  gdf1$Habitat &lt;- array(ids$Habitat, dim = c(nrow(ids), 1),
+                       dimnames = list(ids$Species, NULL))
+  gdf1$fineness &lt;- array(ids$fineness, dim = c(nrow(ids), 1),
+                        dimnames = list(ids$Species, NULL))
+  gdf.vert1[[i]] &lt;- gdf1
+}</code></pre>
+<p>Run the multivariate PGLS tests for each vertebra.</p>
+<pre class="r"><code>pgls.vert1 &lt;- list()
+for (i in seq_along(gdf.vert1)) {
+  pg1 &lt;- procD.pgls(coords ~ Habitat + fineness, phy = phy, 
+                    data = gdf.vert1[[i]],
+                    iter = 999, SS.type = &#39;III&#39;,
+                    print.progress = FALSE)
+  pgls.vert1[[i]] &lt;- pg1
+  pgls.vert1[[i]] &lt;- RRPP::manova.update(pg1, tol = 0, print.progress = FALSE)
+}</code></pre>
+<pre class="r"><code>all.summaries &lt;- purrr::map(pgls.vert1, ~ summary(.x, test = &#39;Pillai&#39;))</code></pre>
+<pre class="r"><code>manovatabs &lt;-
+  purrr::map2(all.summaries, selpts, ~ .x$stats.table |&gt; 
+              mutate(var = as.character(.y)) |&gt; 
+              rownames_to_column(var = &#39;Effect&#39;)) |&gt; 
+  bind_rows()
+
+manovatabs</code></pre>
+<pre><code>       Effect Df      Rand     Pillai          Z Pr(&gt;Pillai) var
+1     Habitat  2 Residuals 0.92052600  2.9418834       0.001  40
+2    fineness  1 Residuals 0.07879607 -0.9052093       0.826  40
+3  Full.Model  3 Residuals 0.99676427  2.6327095       0.004  40
+4   Residuals 75      &lt;NA&gt;         NA         NA          NA  40
+5     Habitat  2 Residuals 0.95935171  2.6660653       0.001  50
+6    fineness  1 Residuals 0.21642605  1.2290527       0.115  50
+7  Full.Model  3 Residuals 1.15556385  2.6572042       0.003  50
+8   Residuals 75      &lt;NA&gt;         NA         NA          NA  50
+9     Habitat  2 Residuals 0.85211746  2.6868889       0.002  60
+10   fineness  1 Residuals 0.20773249  1.1673596       0.135  60
+11 Full.Model  3 Residuals 1.07584336  2.9082070       0.001  60
+12  Residuals 75      &lt;NA&gt;         NA         NA          NA  60
+13    Habitat  2 Residuals 0.95364127  2.6433292       0.001  70
+14   fineness  1 Residuals 0.30383545  1.8548416       0.031  70
+15 Full.Model  3 Residuals 1.16041687  2.6714450       0.003  70
+16  Residuals 75      &lt;NA&gt;         NA         NA          NA  70
+17    Habitat  2 Residuals 0.94028886  2.6696639       0.001  80
+18   fineness  1 Residuals 0.20909173  1.0939376       0.131  80
+19 Full.Model  3 Residuals 1.13475057  2.5509181       0.007  80
+20  Residuals 75      &lt;NA&gt;         NA         NA          NA  80
+21    Habitat  2 Residuals 0.83699630  2.6077556       0.014  90
+22   fineness  1 Residuals 0.19239718  0.9956842       0.168  90
+23 Full.Model  3 Residuals 1.01588654  2.5669348       0.010  90
+24  Residuals 75      &lt;NA&gt;         NA         NA          NA  90</code></pre>
+<pre class="r"><code>manova.all.sum &lt;- summary(pgall, test = &#39;Pillai&#39;)
+
+manovatabsall &lt;-
+  manova.all.sum$stats.table |&gt; 
+  as.data.frame() |&gt; 
+  rownames_to_column(var = &#39;Effect&#39;) |&gt; 
+  mutate(var = &#39;All vertebrae&#39;) |&gt; 
+  bind_rows(manovatabs)
+
+manovatabsall</code></pre>
+<pre><code>       Effect Df      Rand     Pillai          Z Pr(&gt;Pillai)           var
+1     Habitat  2 Residuals 1.90603790  0.9468320       0.045 All vertebrae
+2    fineness  1 Residuals 0.92763565  0.4577510       0.301 All vertebrae
+3  Full.Model  3 Residuals 2.83353374  1.0941296       0.028 All vertebrae
+4   Residuals 75      &lt;NA&gt;         NA         NA          NA All vertebrae
+5     Habitat  2 Residuals 0.92052600  2.9418834       0.001            40
+6    fineness  1 Residuals 0.07879607 -0.9052093       0.826            40
+7  Full.Model  3 Residuals 0.99676427  2.6327095       0.004            40
+8   Residuals 75      &lt;NA&gt;         NA         NA          NA            40
+9     Habitat  2 Residuals 0.95935171  2.6660653       0.001            50
+10   fineness  1 Residuals 0.21642605  1.2290527       0.115            50
+11 Full.Model  3 Residuals 1.15556385  2.6572042       0.003            50
+12  Residuals 75      &lt;NA&gt;         NA         NA          NA            50
+13    Habitat  2 Residuals 0.85211746  2.6868889       0.002            60
+14   fineness  1 Residuals 0.20773249  1.1673596       0.135            60
+15 Full.Model  3 Residuals 1.07584336  2.9082070       0.001            60
+16  Residuals 75      &lt;NA&gt;         NA         NA          NA            60
+17    Habitat  2 Residuals 0.95364127  2.6433292       0.001            70
+18   fineness  1 Residuals 0.30383545  1.8548416       0.031            70
+19 Full.Model  3 Residuals 1.16041687  2.6714450       0.003            70
+20  Residuals 75      &lt;NA&gt;         NA         NA          NA            70
+21    Habitat  2 Residuals 0.94028886  2.6696639       0.001            80
+22   fineness  1 Residuals 0.20909173  1.0939376       0.131            80
+23 Full.Model  3 Residuals 1.13475057  2.5509181       0.007            80
+24  Residuals 75      &lt;NA&gt;         NA         NA          NA            80
+25    Habitat  2 Residuals 0.83699630  2.6077556       0.014            90
+26   fineness  1 Residuals 0.19239718  0.9956842       0.168            90
+27 Full.Model  3 Residuals 1.01588654  2.5669348       0.010            90
+28  Residuals 75      &lt;NA&gt;         NA         NA          NA            90</code></pre>
+<pre class="r"><code>manovatab &lt;-
+  manovatabsall |&gt; 
+  rename(p = `Pr(&gt;Pillai)`) |&gt; 
+  select(var, Effect, Df, Pillai, Z, p) |&gt; 
+  filter(Effect %in% c(&#39;Habitat&#39;, &#39;fineness&#39;, &#39;Habitat:fineness&#39;)) |&gt; 
+  group_by(var) |&gt; 
+  gt(
+    groupname_col = &quot;var&quot;,
+    rowname_col = &quot;Effect&quot;
+  ) |&gt; 
+  fmt_number(
+    columns = c(&quot;Pillai&quot;, &quot;Z&quot;),
+    suffixing = FALSE,
+    n_sigfig = 2
+  ) |&gt; 
+  fmt_number(
+    columns = &quot;p&quot;,
+    decimals = 3
+  ) |&gt; 
+  cols_label(
+    var = md(&quot;Location&quot;),
+    p = md(&quot;p&quot;),
+  ) |&gt; 
+  tab_style(
+    locations = cells_column_labels(columns = c(&quot;var&quot;, &#39;Df&#39;, &#39;Pillai&#39;, &#39;Z&#39;, &quot;p&quot;)),
+    style = cell_text(v_align = &quot;middle&quot;,
+                      align = &quot;center&quot;)
+  ) |&gt; 
+  tab_stubhead(&quot;Location&quot;) |&gt; 
+  tab_style(
+    locations = cells_stubhead(),
+    style = cell_text(v_align = &quot;middle&quot;)
+  ) |&gt; 
+  sub_missing(columns = 3:6,
+              missing_text = &quot;&quot;)  
+
+manovatab |&gt; 
+  as_raw_html()</code></pre>
+<table style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif; display: table; border-collapse: collapse; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;">
+  
+  <thead style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
+    <tr>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: left; vertical-align: middle;" scope="col">Location</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">Df</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">Pillai</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">Z</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">p</th>
+    </tr>
+  </thead>
+  <tbody style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3;">
+    <tr style="">
+      <td colspan="5" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle;">All vertebrae</td>
+    </tr>
+    <tr style=""><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.9</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.95</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.045</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.93</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.46</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.301</td></tr>
+    <tr style="">
+      <td colspan="5" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle;">40</td>
+    </tr>
+    <tr style=""><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.92</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.9</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.079</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">−0.91</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.826</td></tr>
+    <tr style="">
+      <td colspan="5" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle;">50</td>
+    </tr>
+    <tr style=""><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.96</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.7</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.22</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.115</td></tr>
+    <tr style="">
+      <td colspan="5" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle;">60</td>
+    </tr>
+    <tr style=""><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.85</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.7</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.002</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.21</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.135</td></tr>
+    <tr style="">
+      <td colspan="5" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle;">70</td>
+    </tr>
+    <tr style=""><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.95</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.30</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.9</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.031</td></tr>
+    <tr style="">
+      <td colspan="5" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle;">80</td>
+    </tr>
+    <tr style=""><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.94</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.7</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.21</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.131</td></tr>
+    <tr style="">
+      <td colspan="5" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle;">90</td>
+    </tr>
+    <tr style=""><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.84</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.014</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.19</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.0</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.168</td></tr>
+  </tbody>
+  
+  
+</table>
+<pre class="r"><code>gtsave(manovatab, here(&quot;output/manova_table.rtf&quot;))</code></pre>
+</div>
+</div>
+<div id="univariate-tests" class="section level1">
+<h1>Univariate tests</h1>
+<p>Test each measurement separately.</p>
+<pre class="r"><code>models &lt;- list(CBL_mn = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                   iter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+            d_mn = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                              iter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+            alphaAnt_mn = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                     iter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+            alphaPos_mn = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                     iter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+            DAnt_mn = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                 iter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+            DPos_mn = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
+                                 iter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+            fineness = procD.pgls(fineness ~ Habitat, phy = phy, data = gdf, 
+                                 iter = 999, SS.type = &#39;III&#39;, print.progress = FALSE))</code></pre>
+<pre class="r"><code>habdf &lt;- with(vertdata_sp,
+               expand_grid(Habitat = levels(Habitat)))
+finedf &lt;- with(vertdata_sp,
+               expand_grid(fineness = pracma::linspace(min(fineness), max(fineness), n = 10)))
+habfinedf &lt;- with(vertdata_sp,
+               expand_grid(Habitat = levels(Habitat),
+                           fineness = pracma::linspace(min(fineness), max(fineness), n = 10)))</code></pre>
+<pre class="r"><code>anovatabs &lt;- c()
+predvals &lt;- tibble(var = names(models),
+                   data = list(list()))
+habvals &lt;- tibble(var = names(models),
+                  data = list(list()))
+for (i in seq_along(models)) {
+  print(names(models)[i])
+  tab1 &lt;- data.frame(models[[i]]$aov.table)
+  tab1$var &lt;- names(models)[i]
+  anovatabs[[i]] &lt;- tab1 |&gt; 
+    rownames_to_column(var = &#39;Effect&#39;) |&gt; 
+    rename(p = Pr..F.)
+  
+  # pint &lt;- anovatabs[[i]] |&gt; 
+  #   filter(Effect == &#39;Habitat:fineness&#39;) |&gt; 
+  #   pull(p)
+  phab &lt;- anovatabs[[i]] |&gt; 
+    filter(Effect == &#39;Habitat&#39;) |&gt; 
+    pull(p)
+  pfine &lt;- anovatabs[[i]] |&gt; 
+    filter(Effect == &#39;fineness&#39;) |&gt; 
+    pull(p)
+
+  if (length(pfine) == 0) {
+    pfine &lt;- Inf
+  }
+  pred1 &lt;- predict(models[[i]], newdata = habdf)
+  
+  pred1df &lt;- habdf
+  pred1df$pred &lt;- as.vector(pred1$mean)
+  pred1df$lcl &lt;- as.vector(pred1$lcl)
+  pred1df$ucl &lt;- as.vector(pred1$ucl)
+  
+  habvals$data[[i]] &lt;- pred1df
+  
+  if (phab &lt; 0.05 &amp; pfine &lt; 0.05) {
+    print(&#39;both&#39;)
+    pred1 &lt;- predict(models[[i]], newdata = habfinedf)
+
+    pred1df &lt;- habfinedf
+    pred1df$pred &lt;- as.vector(pred1$mean)
+
+    predvals$data[[i]] &lt;- pred1df
+  } else if (phab &lt; 0.05) {
+    print(&#39;habitat&#39;)
+    pred1 &lt;- predict(models[[i]], newdata = habdf)
+  
+    pred1df &lt;- habdf
+    pred1df$pred &lt;- as.vector(pred1$mean)
+    pred1df$lcl &lt;- as.vector(pred1$lcl)
+    pred1df$ucl &lt;- as.vector(pred1$ucl)
+    
+    predvals$data[[i]] &lt;- pred1df
+  } else if (pfine &lt; 0.05) {
+    print(&#39;fineness&#39;)
+    pred1 &lt;- predict(models[[i]], newdata = finedf)
+  
+    pred1df &lt;- finedf
+    pred1df$pred &lt;- as.vector(pred1$mean)
+    pred1df$lcl &lt;- as.vector(pred1$lcl)
+    pred1df$ucl &lt;- as.vector(pred1$ucl)
+    predvals$data[[i]] &lt;- pred1df
+  } else {
+    print(&#39;none&#39;)
+    pred1df &lt;- habdf
+    pred1df$pred &lt;- NA
+    pred1df$lcl &lt;- NA
+    pred1df$ucl &lt;- NA
+    predvals$data[[i]] &lt;- pred1df
+  }
+  
+}</code></pre>
+<pre><code>[1] &quot;CBL_mn&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;both&quot;
+[1] &quot;d_mn&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;habitat&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;alphaAnt_mn&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;none&quot;
+[1] &quot;alphaPos_mn&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;habitat&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;DAnt_mn&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;both&quot;
+[1] &quot;DPos_mn&quot;
+
+Warning: Not all variables in model accounted for in newdata.
+Missing variables will be averaged from observed data for prediction.
+
+[1] &quot;both&quot;
+[1] &quot;fineness&quot;
+[1] &quot;habitat&quot;</code></pre>
+<pre class="r"><code>anovatabs &lt;- bind_rows(anovatabs) 
+anovatabs</code></pre>
+<pre><code>      Effect Df           SS           MS          Rsq            F          Z
+1    Habitat  2 3.952434e-06 1.976217e-06 1.054582e-01 6.762756e+00  2.6388598
+2   fineness  1 8.565205e-06 8.565205e-06 2.285354e-01 2.931074e+01  3.6485476
+3  Residuals 75 2.191655e-05 2.922207e-07 5.847737e-01           NA         NA
+4      Total 78 3.747869e-05           NA           NA           NA         NA
+5    Habitat  2 2.901586e-07 1.450793e-07 2.878037e-01 1.515692e+01  3.5423714
+6   fineness  1 2.763864e-08 2.763864e-08 2.741433e-02 2.887501e+00  1.3680699
+7  Residuals 75 7.178864e-07 9.571819e-09 7.120603e-01           NA         NA
+8      Total 78 1.008182e-06           NA           NA           NA         NA
+9    Habitat  2 5.312636e+00 2.656318e+00 3.926832e-02 1.540085e+00  0.7711799
+10  fineness  1 1.015470e-02 1.015470e-02 7.505837e-05 5.887508e-03 -1.6243359
+11 Residuals 75 1.293590e+02 1.724787e+00 9.561563e-01           NA         NA
+12     Total 78 1.352907e+02           NA           NA           NA         NA
+13   Habitat  2 1.539362e+01 7.696809e+00 1.129187e-01 4.828684e+00  2.1743510
+14  fineness  1 4.401396e-04 4.401396e-04 3.228611e-06 2.761267e-04 -2.1452394
+15 Residuals 75 1.195483e+02 1.593977e+00 8.769371e-01           NA         NA
+16     Total 78 1.363248e+02           NA           NA           NA         NA
+17   Habitat  2 3.604125e-06 1.802063e-06 2.162356e-01 2.006576e+01  3.6750654
+18  fineness  1 3.956733e-06 3.956733e-06 2.373909e-01 4.405777e+01  4.0418409
+19 Residuals 75 6.735588e-06 8.980784e-08 4.041130e-01           NA         NA
+20     Total 78 1.666759e-05           NA           NA           NA         NA
+21   Habitat  2 4.280124e-06 2.140062e-06 2.450896e-01 2.154472e+01  3.5905027
+22  fineness  1 3.350473e-06 3.350473e-06 1.918557e-01 3.373033e+01  3.7528113
+23 Residuals 75 7.449835e-06 9.933114e-08 4.265946e-01           NA         NA
+24     Total 78 1.746350e-05           NA           NA           NA         NA
+25   Habitat  2 9.974803e-01 4.987402e-01 8.704440e-02 3.623054e+00  1.6356248
+26 Residuals 76 1.046196e+01 1.376574e-01 9.129556e-01           NA         NA
+27     Total 78 1.145944e+01           NA           NA           NA         NA
+       p         var
+1  0.007      CBL_mn
+2  0.001      CBL_mn
+3     NA      CBL_mn
+4     NA      CBL_mn
+5  0.001        d_mn
+6  0.081        d_mn
+7     NA        d_mn
+8     NA        d_mn
+9  0.228 alphaAnt_mn
+10 0.943 alphaAnt_mn
+11    NA alphaAnt_mn
+12    NA alphaAnt_mn
+13 0.010 alphaPos_mn
+14 0.989 alphaPos_mn
+15    NA alphaPos_mn
+16    NA alphaPos_mn
+17 0.005     DAnt_mn
+18 0.001     DAnt_mn
+19    NA     DAnt_mn
+20    NA     DAnt_mn
+21 0.007     DPos_mn
+22 0.001     DPos_mn
+23    NA     DPos_mn
+24    NA     DPos_mn
+25 0.048    fineness
+26    NA    fineness
+27    NA    fineness</code></pre>
+<pre class="r"><code>habvals &lt;-
+  habvals |&gt; 
+  unnest(data)
+
+write_csv(habvals, here(&#39;output/habitatvals.csv&#39;))</code></pre>
+<pre class="r"><code>saveRDS(predvals, file = here(&#39;output/predvals.Rds&#39;))</code></pre>
+<div id="construct-effect-sizes" class="section level2">
+<h2>Construct effect sizes</h2>
+<pre class="r"><code>vars &lt;- c(&#39;CBL_mn&#39;, &#39;d_mn&#39;, &#39;alphaAnt_mn&#39;, &#39;alphaPos_mn&#39;, &#39;DAnt_mn&#39;, &#39;DPos_mn&#39;,
+         &#39;fineness&#39;, &#39;Habitat&#39;)
+pairs &lt;- list(c(&#39;benthic&#39;,&#39;demersal&#39;),
+              c(&#39;benthic&#39;,&#39;pelagic&#39;),
+              c(&#39;demersal&#39;,&#39;pelagic&#39;))
+
+gdfpair &lt;- list()
+for (i in seq_along(pairs)) {
+  gdfpair[[i]] &lt;- geomorph.data.frame(phy = verttree)
+  vp1 &lt;- vertdata_sp |&gt; 
+    filter(Habitat %in% pairs[[i]])
+  
+  for (v in vars) {
+    arr = array(vp1[[v]], dim = c(nrow(vp1), 1),
+                dimnames = list(vp1$Species, NULL))
+    gdfpair[[i]][[v]] &lt;- arr
+  }
+}</code></pre>
+<pre class="r"><code>modelpairs &lt;- list(CBL_p1 = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   CBL_p2 = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   CBL_p3 = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   d_p1 = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   d_p2 = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   d_p3 = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   alphaAnt_p1 = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   alphaAnt_p2 = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   alphaAnt_p3 = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   alphaPos_p1 = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   alphaPos_p2 = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   alphaPos_p3 = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),                   
+                   DAnt_p1 = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   DAnt_p2 = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   DAnt_p3 = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   DPos_p1 = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   DPos_p2 = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   DPos_p3 = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   fineness_p1 = procD.pgls(fineness ~ Habitat, phy = phy, data = gdfpair[[1]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   fineness_p2 = procD.pgls(fineness ~ Habitat, phy = phy, data = gdfpair[[2]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE),
+                   fineness_p3 = procD.pgls(fineness ~ Habitat, phy = phy, data = gdfpair[[3]],
+                                       inter = 999, SS.type = &#39;III&#39;, print.progress = FALSE))</code></pre>
+<pre class="r"><code>effectsizes &lt;- list()
+for (i in seq_along(modelpairs)) {
+  a1 &lt;- anova(modelpairs[[i]], effect.type = &#39;cohenf&#39;)
+  df1 &lt;- as_tibble(a1$table) |&gt; 
+    rename(p = `Pr(&gt;Cohen&#39;s f-squared)`,
+           eff = Z) |&gt; 
+    select(eff, p) |&gt; 
+    head(n = 1) |&gt; 
+    mutate(var = names(modelpairs)[[i]])
+  effectsizes[[i]] &lt;- df1
+}
+
+effectsizes &lt;-
+  bind_rows(effectsizes) |&gt; 
+  separate(var, into = c(&#39;var&#39;, &#39;pair&#39;)) |&gt; 
+  mutate(Habitat_foc = case_when(pair == &#39;p1&#39;  ~  &#39;benthic&#39;,
+                                 pair == &#39;p2&#39;  ~  &#39;benthic&#39;,
+                                 pair == &#39;p3&#39;  ~  &#39;demersal&#39;),
+         Habitat_ref = case_when(pair == &#39;p1&#39;  ~  &#39;pelagic&#39;,
+                                 pair == &#39;p2&#39;  ~  &#39;demersal&#39;,
+                                 pair == &#39;p3&#39;  ~  &#39;pelagic&#39;),
+         Habitat = Habitat_ref) |&gt; 
+  rename(group1 = Habitat_ref,
+         group2 = Habitat_foc) |&gt; 
+  select(-pair)</code></pre>
+<pre class="r"><code>effectsizes</code></pre>
+<pre><code># A tibble: 21 × 6
+     eff       p var      group2   group1   Habitat 
+   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;   
+ 1 2.44  0.0110  CBL      benthic  pelagic  pelagic 
+ 2 0.636 0.287   CBL      benthic  demersal demersal
+ 3 0.254 0.416   CBL      demersal pelagic  pelagic 
+ 4 3.10  0.00100 d        benthic  pelagic  pelagic 
+ 5 1.11  0.135   d        benthic  demersal demersal
+ 6 1.13  0.144   d        demersal pelagic  pelagic 
+ 7 0.974 0.181   alphaAnt benthic  pelagic  pelagic 
+ 8 0.359 0.386   alphaAnt benthic  demersal demersal
+ 9 1.07  0.153   alphaAnt demersal pelagic  pelagic 
+10 2.36  0.00500 alphaPos benthic  pelagic  pelagic 
+# … with 11 more rows</code></pre>
+<pre class="r"><code>write_csv(effectsizes, here(&#39;output/effectsizes.csv&#39;))</code></pre>
+<p>Rearrange the table</p>
+<pre class="r"><code>effectsizes_wide &lt;- 
+  effectsizes |&gt; 
+  mutate(contrast = str_c(group1, group2, sep = &#39; - &#39;),
+         contrast = str_replace(contrast, &#39;(\\w+) - (\\w+)&#39;, &#39;\\1_\\2&#39;)) |&gt; 
+  select(var, contrast, eff, p) |&gt; 
+  pivot_wider(names_from = contrast, values_from = c(eff, p),
+              names_glue = &#39;{contrast}_{.value}&#39;) |&gt; 
+  mutate(var = if_else(var == &#39;fineness&#39;, var, str_c(var, &#39;_mn&#39;)),
+         Effect = &#39;Habitat&#39;)
+
+effectsizes_wide</code></pre>
+<pre><code># A tibble: 7 × 8
+  var         pelagic_benthic_eff demer…¹ pelag…² pelag…³ demer…⁴ pelag…⁵ Effect
+  &lt;chr&gt;                     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt; 
+1 CBL_mn                    2.44   0.636    0.254 0.0110    0.287   0.416 Habit…
+2 d_mn                      3.10   1.11     1.13  0.00100   0.135   0.144 Habit…
+3 alphaAnt_mn               0.974  0.359    1.07  0.181     0.386   0.153 Habit…
+4 alphaPos_mn               2.36   0.723    0.112 0.00500   0.254   0.471 Habit…
+5 DAnt_mn                   3.38  -0.150   -0.152 0.00500   0.583   0.563 Habit…
+6 DPos_mn                   3.35   0.0206  -0.608 0.00600   0.515   0.725 Habit…
+7 fineness                  1.65   1.06     0.223 0.0400    0.152   0.434 Habit…
+# … with abbreviated variable names ¹​demersal_benthic_eff,
+#   ²​pelagic_demersal_eff, ³​pelagic_benthic_p, ⁴​demersal_benthic_p,
+#   ⁵​pelagic_demersal_p</code></pre>
+<pre class="r"><code>anovatabs &lt;-
+  anovatabs |&gt; 
+  left_join(effectsizes_wide, by = c(&#39;var&#39;, &#39;Effect&#39;))</code></pre>
+<pre class="r"><code>write_csv(anovatabs, here(&quot;output/anovatabs.csv&quot;))</code></pre>
+</div>
+<div id="make-the-stats-table" class="section level2">
+<h2>Make the stats table</h2>
+<pre class="r"><code>anovatab &lt;-
+  anovatabs |&gt; 
+  select(var, Effect, Df, Rsq, F, Z, p, ends_with(&#39;p&#39;)) |&gt; 
+  filter(Effect %in% c(&#39;Habitat&#39;, &#39;fineness&#39;, &#39;Habitat:fineness&#39;)) |&gt; 
+  mutate(var = str_remove(var, &#39;_mn&#39;)) |&gt; 
+  mutate(var = case_when(
+    var == &quot;alphaAnt&quot;   ~   &quot;Anterior cone angle&quot;,
+    var == &quot;alphaPos&quot;   ~   &quot;Posterior cone angle&quot;,
+    var == &quot;CBL&quot;   ~   &quot;Centrum body length&quot;,
+    var == &quot;DAnt&quot;   ~   &quot;Anterior cone diameter&quot;,
+    var == &quot;DPos&quot;   ~   &quot;Posterior cone diameter&quot;,
+    var == &quot;d&quot;   ~   &quot;Foramen diameter&quot;,
+    var == &quot;fineness&quot;   ~   &quot;Fineness&quot;
+  )) |&gt; 
+  #group_by(var) |&gt; 
+  gt(
+    # groupname_col = &quot;var&quot;,
+    rowname_col = &quot;Effect&quot;
+  ) |&gt; 
+  fmt_number(
+    columns = c(&quot;F&quot;, &quot;Z&quot;),
+    suffixing = FALSE,
+    n_sigfig = 2
+  ) |&gt; 
+  fmt_number(
+    columns = &quot;p&quot;,
+    decimals = 3
+  ) |&gt; 
+  fmt_number(
+    columns = &quot;Rsq&quot;,
+    decimals = 2
+  ) |&gt; 
+  fmt_number( 
+    columns = c(&#39;demersal_benthic_p&#39;, &#39;pelagic_benthic_p&#39;, &#39;pelagic_demersal_p&#39;),
+    # columns = c(&#39;demersal_benthic_p&#39;, &#39;pelagic_benthic_p&#39;, &#39;pelagic_demersal_p&#39;),
+    # columns = c(&quot;benthic_demersal_eff&quot;, &quot;benthic_pelagic_eff&quot;, &quot;demersal_pelagic_eff&quot;),
+    decimals = 3,
+    # force_sign = TRUE
+  ) |&gt; 
+  cols_label(
+    var = md(&quot;Measurement&quot;),
+    p = md(&quot;p&quot;),
+    demersal_benthic_p = md(&quot;d - b&quot;),
+    pelagic_benthic_p = md(&quot;p - b&quot;),
+    pelagic_demersal_p = md(&quot;p - d&quot;)
+  ) |&gt; 
+  tab_style(
+    locations = cells_column_labels(columns = c(&quot;var&quot;, &#39;Df&#39;, &#39;Rsq&#39;, &#39;F&#39;, &#39;Z&#39;, &quot;p&quot;)),
+    style = cell_text(v_align = &quot;middle&quot;,
+                      align = &quot;center&quot;)
+  ) |&gt; 
+  #tab_stubhead(&quot;Measurement&quot;) |&gt; 
+  tab_style(
+    locations = cells_stubhead(),
+    style = cell_text(v_align = &quot;middle&quot;)
+  ) |&gt; 
+  # tab_spanner(
+  #   label = &quot;Effect sizes&quot;,
+  #   columns = c(&quot;benthic_demersal_eff&quot;, &quot;benthic_pelagic_eff&quot;, &quot;demersal_pelagic_eff&quot;)
+  # ) |&gt; 
+  sub_missing(columns = 2:10,
+              missing_text = &quot;&quot;)
+  
+anovatab |&gt; 
+  as_raw_html()</code></pre>
+<table style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif; display: table; border-collapse: collapse; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;">
+  
+  <thead style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
+    <tr>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: left; vertical-align: middle;" scope="col"></th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: left; text-align: center; vertical-align: middle;" scope="col">Measurement</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">Df</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">Rsq</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">F</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">Z</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums; text-align: center; vertical-align: middle;" scope="col">p</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1" scope="col">p - b</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1" scope="col">d - b</th>
+      <th style="color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 6px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;" rowspan="1" colspan="1" scope="col">p - d</th>
+    </tr>
+  </thead>
+  <tbody style="border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3;">
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Centrum body length</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.11</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">6.8</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.007</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.011</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.287</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.416</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Centrum body length</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.23</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">29</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">3.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Foramen diameter</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.29</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">15</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">3.5</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.135</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.144</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Foramen diameter</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.03</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.9</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.4</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.081</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Anterior cone angle</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.04</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.5</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.77</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.228</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.181</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.386</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.153</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Anterior cone angle</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.00</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.0059</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">−1.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.943</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Posterior cone angle</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.11</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">4.8</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2.2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.010</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.005</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.254</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.471</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Posterior cone angle</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.00</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.00028</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">−2.1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.989</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Anterior cone diameter</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.22</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">20</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">3.7</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.005</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.005</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.583</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.563</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Anterior cone diameter</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.24</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">44</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">4.0</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Posterior cone diameter</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.25</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">22</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">3.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.007</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.006</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.515</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.725</td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">fineness</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Posterior cone diameter</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.19</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">34</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">3.8</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.001</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;"></td></tr>
+    <tr><th scope="row" style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; text-align: left;">Habitat</th>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: left;">Fineness</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">2</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.09</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">3.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">1.6</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.048</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.040</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.152</td>
+<td style="padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; text-align: right; font-variant-numeric: tabular-nums;">0.434</td></tr>
+  </tbody>
+  
+  
+</table>
+<pre class="r"><code>gtsave(anovatab, here(&quot;output/anova_table.rtf&quot;))</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.2.0 (2022-04-22)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur/Monterey 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] here_1.0.1       gt_0.7.0         patchwork_1.1.2  Hmisc_4.7-1     
+ [5] Formula_1.2-4    survival_3.3-1   lattice_0.20-45  esvis_0.3.1     
+ [9] rstatix_0.7.0    geiger_2.0.10    phytools_1.2-0   maps_3.4.0      
+[13] ape_5.6-2        ggpubr_0.4.0     ggbeeswarm_0.6.0 geomorph_4.0.4  
+[17] Matrix_1.4-1     rgl_0.109.6      RRPP_1.3.0       forcats_0.5.2   
+[21] stringr_1.4.1    dplyr_1.0.9      purrr_0.3.4      readr_2.1.2     
+[25] tidyr_1.2.0      tibble_3.1.8     ggplot2_3.3.6    tidyverse_1.3.2 
+
+loaded via a namespace (and not attached):
+  [1] readxl_1.4.1            backports_1.4.1         fastmatch_1.1-3        
+  [4] workflowr_1.7.0         igraph_1.3.4            splines_4.2.0          
+  [7] digest_0.6.29           htmltools_0.5.3         fansi_1.0.3            
+ [10] magrittr_2.0.3          checkmate_2.1.0         optimParallel_1.0-2    
+ [13] googlesheets4_1.0.1     cluster_2.1.3           sfsmisc_1.1-13         
+ [16] tzdb_0.3.0              modelr_0.1.9            vroom_1.5.7            
+ [19] jpeg_0.1-9              colorspace_2.0-3        rvest_1.0.3            
+ [22] haven_2.5.1             xfun_0.32               crayon_1.5.1           
+ [25] jsonlite_1.8.0          phangorn_2.9.0          glue_1.6.2             
+ [28] gtable_0.3.1            gargle_1.2.0            car_3.1-0              
+ [31] abind_1.4-5             scales_1.2.1            mvtnorm_1.1-3          
+ [34] DBI_1.1.3               Rcpp_1.0.9              plotrix_3.8-2          
+ [37] htmlTable_2.4.1         bit_4.0.4               foreign_0.8-82         
+ [40] subplex_1.8             deSolve_1.33            htmlwidgets_1.5.4      
+ [43] httr_1.4.4              RColorBrewer_1.1-3      ellipsis_0.3.2         
+ [46] farver_2.1.1            pkgconfig_2.0.3         nnet_7.3-17            
+ [49] sass_0.4.2              dbplyr_2.2.1            deldir_1.0-6           
+ [52] utf8_1.2.2              labeling_0.4.2          tidyselect_1.1.2       
+ [55] rlang_1.0.4             later_1.3.0             munsell_0.5.0          
+ [58] cellranger_1.1.0        tools_4.2.0             cachem_1.0.6           
+ [61] cli_3.3.0               generics_0.1.3          broom_1.0.1            
+ [64] evaluate_0.16           fastmap_1.1.0           yaml_2.3.5             
+ [67] bit64_4.0.5             knitr_1.40              fs_1.5.2               
+ [70] nlme_3.1-159            whisker_0.4             pracma_2.3.8           
+ [73] xml2_1.3.3              compiler_4.2.0          rstudioapi_0.14        
+ [76] beeswarm_0.4.0          png_0.1-7               ggsignif_0.6.3         
+ [79] reprex_2.0.2            clusterGeneration_1.3.7 bslib_0.4.0            
+ [82] stringi_1.7.8           highr_0.9               commonmark_1.8.0       
+ [85] vctrs_0.4.1             pillar_1.8.1            lifecycle_1.0.1        
+ [88] combinat_0.0-8          jquerylib_0.1.4         data.table_1.14.2      
+ [91] httpuv_1.6.5            R6_2.5.1                latticeExtra_0.6-30    
+ [94] promises_1.2.0.1        gridExtra_2.3           vipor_0.4.5            
+ [97] codetools_0.2-18        MASS_7.3-56             assertthat_0.2.1       
+[100] rprojroot_2.0.3         withr_2.5.0             mnormt_2.1.0           
+[103] expm_0.999-6            parallel_4.2.0          hms_1.1.2              
+[106] quadprog_1.5-8          grid_4.2.0              rpart_4.1.16           
+[109] coda_0.19-4             rmarkdown_2.16          carData_3.0-5          
+[112] googledrive_2.0.0       git2r_0.30.1            numDeriv_2016.8-1.1    
+[115] scatterplot3d_0.3-41    lubridate_1.8.0         base64enc_0.1-3        
+[118] interp_1.1-3           </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
