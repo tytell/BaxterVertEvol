@@ -16,7 +16,7 @@ $^1$Tufts University, Department of Biology
 $^2$University of Ottawa, Department of Biology
 $^3$University of Washington, Friday Harbor Labs
 
-Submitted to _Ecology and Evolution_ April 12, 2022.
+Accepted at _Ecology and Evolution_ October 20, 2022.
 
 [Abstract](about.html)
 
@@ -57,33 +57,33 @@ Output:
 [Notebook](03-summarize_vert_meas.html)
 
 
-## Fitting the data with linear models
+# Merge the phylogeneny
 
-To represent the variation of the measurements along the vertebrae, we fit linear models to each measurement as a function of position along the body. Based on AIC, we use just an overall mean, a slope and a midpoint, or a quadratic fit.
+First, we need to merge our data set with an existing phylogeny. We use the phylogeny from Fish Tree of Life: https://fishtreeoflife.org/. (Daniel L. Rabosky*, Jonathan Chang*, Pascal O. Title*, Peter F. Cowman, Lauren Sallan, Matt Friedman, Kristin Kaschner, Cristina Garilao, Thomas J. Near, Marta Coll, Michael E. Alfaro* (2018). An inverse latitudinal gradient in speciation rate for marine fishes. Nature, 559(7714), 392–395 doi:10.1038/s41586-018-0273-1)
 
-We use midpoint rather than intercept. Midpoint is the value at 80% of the way down the body. If we use intercept, we sometimes end up with negative values, which is weird.
-
-Input: `output/vertdata_centered.csv`,
-   `output/vertdata_summary.csv`
+Input: `data/actinopt_12k_treePL.tre.xz`,
+  `output/vertdata_summary.csv`
 Output: 
 
-* `output/vertdata_summary_lm.csv`: Contains the midpoint, slope, and quadratic coefficients as appropriate for each model.
-* `output/vertdata_summary_lm_models.Rds`: Same data, but storing the actual models in an Rds file.
-
-[Notebook](10-VertLM.html)
-
-# Statistics
-
-Here, we run the phylogenetic generalized least squares models to determine which variables differ among species.
-
-Input: `output/vertdata_centered.csv`,
-   `output/vertdata_summary.csv`
-Output: 
-
-* `output/vertdata_summary_lm_species.csv`: Contains the summary data with the matched tip and label from the phylogenetic tree
+* `output/vertdata_summary_species.csv`: Summary data with matched tips and labels from the phylogenetic tree.
 * `output/vert_tree.rds`: The phylogeny containing just our species in RData format. The CSV export wasn't working properly for tree data
 
-[Notebook](11-VertPGLS.html)
+[Notebook](11-MergePhylogeny.html)
+
+# Run the statistics
+
+This script runs all of the PGLS analysis and generates most of the output tables and figures.
+
+[Notebook](12-VertPGLS2.html)
+
+Input: `output/MasterVert_Measurements_Matched.csv`,
+  `output/vertdata_summary_species.csv`
+  `output/vert_tree.rds`
+Output: 
+
+* `output/habitatvals.csv`: Predicted values for the morphological parameters in each habitat
+* `output/effectsizes.csv`: Effect sizes for differences in habitats
+* `output/anovatabs.csv`: Anova table
 
 # Figures
 
@@ -93,16 +93,10 @@ This produces the phylogeny.
 
 [Notebook](20-plot_phylogeny.html)
 
-## Figure 2, 3
+## Figure 3, 4, 5
 
-Figures showing the overall mean for foramen diameter, posterior cone angle, and centrum body length, along with the distribution of the parameters along the body.
+Figures showing the distribution of fineness across habitats, the means of all the morphological parameters as a function of habitat and fineness, and the mean shape of the vertebrae based on the measurements.
 
 Also generates the stats table.
 
 [Notebook](21-plot_fits_and_summary.html)
-
-## Figure 4
-
-Plots the relationship among pairs of species that differ in habitat.
-
-[Notebook](22-VertPairs.html)
