@@ -168,6 +168,10 @@ left_join(as_tibble(verttree), vertdata, by = c("label" = "Species")) %>%
 ```
 
 
+```{r}
+ltt.coplot(verttree, show.tip.label = FALSE)
+```
+
 
 ```{r}
 # ggsave(here('output/phylogeny_families.pdf'), width=6.5, height=8, units="in")
