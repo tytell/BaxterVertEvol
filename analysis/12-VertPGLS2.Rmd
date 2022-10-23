@@ -1,6 +1,8 @@
 ---
 title: "PGLS analysis on vertebrae"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 
@@ -11,6 +13,7 @@ library(geomorph) # for PGLS analysis
 library(ggbeeswarm) # shows beeswarm points
 library(ggpubr) # for effect size brackets
 library(phytools) # for loading phylogenies
+library(geiger) # phylogenetics - but we just use name.check
 library(rstatix)
 library(esvis)  # for effect sizes
 library(Hmisc) # for simple points with confidence limits
@@ -342,7 +345,7 @@ manovatabsall <-
 manovatabsall
 ```
 
-```{r}
+```{r manova_table}
 manovatab <-
   manovatabsall |> 
   rename(p = `Pr(>Pillai)`) |> 
@@ -379,7 +382,8 @@ manovatab <-
   sub_missing(columns = 3:6,
               missing_text = "")  
 
-manovatab
+manovatab |> 
+  as_raw_html()
 ```
 
 ```{r}
@@ -510,21 +514,6 @@ saveRDS(predvals, file = here('output/predvals.Rds'))
 ```
 
 ## Construct effect sizes
-
-```{r}
-# models <- list(CBL_mn = procD.pgls(CBL_mn ~ Habitat + fineness, phy = phy, data = gdf, 
-#                                    iter = 999, SS.type = 'III', print.progress = FALSE),
-#             d_mn = procD.pgls(d_mn ~ Habitat + fineness, phy = phy, data = gdf, 
-#                               iter = 999, SS.type = 'III', print.progress = FALSE),
-#             alphaAnt_mn = procD.pgls(alphaAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
-#                                      iter = 999, SS.type = 'III', print.progress = FALSE),
-#             alphaPos_mn = procD.pgls(alphaPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
-#                                      iter = 999, SS.type = 'III', print.progress = FALSE),
-#             DAnt_mn = procD.pgls(DAnt_mn ~ Habitat + fineness, phy = phy, data = gdf, 
-#                                  iter = 999, SS.type = 'III', print.progress = FALSE),
-#             DPos_mn = procD.pgls(DPos_mn ~ Habitat + fineness, phy = phy, data = gdf, 
-#                                  iter = 999, SS.type = 'III', print.progress = FALSE))
-```
 
 ```{r}
 vars <- c('CBL_mn', 'd_mn', 'alphaAnt_mn', 'alphaPos_mn', 'DAnt_mn', 'DPos_mn',
@@ -658,7 +647,7 @@ write_csv(anovatabs, here("output/anovatabs.csv"))
 
 ## Make the stats table
 
-```{r}
+```{r maketable}
 anovatab <-
   anovatabs |> 
   select(var, Effect, Df, Rsq, F, Z, p, ends_with('p')) |> 
@@ -722,7 +711,8 @@ anovatab <-
   sub_missing(columns = 2:10,
               missing_text = "")
   
-anovatab
+anovatab |> 
+  as_raw_html()
 ```
 
 ```{r}
