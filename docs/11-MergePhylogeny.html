@@ -11,7 +11,7 @@
 
 
 
-<title>Make Figure 1</title>
+<title>R Notebook</title>
 
 <script src="site_libs/header-attrs-2.16/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -35,13 +35,6 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
-<script src="site_libs/plotly-binding-4.10.0/plotly.js"></script>
-<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
-<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
-<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
-<link href="site_libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="site_libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -371,7 +364,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Make Figure 1</h1>
+<h1 class="title toc-ignore">R Notebook</h1>
 
 </div>
 
@@ -665,8 +658,8 @@ have uncommitted changes.
 
 <p>
 These are the previous versions of the repository in which changes were
-made to the R Markdown (<code>analysis/20-plot_phylogeny.Rmd</code>) and
-HTML (<code>docs/20-plot_phylogeny.html</code>) files. If you’ve
+made to the R Markdown (<code>analysis/11-MergePhylogeny.Rmd</code>) and
+HTML (<code>docs/11-MergePhylogeny.html</code>) files. If you’ve
 configured a remote Git repository (see <code>?wflow_git_remote</code>),
 click on the hyperlinks in the table below to view the files as they
 were in that past version.
@@ -698,7 +691,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/tytell/BaxterVertEvol/blob/bbb4c584487b865ad3c5b90b1c6482c1a14fae14/analysis/20-plot_phylogeny.Rmd" target="_blank">bbb4c58</a>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/bbb4c584487b865ad3c5b90b1c6482c1a14fae14/analysis/11-MergePhylogeny.Rmd" target="_blank">bbb4c58</a>
 </td>
 <td>
 Eric Tytell
@@ -715,7 +708,7 @@ Final analysis scripts
 Rmd
 </td>
 <td>
-<a href="https://github.com/tytell/BaxterVertEvol/blob/65e217eb4dfde937a04837c1d98cc6d615b8f3f5/analysis/20-plot_phylogeny.Rmd" target="_blank">65e217e</a>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/65e217eb4dfde937a04837c1d98cc6d615b8f3f5/analysis/11-MergePhylogeny.Rmd" target="_blank">65e217e</a>
 </td>
 <td>
 Eric Tytell
@@ -732,7 +725,7 @@ Updated code
 Rmd
 </td>
 <td>
-<a href="https://github.com/tytell/BaxterVertEvol/blob/8b12300fa67936e180193ac4e5e968ad78ef9244/analysis/20-plot_phylogeny.Rmd" target="_blank">8b12300</a>
+<a href="https://github.com/tytell/BaxterVertEvol/blob/23b4a3f77ea415ec1bfc2d4377816eecae66a86a/analysis/11-MergePhylogeny.Rmd" target="_blank">23b4a3f</a>
 </td>
 <td>
 Eric Tytell
@@ -741,58 +734,7 @@ Eric Tytell
 2022-09-06
 </td>
 <td>
-Assorted updates
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/tytell/BaxterVertEvol/5e4be8cda3993ebf1257933dd0836d10bd5bfe3a/docs/20-plot_phylogeny.html" target="_blank">5e4be8c</a>
-</td>
-<td>
-Eric Tytell
-</td>
-<td>
-2022-04-11
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/tytell/BaxterVertEvol/blob/23908bd4e6e24d389ba137373d7d60c262968ccf/analysis/20-plot_phylogeny.Rmd" target="_blank">23908bd</a>
-</td>
-<td>
-Eric Tytell
-</td>
-<td>
-2021-12-30
-</td>
-<td>
-Test site build again
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/tytell/BaxterVertEvol/blob/edeae3c58db615477cae99bae2ff1e4b01b09b5d/analysis/20-plot_phylogeny.Rmd" target="_blank">edeae3c</a>
-</td>
-<td>
-Eric Tytell
-</td>
-<td>
-2021-12-30
-</td>
-<td>
-Rename notebooks to indicate order
+Starting to compare a different phylogeny
 </td>
 </tr>
 </tbody>
@@ -824,7 +766,16 @@ The following object is masked from &#39;package:purrr&#39;:
 <pre class="r"><code>library(patchwork)
 library(here)</code></pre>
 <pre><code>here() starts at /Users/etytel01/Documents/Vertebrae/Code</code></pre>
-<pre class="r"><code>library(ggtree)</code></pre>
+<pre class="r"><code>library(nlme)</code></pre>
+<pre><code>
+Attaching package: &#39;nlme&#39;
+
+The following object is masked from &#39;package:dplyr&#39;:
+
+    collapse</code></pre>
+<pre class="r"><code>library(ape)
+library(geiger)
+library(ggtree)</code></pre>
 <pre><code>Warning: package &#39;ggtree&#39; was built under R version 4.2.1</code></pre>
 <pre><code>ggtree v3.4.2 For help: https://yulab-smu.top/treedata-book/
 
@@ -847,6 +798,10 @@ doi: 10.1093/molbev/msz240
 
 Attaching package: &#39;ggtree&#39;
 
+The following object is masked from &#39;package:nlme&#39;:
+
+    collapse
+
 The following object is masked from &#39;package:ape&#39;:
 
     rotate
@@ -854,264 +809,268 @@ The following object is masked from &#39;package:ape&#39;:
 The following object is masked from &#39;package:tidyr&#39;:
 
     expand</code></pre>
-<pre class="r"><code>library(plotly)</code></pre>
+<pre class="r"><code>library(emmeans)
+library(car)</code></pre>
+<pre><code>Loading required package: carData
+
+Attaching package: &#39;car&#39;
+
+The following object is masked from &#39;package:dplyr&#39;:
+
+    recode
+
+The following object is masked from &#39;package:purrr&#39;:
+
+    some</code></pre>
+<pre class="r"><code>library(Hmisc)</code></pre>
+<pre><code>Loading required package: lattice
+Loading required package: survival
+Loading required package: Formula
+
+Attaching package: &#39;Hmisc&#39;
+
+The following object is masked from &#39;package:ape&#39;:
+
+    zoom
+
+The following objects are masked from &#39;package:dplyr&#39;:
+
+    src, summarize
+
+The following objects are masked from &#39;package:base&#39;:
+
+    format.pval, units</code></pre>
+<pre class="r"><code>citation()</code></pre>
 <pre><code>
-Attaching package: &#39;plotly&#39;
+To cite R in publications use:
 
-The following object is masked from &#39;package:ggplot2&#39;:
+  R Core Team (2022). R: A language and environment for statistical
+  computing. R Foundation for Statistical Computing, Vienna, Austria.
+  URL https://www.R-project.org/.
 
-    last_plot
+A BibTeX entry for LaTeX users is
 
-The following object is masked from &#39;package:stats&#39;:
+  @Manual{,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2022},
+    url = {https://www.R-project.org/},
+  }
 
-    filter
+We have invested a lot of time and effort in creating R, please cite it
+when using it for data analysis. See also &#39;citation(&quot;pkgname&quot;)&#39; for
+citing R packages.</code></pre>
+<pre class="r"><code>print(getRversion())</code></pre>
+<pre><code>[1] &#39;4.2.0&#39;</code></pre>
+<pre class="r"><code>citation(&quot;nlme&quot;)</code></pre>
+<pre><code>
+To cite package &#39;nlme&#39; in publications use:
 
-The following object is masked from &#39;package:graphics&#39;:
+  Pinheiro J, Bates D, R Core Team (2022). _nlme: Linear and Nonlinear
+  Mixed Effects Models_. R package version 3.1-159,
+  &lt;https://CRAN.R-project.org/package=nlme&gt;.
 
-    layout</code></pre>
-<div id="figure-1" class="section level2">
-<h2>Figure 1</h2>
-<p>For this figure, we need to identify three species from the three
-habitat classes that have clearly different vertebrae.</p>
-<pre class="r"><code>vertdata &lt;- read_csv(here(&#39;output/vertdata_summary_species.csv&#39;))</code></pre>
+  Pinheiro JC, Bates DM (2000). _Mixed-Effects Models in S and S-PLUS_.
+  Springer, New York. doi:10.1007/b98882
+  &lt;https://doi.org/10.1007/b98882&gt;.
+
+To see these entries in BibTeX format, use &#39;print(&lt;citation&gt;,
+bibtex=TRUE)&#39;, &#39;toBibtex(.)&#39;, or set
+&#39;options(citation.bibtex.max=999)&#39;.</code></pre>
+<pre class="r"><code>packageVersion(&quot;nlme&quot;)</code></pre>
+<pre><code>[1] &#39;3.1.159&#39;</code></pre>
+<pre class="r"><code>citation(&quot;ape&quot;)</code></pre>
+<pre><code>
+To cite ape in a publication please use:
+
+  Paradis E. &amp; Schliep K. 2019. ape 5.0: an environment for modern
+  phylogenetics and evolutionary analyses in R. Bioinformatics 35:
+  526-528.
+
+A BibTeX entry for LaTeX users is
+
+  @Article{,
+    title = {ape 5.0: an environment for modern phylogenetics and evolutionary analyses in {R}},
+    author = {E. Paradis and K. Schliep},
+    journal = {Bioinformatics},
+    year = {2019},
+    volume = {35},
+    pages = {526-528},
+  }
+
+As ape is evolving quickly, you may want to cite also its version
+number (found with &#39;library(help = ape)&#39; or &#39;packageVersion(&quot;ape&quot;)&#39;).</code></pre>
+<pre class="r"><code>packageVersion(&quot;ape&quot;)</code></pre>
+<pre><code>[1] &#39;5.6.2&#39;</code></pre>
+<pre class="r"><code>citation(&quot;geiger&quot;)</code></pre>
+<pre><code>
+To cite medusa, auteur, or geiger in a publication use:
+
+medusa
+
+  Alfaro Michael E, Francesco Santini, Chad Brock, Hugo Alamillo, Alex
+  Dornburg, Daniel L Rabosky, Giorgio Carnevale, and Luke J Harmon.
+  2009. Nine exceptional radiations plus high turnover explain species
+  diversity in jawed vertebrates. PNAS 106:13410-13414.
+
+auteur
+
+  Eastman Jonathan M, Michael E Alfaro, Paul Joyce, Andrew L Hipp, and
+  Luke J Harmon. 2011. A novel comparative method for identifying
+  shifts in the rate of character evolution on trees. Evolution
+  65:3578-3589.
+
+MECCA
+
+  Slater Graham J, Luke J Harmon, Daniel Wegmann, Paul Joyce, Liam J
+  Revell, and Michael E Alfaro. 2012. Fitting models of continuous
+  trait evolution to incompletely sampled comparative data using
+  approximate Bayesian computation. Evolution 66:752-762.
+
+geiger-orig
+
+  Harmon Luke J, Jason T Weir, Chad D Brock, Richard E Glor, and
+  Wendell Challenger. 2008. GEIGER: investigating evolutionary
+  radiations. Bioinformatics 24:129-131.
+
+geiger
+
+  Pennell Matthew W, Jonathan M Eastman, Graham J Slater, Joseph W
+  Brown, Josef C Uyeda, Richard G FitzJohn, Michael E Alfaro, and Luke
+  J Harmon. 2014. geiger v2.0: an expanded suite of methods for fitting
+  macroevolutionary models to phylogenetic trees. Bioinformatics
+  30:2216-2218.
+
+To see these entries in BibTeX format, use &#39;print(&lt;citation&gt;,
+bibtex=TRUE)&#39;, &#39;toBibtex(.)&#39;, or set
+&#39;options(citation.bibtex.max=999)&#39;.</code></pre>
+<pre class="r"><code>packageVersion(&quot;geiger&quot;)</code></pre>
+<pre><code>[1] &#39;2.0.10&#39;</code></pre>
+<div id="load-data" class="section level1">
+<h1>Load data</h1>
+<pre class="r"><code>vertdata_sum &lt;- read_csv(here(&quot;output/vertdata_summary.csv&quot;)) |&gt; 
+  mutate(MatchSpecies = str_c(MatchGenus, MatchSpecies, sep = &#39;_&#39;)) |&gt; 
+  select(-MatchGenus)</code></pre>
 <pre><code>Rows: 82 Columns: 46
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: &quot;,&quot;
-chr  (7): Species, Habitat, Water_Type, MatchSpecies, alltaxon, Order, Family
-dbl (39): Indiv, fineness, CBL_med, CBL_max, CBL_mn, d_med, d_max, d_mn, alp...
+chr  (8): Species, Habitat, Water_Type, MatchSpecies, MatchGenus, alltaxon, ...
+dbl (38): Indiv, fineness, CBL_med, CBL_max, CBL_mn, d_med, d_max, d_mn, alp...
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>plot_ly(data = vertdata, type = &quot;scatter&quot;, mode = &quot;markers&quot;) %&gt;%
-  add_trace(x = ~Habitat, y = ~d_med, type = &quot;box&quot;,
-            text = ~Species, hoverinfo = &quot;text&quot;,
-            boxpoints = &quot;all&quot;, jitter = 0.2)</code></pre>
-<pre><code>Warning: Can&#39;t display both discrete &amp; non-discrete data on same axis</code></pre>
-<pre><code>Warning: &#39;box&#39; objects don&#39;t have these attributes: &#39;mode&#39;
-Valid attributes include:
-&#39;alignmentgroup&#39;, &#39;boxmean&#39;, &#39;boxpoints&#39;, &#39;customdata&#39;, &#39;customdatasrc&#39;, &#39;dx&#39;, &#39;dy&#39;, &#39;fillcolor&#39;, &#39;hoverinfo&#39;, &#39;hoverinfosrc&#39;, &#39;hoverlabel&#39;, &#39;hoveron&#39;, &#39;hovertemplate&#39;, &#39;hovertemplatesrc&#39;, &#39;hovertext&#39;, &#39;hovertextsrc&#39;, &#39;ids&#39;, &#39;idssrc&#39;, &#39;jitter&#39;, &#39;legendgroup&#39;, &#39;legendgrouptitle&#39;, &#39;legendrank&#39;, &#39;line&#39;, &#39;lowerfence&#39;, &#39;lowerfencesrc&#39;, &#39;marker&#39;, &#39;mean&#39;, &#39;meansrc&#39;, &#39;median&#39;, &#39;mediansrc&#39;, &#39;meta&#39;, &#39;metasrc&#39;, &#39;name&#39;, &#39;notched&#39;, &#39;notchspan&#39;, &#39;notchspansrc&#39;, &#39;notchwidth&#39;, &#39;offsetgroup&#39;, &#39;opacity&#39;, &#39;orientation&#39;, &#39;pointpos&#39;, &#39;q1&#39;, &#39;q1src&#39;, &#39;q3&#39;, &#39;q3src&#39;, &#39;quartilemethod&#39;, &#39;sd&#39;, &#39;sdsrc&#39;, &#39;selected&#39;, &#39;selectedpoints&#39;, &#39;showlegend&#39;, &#39;stream&#39;, &#39;text&#39;, &#39;textsrc&#39;, &#39;transforms&#39;, &#39;type&#39;, &#39;uid&#39;, &#39;uirevision&#39;, &#39;unselected&#39;, &#39;upperfence&#39;, &#39;upperfencesrc&#39;, &#39;visible&#39;, &#39;whiskerwidth&#39;, &#39;width&#39;, &#39;x&#39;, &#39;x0&#39;, &#39;xaxis&#39;, &#39;xcalendar&#39;, &#39;xhoverformat&#39;, &#39;xperiod&#39;, &#39;xperiod0&#39;, &#39;xperiodalignment&#39;, &#39;xsrc&#39;, &#39;y&#39;, &#39;y0&#39;, &#39;yaxis&#39;, &#39;ycalendar&#39;, &#39;yhoverformat&#39;, &#39;yperiod&#39;, &#39;yperiod0&#39;, &#39;yperiodalignment&#39;, &#39;ysrc&#39;, &#39;key&#39;, &#39;set&#39;, &#39;frame&#39;, &#39;transforms&#39;, &#39;_isNestedKey&#39;, &#39;_isSimpleKey&#39;, &#39;_isGraticule&#39;, &#39;_bbox&#39;</code></pre>
-<div id="htmlwidget-de87846b696546f20f7e" style="width:672px;height:480px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-de87846b696546f20f7e">{"x":{"visdat":{"71cc1d1b5607":["function () ","plotlyVisDat"]},"cur_data":"71cc1d1b5607","attrs":{"71cc1d1b5607":{"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"71cc1d1b5607.1":{"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box","x":{},"y":{},"text":{},"hoverinfo":"text","boxpoints":"all","jitter":0.2,"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"Habitat"},"yaxis":{"domain":[0,1],"automargin":true,"title":"d_med"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"mode":"markers","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"fillcolor":"rgba(255,127,14,0.5)","mode":"markers","type":"box","x":["pelagic","pelagic","pelagic","demersal","demersal","pelagic","benthic","demersal","pelagic","pelagic","demersal","demersal","pelagic","benthic","demersal","pelagic","benthic","demersal","demersal","pelagic","pelagic","pelagic","benthic","demersal","pelagic","demersal","demersal","benthic","pelagic","demersal","demersal","demersal","benthic","pelagic","pelagic","demersal","demersal","demersal","demersal","demersal","demersal","benthic","benthic","pelagic","pelagic","demersal","pelagic","benthic","demersal","pelagic","pelagic","demersal","demersal","demersal","demersal","benthic","benthic","demersal","benthic","demersal","demersal","demersal","benthic","demersal","demersal","demersal","demersal","demersal","benthic","benthic","demersal","benthic","benthic","pelagic","demersal","pelagic","pelagic","demersal","demersal","pelagic","benthic","demersal"],"y":[0.00085,0.0017,0.00334999999999999,0.0056,0.0023,0.0008,0.00145,0.00105,0.0008,0.0008,0.00105,0.00145,0.00085,0.0014,0.0024,0.0004,0.0023,0.0027,0.0027,0.0001,0.00159999999999999,0.002,0.00185,0.00219999999999999,0.002396817,0.00124999999999999,0.00109999999999999,0.0011,0.0038,0.0007,0.0009,0.00124999999999999,0.0003,0.0005,0.00015,0.00505,0.0007,0.0012,0.0021,0.00675,0.00155,0.0022,0.00319999999999999,0.0029,0.00045,0.00185,0.0006,0.0026,0.0018,0.00115,0.00174999999999999,0.00045,0.0034,0.0062,0.00159999999999999,0.0019,0.001,0.00475,0.00285,0.0007,0.0003,0.001,0.00195,0.0015,0.00055,0.00205,0.0022,0.0007,0.00165,0.00275,0.0023,0.0013,0.0018,0.0025,0.00174999999999999,0.001,0.0034,0.0029,0.0023,0.00075,0.0004,0.00075],"text":["Abramis_brama","Alectis_ciliaris","Alosa_pseudoharengus","Amia_calva","Ammodytes_personatus","Anodontostoma_chacunda","Anoplarchus_insignis","Anoplarchus_purpurescens","Anoplogaster_cornuta","Aphareus_furca","Apodichthys_flavidus","Apteronotus_cuchillejo","Aulorhynchus_flavidus","Barbichthys_laevis","Catostomus_catostomus","Centropomus_undecimalis","Cephalopholis_argus","Chaetostoma_lineopunctatum","Chanos_chanos","Cheilopogon_melanurus","Chiasmodon_niger","Coryphaena_hippurus","Coryphaenoides_filifer","Ctenochaetus_strigosus","Cymatogaster_aggregata","Cyprinus_carpio","Diplectrum_formosum","Discherodontus_ashmeadi","Engraulis_mordax","Equetus_lanceolatus","Fundulus_heteroclitus","Gadopsis_marmoratus","Halieutichthys_aculeatus","Hemitaurichthys_polylepis","Hirundichthys_rondeletii","Hypomesus_pretiosus","Hypsypops_rubicundus","Labroides_dimidiatus","Lagodon_rhomboides","Lepidogalaxias_salamandroides","Lepomis_macrochirus","Lumpenus_sagitta","Malacocottus_zonurus","Malacosteus_niger","Menidia_beryllina","Microgadus_proximus","Mugil_cephalus","Myoxocephalus_polyacanthocephalus","Myripristis_jacobus","Nannaethiops_unitaeniatus","Nealotus_tripes","Nectamia_fusca","Novumbra_hubbsi","Oncorhynchus_gorbuscha","Ophidion_scrippsae","Ophiodon_elongatus","Opsanus_pardus","Osteoglossum_bicirrhosum","Parophrys_vetulus","Percopsis_omiscomaycus","Phalacronotus_bleekeri","Pholis_laeta","Pholis_ornata","Phytichthys_chirus","Pimelodella_cristata","Poecilia_reticulata","Polymixia_lowei","Polypterus_senegalus","Remora_remora","Risor_ruber","Roeboides_affinis","Ronquilus_jordani","Salarias_fasciatus","Scomber_japonicus","Serrasalmus_rhombeus","Sphyraena_sphyraena","Stenobrachius_leucopsarus","Stephanolepis_hispidus","Symphysodon_discus","Trachurus_trachurus","Xiphister_mucosus","Xiphophorus_hellerii"],"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"boxpoints":"all","jitter":0.2,"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-</div>
-<div id="a-tibble-12-47" class="section level1">
-<h1>A tibble: 12 × 47</h1>
-<p>Species Indiv Habitat Water…¹ Match…² allta…³ Order Family finen…⁴
-CBL_med <chr> <dbl> <chr> <chr> <chr> <chr> <chr> <chr> <dbl> <dbl> 1
-Coryphaen… 1 benthic marine Coryph… Actino… Gadi… Macro… 7.76 0.0250 2
-Ophiodon_… 1 benthic marine Hexagr… Actino… Perc… Hexag… 8.86 0.0139 3
-Pholis_or… 1 benthic marine Pholis… Actino… Perc… Pholi… 19.7 0.0126 4
-Remora_re… 1 benthic marine Remora… Actino… Cara… Echen… 6.84 0.0286 5
-Salarias_… 1 benthic marine Salari… Actino… Blen… Blenn… 5.77 0.0241 6
-Lepomis_m… 1 demers… freshw… Lepomi… Actino… Cent… Centr… 6.11 0.0263 7
-Myriprist… 1 demers… marine Myripr… Actino… Holo… Holoc… 4.31 0.0294 8
-Ophidion_… 1 demers… marine Ophidi… Actino… Ophi… Ophid… 11.6 0.0137 9
-Serrasalm… 1 demers… freshw… Serras… Actino… Char… Serra… 6.41 0.0194 10
-Abramis_b… 1 pelagic freshw… Alburn… Actino… Cypr… Cypri… 8.95 0.0166 11
-Aulorhync… 1 pelagic marine Aulorh… Actino… Perc… Aulor… 13.1 0.0170 12
-Sphyraena… 1 pelagic marine Sphyra… Actino… Ince… Sphyr… 11.5 0.0321 # …
-with 37 more variables: CBL_max <dbl>, CBL_mn <dbl>, d_med <dbl>, #
-d_max <dbl>, d_mn <dbl>, alphaAnt_med <dbl>, alphaAnt_max <dbl>, #
-alphaAnt_mn <dbl>, alphaPos_med <dbl>, alphaPos_max <dbl>, # alphaPos_mn
-<dbl>, DAnt_med <dbl>, DAnt_max <dbl>, DAnt_mn <dbl>, # DPos_med <dbl>,
-DPos_max <dbl>, DPos_mn <dbl>, dBW_med <dbl>, # dBW_max <dbl>, dBW_mn
-<dbl>, DAntBW_med <dbl>, DAntBW_max <dbl>, # DAntBW_mn <dbl>, DPosBW_med
-<dbl>, DPosBW_max <dbl>, DPosBW_mn <dbl>, …</p>
-<p>Choose example species close to the median for their group:</p>
-<ul>
-<li>benthic: Barbichthys laevis (Sucker barb) or Myoxocephalus
-polyacanthocephalus (Sculpin)</li>
-<li>demersal: Poecilia reticulata (Guppy)</li>
-<li>pelagic: Sphyraena sphyraena (Barracuda)</li>
-</ul>
-<p>We’ll use the sculpin as an example benthic species, because we have
-good histology data for it.</p>
-<pre class="r"><code>examplespecies &lt;- list(&quot;Myoxocephalus_polyacanthocephalus&quot;,
-                    &quot;Anoplarchus_purpurescens&quot;,
-                    &quot;Cymatogaster_aggregata&quot;)</code></pre>
-<pre class="r"><code>verttree &lt;- readRDS(here(&#39;output/vert_tree.rds&#39;))</code></pre>
+<div id="phylogeny" class="section level2">
+<h2>Phylogeny</h2>
+<p>This is the tree from the Fish Tree of Life: <a
+href="https://fishtreeoflife.org/"
+class="uri">https://fishtreeoflife.org/</a></p>
+<pre class="r"><code>tree &lt;- read.tree(here(&#39;data/actinopt_12k_treePL.tre.xz&#39;))</code></pre>
+<p>Get the names of species from the tree.</p>
+<pre class="r"><code>allspecies &lt;- tibble(tree$tip.label)
+colnames(allspecies) &lt;- c(&#39;Species&#39;)
+head(allspecies)</code></pre>
+<pre><code># A tibble: 6 × 1
+  Species          
+  &lt;chr&gt;            
+1 Gambusia_marshi  
+2 Gambusia_panuco  
+3 Gambusia_regani  
+4 Gambusia_aurata  
+5 Gambusia_hurtadoi
+6 Gambusia_gaigei  </code></pre>
+<p>Set up the tip number (just the row)</p>
+<pre class="r"><code>allspecies$Tip &lt;- seq_len(nrow(allspecies))</code></pre>
+<p>The double species name for Fundulus confuses things, so we’ll just
+correct it manually.</p>
+<pre class="r"><code>vertdata_sum &lt;-
+  vertdata_sum |&gt; 
+  mutate(MatchSpecies = if_else(Species == &#39;Fundulus_heteroclitus&#39;,
+                                &#39;Fundulus_heteroclitus_heteroclitus&#39;,
+                                MatchSpecies))</code></pre>
+<pre class="r"><code>vertdata &lt;- left_join(vertdata_sum, allspecies, 
+                                  by=c(&quot;MatchSpecies&quot;=&quot;Species&quot;)) %&gt;%
+  select(-(ends_with(&quot;.x&quot;) | ends_with(&quot;.y&quot;)))
+vertdata</code></pre>
+<pre><code># A tibble: 82 × 46
+   Species    Indiv Habitat Water…¹ Match…² allta…³ Order Family finen…⁴ CBL_med
+   &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+ 1 Abramis_b…     1 pelagic freshw… Alburn… Actino… Cypr… Cypri…    8.95 0.0166 
+ 2 Alectis_c…     1 pelagic marine  Alecti… Actino… Cara… Caran…    8.75 0.0346 
+ 3 Alosa_pse…     1 pelagic anadro… Alosa_… Actino… Clup… Clupe…    7.39 0.0165 
+ 4 Amia_calva     1 demers… freshw… Amia_c… Actino… Amii… Amiid…    6.72 0.00983
+ 5 Ammodytes…     1 demers… marine  Ammody… Actino… Uran… Ammod…   16.9  0.0132 
+ 6 Anodontos…     1 pelagic freshw… Doroso… Actino… Clup… Clupe…    4.66 0.0228 
+ 7 Anoplarch…     1 benthic marine  Anopla… Actino… Perc… Stich…    8.62 0.0195 
+ 8 Anoplarch…     1 demers… marine  Anopla… Actino… Perc… Stich…    9.51 0.0156 
+ 9 Anoplogas…     1 pelagic marine  Anoplo… Actino… Bery… Anopl…    5.04 0.0287 
+10 Aphareus_…     1 pelagic marine  Aphare… Actino… Ince… Lutja…    5.01 0.0312 
+# … with 72 more rows, 36 more variables: CBL_max &lt;dbl&gt;, CBL_mn &lt;dbl&gt;,
+#   d_med &lt;dbl&gt;, d_max &lt;dbl&gt;, d_mn &lt;dbl&gt;, alphaAnt_med &lt;dbl&gt;,
+#   alphaAnt_max &lt;dbl&gt;, alphaAnt_mn &lt;dbl&gt;, alphaPos_med &lt;dbl&gt;,
+#   alphaPos_max &lt;dbl&gt;, alphaPos_mn &lt;dbl&gt;, DAnt_med &lt;dbl&gt;, DAnt_max &lt;dbl&gt;,
+#   DAnt_mn &lt;dbl&gt;, DPos_med &lt;dbl&gt;, DPos_max &lt;dbl&gt;, DPos_mn &lt;dbl&gt;,
+#   dBW_med &lt;dbl&gt;, dBW_max &lt;dbl&gt;, dBW_mn &lt;dbl&gt;, DAntBW_med &lt;dbl&gt;,
+#   DAntBW_max &lt;dbl&gt;, DAntBW_mn &lt;dbl&gt;, DPosBW_med &lt;dbl&gt;, DPosBW_max &lt;dbl&gt;, …</code></pre>
+<p>Drop species without a match</p>
 <pre class="r"><code>vertdata %&gt;%
-  filter(Species %in% examplespecies)</code></pre>
-<pre><code># A tibble: 3 × 46
-  Species     Indiv Habitat Water…¹ Match…² allta…³ Order Family finen…⁴ CBL_med
-  &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-1 Anoplarchu…     1 demers… marine  Anopla… Actino… Perc… Stich…    9.51  0.0156
-2 Cymatogast…     1 pelagic freshw… Cymato… Actino… Ince… Embio…    7.15  0.0202
-3 Myoxocepha…     1 benthic marine  Myoxoc… Actino… Perc… Psych…    2.72  0.0191
-# … with 36 more variables: CBL_max &lt;dbl&gt;, CBL_mn &lt;dbl&gt;, d_med &lt;dbl&gt;,
-#   d_max &lt;dbl&gt;, d_mn &lt;dbl&gt;, alphaAnt_med &lt;dbl&gt;, alphaAnt_max &lt;dbl&gt;,
-#   alphaAnt_mn &lt;dbl&gt;, alphaPos_med &lt;dbl&gt;, alphaPos_max &lt;dbl&gt;,
-#   alphaPos_mn &lt;dbl&gt;, DAnt_med &lt;dbl&gt;, DAnt_max &lt;dbl&gt;, DAnt_mn &lt;dbl&gt;,
-#   DPos_med &lt;dbl&gt;, DPos_max &lt;dbl&gt;, DPos_mn &lt;dbl&gt;, dBW_med &lt;dbl&gt;,
-#   dBW_max &lt;dbl&gt;, dBW_mn &lt;dbl&gt;, DAntBW_med &lt;dbl&gt;, DAntBW_max &lt;dbl&gt;,
-#   DAntBW_mn &lt;dbl&gt;, DPosBW_med &lt;dbl&gt;, DPosBW_max &lt;dbl&gt;, DPosBW_mn &lt;dbl&gt;, …</code></pre>
+  filter(is.na(Tip)) %&gt;%
+  distinct(Species, .keep_all=TRUE) %&gt;%
+  select(Species, MatchSpecies, Tip, Habitat)</code></pre>
+<pre><code># A tibble: 0 × 4
+# … with 4 variables: Species &lt;chr&gt;, MatchSpecies &lt;chr&gt;, Tip &lt;int&gt;,
+#   Habitat &lt;chr&gt;</code></pre>
 <pre class="r"><code>vertdata &lt;-
   vertdata %&gt;%
-  mutate(WaterTypeShort = str_sub(Water_Type, start = 1, end = 1))</code></pre>
-<pre class="r"><code>vertdata |&gt; 
-  distinct(Species) |&gt; 
-  dplyr::summarise(n = n())</code></pre>
-<pre><code># A tibble: 1 × 1
-      n
-  &lt;int&gt;
-1    82</code></pre>
-<pre class="r"><code>vertdata |&gt; 
-  group_by(Habitat) |&gt; 
-  dplyr::summarize(n = n()) |&gt; 
-  mutate(pct = n / sum(n) * 100)</code></pre>
-<pre><code># A tibble: 3 × 3
-  Habitat      n   pct
-  &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt;
-1 benthic     18  22.0
-2 demersal    40  48.8
-3 pelagic     24  29.3</code></pre>
-<pre class="r"><code>vertdata |&gt; 
-  distinct(Family) |&gt; 
-  dplyr::summarise(n = n())</code></pre>
-<pre><code># A tibble: 1 × 1
-      n
-  &lt;int&gt;
-1    67</code></pre>
-<pre class="r"><code>vertdata |&gt; 
-  group_by(Habitat) |&gt; 
-  distinct(Family) |&gt; 
-  dplyr::summarize(n = n())</code></pre>
-<pre><code># A tibble: 3 × 2
-  Habitat      n
-  &lt;chr&gt;    &lt;int&gt;
-1 benthic     14
-2 demersal    37
-3 pelagic     21</code></pre>
-<pre class="r"><code>vertdata |&gt; 
-  group_by(Water_Type) |&gt; 
-  dplyr::summarize(n = n()) |&gt; 
-  mutate(pct = n / sum(n) * 100)</code></pre>
-<pre><code># A tibble: 3 × 3
-  Water_Type     n   pct
-  &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt;
-1 anadromous     1  1.22
-2 freshwater    27 32.9 
-3 marine        54 65.9 </code></pre>
-<pre class="r"><code>orders &lt;-
-  left_join(as_tibble(verttree), vertdata, by = c(&quot;label&quot; = &quot;Species&quot;)) |&gt; 
-  mutate(Species = label,
-         label = str_replace(label, &#39;_&#39;, &#39; &#39;)) |&gt; 
-  group_by(Order) |&gt; 
-  dplyr::summarize(id = min(parent),
-                   n = n()) |&gt; 
-  filter(n &gt;= 2 &amp; !str_detect(Order, &#39;Incertae&#39;) &amp; !is.na(Order))
-orders</code></pre>
-<pre><code># A tibble: 11 × 3
-   Order                 id     n
-   &lt;chr&gt;              &lt;int&gt; &lt;int&gt;
- 1 Beloniformes         105     2
- 2 Carangiformes        112     4
- 3 Centrarchiformes     139     2
- 4 Characiformes        160     3
- 5 Clupeiformes         162     3
- 6 Cypriniformes        152     5
- 7 Cyprinodontiformes   103     3
- 8 Gadiformes           146     2
- 9 Perciformes          126    15
-10 Scombriformes        116     3
-11 Siluriformes         158     3</code></pre>
-<pre class="r"><code>nodestolabel &lt;- c(&#39;Actinopterygii&#39;,
-                  &#39;Neopterygii&#39;,
-                  &#39;Teleostei&#39;,
-                  &#39;Otomorpha&#39;,
-                  # &#39;Euteleostomorpha&#39;,
-                  &#39;Neoteleostei&#39;,
-                  &#39;Acanthomorphata&#39;,
-                  &#39;Percomorphaceae&#39;,
-                  &#39;Eupercaria&#39;)
-
-allnodes &lt;-
-  left_join(as_tibble(verttree), vertdata, by = c(&quot;label&quot; = &quot;Species&quot;)) |&gt; 
-  mutate(Species = label,
-         label = str_replace(label, &#39;_&#39;, &#39; &#39;),
-         alltaxon = replace_na(alltaxon, &#39;-&#39;)) |&gt; 
-  select(parent, node, alltaxon)
-
-labelnodes &lt;- tibble()
-for (n in nodestolabel) {
-  print(n[[1]])
-  labelnodes &lt;-
-    allnodes |&gt;
-    dplyr::filter(str_detect(alltaxon, n[[1]])) |&gt; 
-    dplyr::summarize(taxon = n[[1]],
-                     # alltaxon = alltaxon[1],
-                     pmin = min(parent),
-                     nmin = min(node)) |&gt; 
-    bind_rows(labelnodes)
-}</code></pre>
-<pre><code>[1] &quot;Actinopterygii&quot;
-[1] &quot;Neopterygii&quot;
-[1] &quot;Teleostei&quot;
-[1] &quot;Otomorpha&quot;
-[1] &quot;Neoteleostei&quot;
-[1] &quot;Acanthomorphata&quot;
-[1] &quot;Percomorphaceae&quot;
-[1] &quot;Eupercaria&quot;</code></pre>
-<pre class="r"><code>labelnodes</code></pre>
-<pre><code># A tibble: 8 × 3
-  taxon            pmin  nmin
-  &lt;chr&gt;           &lt;int&gt; &lt;int&gt;
-1 Eupercaria        118    24
-2 Percomorphaceae    93     1
-3 Acanthomorphata    93     1
-4 Neoteleostei       90     1
-5 Otomorpha         150    64
-6 Teleostei          85     1
-7 Neopterygii        84     1
-8 Actinopterygii     83     1</code></pre>
-<pre class="r"><code>left_join(as_tibble(verttree), vertdata, by = c(&quot;label&quot; = &quot;Species&quot;)) %&gt;%
-  # left_join(labelnodes, by = c(&#39;parent&#39; = &#39;pmin&#39;)) %&gt;%
-  mutate(Species = label,
-         label = str_replace(label, &#39;_&#39;, &#39; &#39;)) %&gt;%
-         # str_c(Family, Species)) %&gt;%
+  filter(!is.na(Tip))</code></pre>
+<pre class="r"><code>ourspecies &lt;-
+  vertdata %&gt;%
+  distinct(Species, .keep_all=TRUE)</code></pre>
+<pre class="r"><code>verttree &lt;- keep.tip(tree, tip=as.vector(ourspecies$Tip))</code></pre>
+<p>Replace the names of species in the tree with our matched ones.</p>
+<pre class="r"><code>verttree$tip.label &lt;-
+  ourspecies |&gt; 
+  arrange(Tip) |&gt; 
+  pull(Species)</code></pre>
+<pre class="r"><code>plotTree(verttree)</code></pre>
+<p><img src="figure/11-MergePhylogeny.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>vertdata_sp &lt;- 
+  vertdata %&gt;%
+  distinct(Species, .keep_all = TRUE) %&gt;%
+  mutate(rowname = Species) %&gt;%
+  column_to_rownames(var = &quot;rowname&quot;)</code></pre>
+<pre class="r"><code>left_join(as_tibble(verttree),
+          vertdata_sp %&gt;%
+            rownames_to_column(&quot;label&quot;) %&gt;%
+            select(label, Habitat)) %&gt;%
   tidytree::as.treedata() %&gt;%
-  ggtree() + #branch.length = &#39;none&#39;) + # layout = &quot;circular&quot;, open.angle = 120) + 
-  scale_y_reverse() +
-  geom_tiplab(aes(color = Habitat), size=1.5, offset = 0.2) +
-  geom_tippoint(aes(shape = Water_Type)) +
-  geom_text2(aes(label=label, subset=Species %in% examplespecies),
-             hjust = 0, vjust = 0) +
-  geom_cladelab(data=orders,
-                mapping=aes(node=id, label=Order), geom=&#39;text&#39;,
-                offset=50) +
-  # geom_text2(aes(label=taxon, subset=!is.na(taxon))) +
-  geom_treescale() +
-  scale_shape_manual(values = c(3, 23, 24)) +
-  scale_color_manual(values = c(benthic=&quot;chocolate4&quot;, demersal = &quot;gold&quot;, pelagic = &quot;deepskyblue2&quot;)) +
-  theme(legend.position = &quot;bottom&quot;)</code></pre>
-<pre><code>Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which will
-replace the existing scale.</code></pre>
-<pre><code>Warning: The &quot;Order&quot; has(have) been found in tree data. You might need to rename the
-variable(s) in the data of &quot;geom_cladelab&quot; to avoid this warning!</code></pre>
-<p><img src="figure/20-plot_phylogeny.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>  #geom_label2(aes(label=&#39;P&#39;, subset = ispair))</code></pre>
-<pre class="r"><code>ltt.coplot(verttree, show.tip.label = FALSE)</code></pre>
-<p><img src="figure/20-plot_phylogeny.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># ggsave(here(&#39;output/phylogeny_families.pdf&#39;), width=6.5, height=8, units=&quot;in&quot;)
-
-ggsave(here(&#39;output/plot_example_data_figure.pdf&#39;), width=3.5, height=6, units=&quot;in&quot;)</code></pre>
-<pre class="r"><code>vertdata %&gt;%
-  group_by(Habitat) %&gt;%
-  summarize(n = n(), frac = n() / nrow(vertdata))</code></pre>
-<pre><code># A tibble: 3 × 3
-  Habitat      n  frac
-  &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt;
-1 benthic     18 0.220
-2 demersal    40 0.488
-3 pelagic     24 0.293</code></pre>
-<pre class="r"><code>vertdata %&gt;%
-  group_by(Water_Type) %&gt;%
-  summarize(n = n(), frac = n() / nrow(vertdata))</code></pre>
-<pre><code># A tibble: 3 × 3
-  Water_Type     n   frac
-  &lt;chr&gt;      &lt;int&gt;  &lt;dbl&gt;
-1 anadromous     1 0.0122
-2 freshwater    27 0.329 
-3 marine        54 0.659 </code></pre>
+  ggtree(layout = &#39;circular&#39;) + # geom_tiplab() +
+  geom_tippoint(aes(color = Habitat))</code></pre>
+<pre><code>Joining, by = &quot;label&quot;</code></pre>
+<p><img src="figure/11-MergePhylogeny.Rmd/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" />
+Check if tree and data match</p>
+<pre class="r"><code>length(verttree$tip.label)</code></pre>
+<pre><code>[1] 82</code></pre>
+<pre class="r"><code>nrow(vertdata_sp)</code></pre>
+<pre><code>[1] 82</code></pre>
+<pre class="r"><code>name.check(verttree, vertdata_sp)</code></pre>
+<pre><code>[1] &quot;OK&quot;</code></pre>
+<p>Merge the measurements and the tree</p>
+<pre class="r"><code>verttree_data &lt;-
+  as_tibble(verttree) %&gt;%
+  left_join(vertdata_sp %&gt;%
+              rownames_to_column(&quot;label&quot;) %&gt;%
+              select(label, Habitat, alltaxon, Order, Family, fineness,
+                     ends_with(&quot;80&quot;), ends_with(&quot;max&quot;), ends_with(&quot;med&quot;), ends_with(&quot;slope&quot;), ends_with(&quot;quad&quot;)))</code></pre>
+<pre><code>Joining, by = &quot;label&quot;</code></pre>
+<p>Save out the tree data. There is something subtly different about
+saving the data out as a csv file and saving it as an RDS file. The base
+class of the tree is tbl_tree, but when we load it back in from a csv,
+despite having exactly the same data, it won’t work with the tidytree
+functions. So we save it in an RDS file, which preserves the class.</p>
+<pre class="r"><code>write_csv(vertdata_sp, here(&#39;output/vertdata_summary_species.csv&#39;))
+saveRDS(verttree, here(&#39;output/vert_tree.rds&#39;))</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1136,49 +1095,57 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] plotly_4.10.0    ggtree_3.4.2     here_1.0.1       patchwork_1.1.2 
- [5] phytools_1.2-0   maps_3.4.0       ape_5.6-2        ggbeeswarm_0.6.0
- [9] forcats_0.5.2    stringr_1.4.1    dplyr_1.0.9      purrr_0.3.4     
-[13] readr_2.1.2      tidyr_1.2.0      tibble_3.1.8     ggplot2_3.3.6   
-[17] tidyverse_1.3.2 
+ [1] Hmisc_4.7-1      Formula_1.2-4    survival_3.3-1   lattice_0.20-45 
+ [5] car_3.1-0        carData_3.0-5    emmeans_1.8.0    ggtree_3.4.2    
+ [9] geiger_2.0.10    nlme_3.1-159     here_1.0.1       patchwork_1.1.2 
+[13] phytools_1.2-0   maps_3.4.0       ape_5.6-2        ggbeeswarm_0.6.0
+[17] forcats_0.5.2    stringr_1.4.1    dplyr_1.0.9      purrr_0.3.4     
+[21] readr_2.1.2      tidyr_1.2.0      tibble_3.1.8     ggplot2_3.3.6   
+[25] tidyverse_1.3.2 
 
 loaded via a namespace (and not attached):
-  [1] googledrive_2.0.0       colorspace_2.0-3        ellipsis_0.3.2         
-  [4] rprojroot_2.0.3         fs_1.5.2                aplot_0.1.6            
-  [7] rstudioapi_0.14         farver_2.1.1            bit64_4.0.5            
- [10] optimParallel_1.0-2     fansi_1.0.3             lubridate_1.8.0        
- [13] xml2_1.3.3              codetools_0.2-18        mnormt_2.1.0           
- [16] cachem_1.0.6            knitr_1.40              jsonlite_1.8.0         
- [19] workflowr_1.7.0         broom_1.0.1             dbplyr_2.2.1           
- [22] compiler_4.2.0          httr_1.4.4              backports_1.4.1        
- [25] assertthat_0.2.1        Matrix_1.4-1            fastmap_1.1.0          
- [28] lazyeval_0.2.2          gargle_1.2.0            cli_3.3.0              
- [31] later_1.3.0             htmltools_0.5.3         tools_4.2.0            
- [34] igraph_1.3.4            coda_0.19-4             gtable_0.3.1           
- [37] glue_1.6.2              clusterGeneration_1.3.7 fastmatch_1.1-3        
- [40] Rcpp_1.0.9              cellranger_1.1.0        jquerylib_0.1.4        
- [43] vctrs_0.4.1             nlme_3.1-159            crosstalk_1.2.0        
- [46] xfun_0.32               rvest_1.0.3             lifecycle_1.0.1        
- [49] phangorn_2.9.0          googlesheets4_1.0.1     MASS_7.3-56            
- [52] scales_1.2.1            vroom_1.5.7             ragg_1.2.2             
- [55] hms_1.1.2               promises_1.2.0.1        parallel_4.2.0         
- [58] expm_0.999-6            yaml_2.3.5              ggfun_0.0.7            
- [61] yulab.utils_0.0.5       sass_0.4.2              stringi_1.7.8          
- [64] highr_0.9               plotrix_3.8-2           tidytree_0.4.0         
- [67] systemfonts_1.0.4       rlang_1.0.4             pkgconfig_2.0.3        
- [70] evaluate_0.16           lattice_0.20-45         labeling_0.4.2         
- [73] htmlwidgets_1.5.4       treeio_1.20.2           bit_4.0.4              
- [76] tidyselect_1.1.2        magrittr_2.0.3          R6_2.5.1               
- [79] generics_0.1.3          combinat_0.0-8          DBI_1.1.3              
- [82] pillar_1.8.1            haven_2.5.1             whisker_0.4            
- [85] withr_2.5.0             scatterplot3d_0.3-41    modelr_0.1.9           
- [88] crayon_1.5.1            utf8_1.2.2              tzdb_0.3.0             
- [91] rmarkdown_2.16          grid_4.2.0              readxl_1.4.1           
- [94] data.table_1.14.2       git2r_0.30.1            reprex_2.0.2           
- [97] digest_0.6.29           httpuv_1.6.5            numDeriv_2016.8-1.1    
-[100] textshaping_0.3.6       gridGraphics_0.5-1      munsell_0.5.0          
-[103] viridisLite_0.4.1       beeswarm_0.4.0          ggplotify_0.1.0        
-[106] vipor_0.4.5             bslib_0.4.0             quadprog_1.5-8         </code></pre>
+  [1] readxl_1.4.1            backports_1.4.1         fastmatch_1.1-3        
+  [4] workflowr_1.7.0         igraph_1.3.4            lazyeval_0.2.2         
+  [7] splines_4.2.0           digest_0.6.29           yulab.utils_0.0.5      
+ [10] htmltools_0.5.3         fansi_1.0.3             checkmate_2.1.0        
+ [13] magrittr_2.0.3          optimParallel_1.0-2     googlesheets4_1.0.1    
+ [16] cluster_2.1.3           tzdb_0.3.0              modelr_0.1.9           
+ [19] vroom_1.5.7             jpeg_0.1-9              colorspace_2.0-3       
+ [22] rvest_1.0.3             haven_2.5.1             xfun_0.32              
+ [25] crayon_1.5.1            jsonlite_1.8.0          phangorn_2.9.0         
+ [28] glue_1.6.2              gtable_0.3.1            gargle_1.2.0           
+ [31] abind_1.4-5             scales_1.2.1            mvtnorm_1.1-3          
+ [34] DBI_1.1.3               Rcpp_1.0.9              plotrix_3.8-2          
+ [37] htmlTable_2.4.1         xtable_1.8-4            gridGraphics_0.5-1     
+ [40] tidytree_0.4.0          bit_4.0.4               foreign_0.8-82         
+ [43] subplex_1.8             deSolve_1.33            htmlwidgets_1.5.4      
+ [46] httr_1.4.4              RColorBrewer_1.1-3      ellipsis_0.3.2         
+ [49] farver_2.1.1            pkgconfig_2.0.3         nnet_7.3-17            
+ [52] sass_0.4.2              dbplyr_2.2.1            deldir_1.0-6           
+ [55] utf8_1.2.2              labeling_0.4.2          ggplotify_0.1.0        
+ [58] tidyselect_1.1.2        rlang_1.0.4             later_1.3.0            
+ [61] munsell_0.5.0           cellranger_1.1.0        tools_4.2.0            
+ [64] cachem_1.0.6            cli_3.3.0               generics_0.1.3         
+ [67] broom_1.0.1             evaluate_0.16           fastmap_1.1.0          
+ [70] yaml_2.3.5              bit64_4.0.5             knitr_1.40             
+ [73] fs_1.5.2                whisker_0.4             aplot_0.1.6            
+ [76] xml2_1.3.3              compiler_4.2.0          rstudioapi_0.14        
+ [79] beeswarm_0.4.0          png_0.1-7               reprex_2.0.2           
+ [82] treeio_1.20.2           clusterGeneration_1.3.7 bslib_0.4.0            
+ [85] stringi_1.7.8           highr_0.9               Matrix_1.4-1           
+ [88] vctrs_0.4.1             pillar_1.8.1            lifecycle_1.0.1        
+ [91] combinat_0.0-8          jquerylib_0.1.4         estimability_1.4.1     
+ [94] data.table_1.14.2       httpuv_1.6.5            R6_2.5.1               
+ [97] latticeExtra_0.6-30     promises_1.2.0.1        gridExtra_2.3          
+[100] vipor_0.4.5             codetools_0.2-18        MASS_7.3-56            
+[103] assertthat_0.2.1        rprojroot_2.0.3         withr_2.5.0            
+[106] mnormt_2.1.0            expm_0.999-6            parallel_4.2.0         
+[109] hms_1.1.2               rpart_4.1.16            quadprog_1.5-8         
+[112] grid_4.2.0              ggfun_0.0.7             coda_0.19-4            
+[115] rmarkdown_2.16          googledrive_2.0.0       git2r_0.30.1           
+[118] numDeriv_2016.8-1.1     scatterplot3d_0.3-41    lubridate_1.8.0        
+[121] base64enc_0.1-3         interp_1.1-3           </code></pre>
+</div>
 </div>
 </div>
 
